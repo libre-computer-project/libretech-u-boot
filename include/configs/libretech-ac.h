@@ -16,6 +16,19 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
+#define CONFIG_EXTRA_ENV_SETTINGS \
+        "stdin=" STDIN_CFG "\0" \
+        "stdout=" STDOUT_CFG "\0" \
+        "stderr=" STDOUT_CFG "\0" \
+        "fdt_addr_r=0x08008000\0" \
+        "scriptaddr=0x08000000\0" \
+        "kernel_addr_r=0x08080000\0" \
+        "pxefile_addr_r=0x01080000\0" \
+        "ramdisk_addr_r=0x13000000\0" \
+        "lc_fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+        "fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+        BOOTENV
+
 #include <configs/meson64.h>
 
 #endif /* __CONFIG_H */
