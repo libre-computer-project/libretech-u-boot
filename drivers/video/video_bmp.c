@@ -172,16 +172,29 @@ static void video_set_cmap(struct udevice *dev,
 			   struct bmp_color_table_entry *cte, unsigned colours)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
+	u16 *cmap16;
+	u32 *cmap32;
 	int i;
-	ushort *cmap = priv->cmap;
 
 	debug("%s: colours=%d\n", __func__, colours);
-	for (i = 0; i < colours; ++i) {
-		*cmap = ((cte->red   << 8) & 0xf800) |
-			((cte->green << 3) & 0x07e0) |
-			((cte->blue  >> 3) & 0x001f);
-		cmap++;
-		cte++;
+	if (priv->bpix == VIDEO_BPP16) {
+		cmap16 = priv->cmap;
+		for (i = 0; i < colours; ++i) {
+			*cmap16 = ((cte->red << 8) & 0xf800) |
+				((cte->green << 3) & 0x07e0) |
+				((cte->blue  >> 3) & 0x001f);
+			cmap16++;
+			cte++;
+		}
+	} else if (priv->bpix == VIDEO_BPP32) {
+		cmap32 = priv->cmap;
+		for (i = 0; i < colours; ++i) {
+			*cmap32 = (cte->red  << 16) |
+				  (cte->green << 8) |
+				  cte->blue;
+			cmap32++;
+			cte++;
+		}
 	}
 }
 
@@ -189,7 +202,8 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		      bool align)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
-	ushort *cmap_base = NULL;
+	u32 *cmap32_base = NULL;
+	u16 *cmap16_base = NULL;
 	int i, j;
 	uchar *fb;
 	struct bmp_image *bmp = map_sysmem(bmp_image, 0);
@@ -227,11 +241,11 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	}
 
 	/*
-	 * We support displaying 8bpp and 24bpp BMPs on 16bpp LCDs
-	 * and displaying 24bpp BMPs on 32bpp LCDs
+	 * We support displaying 8bpp and 24bpp BMPs on 16bpp or 32bpp LCDs
 	 */
 	if (bpix != bmp_bpix &&
 	    !(bmp_bpix == 8 && bpix == 16) &&
+	    !(bmp_bpix == 8 && bpix == 32) &&
 	    !(bmp_bpix == 24 && bpix == 16) &&
 	    !(bmp_bpix == 24 && bpix == 32)) {
 		printf("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
@@ -264,36 +278,42 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	switch (bmp_bpix) {
 	case 1:
 	case 8: {
-		cmap_base = priv->cmap;
 #ifdef CONFIG_VIDEO_BMP_RLE8
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
 		debug("compressed %d %d\n", compression, BMP_BI_RLE8);
 		if (compression == BMP_BI_RLE8) {
 			if (bpix != 16) {
 				/* TODO implement render code for bpix != 16 */
-				printf("Error: only support 16 bpix");
+				printf("Error: only support 16 bpix\n");
 				return -EPROTONOSUPPORT;
 			}
-			video_display_rle8_bitmap(dev, bmp, cmap_base, fb, x,
+			video_display_rle8_bitmap(dev, bmp, priv->cmap, fb, x,
 						  y, width, height);
 			break;
 		}
 #endif
 
-		if (bpix != 16)
-			byte_width = width;
-		else
+		cmap16_base = priv->cmap;
+		cmap32_base = priv->cmap;
+
+		if (bpix == 16)
 			byte_width = width * 2;
+		else if (bpix == 32)
+			byte_width = width * 4;
+		else
+			byte_width = width;
 
 		for (i = 0; i < height; ++i) {
 			WATCHDOG_RESET();
 			for (j = 0; j < width; j++) {
-				if (bpix != 16) {
-					fb_put_byte(&fb, &bmap);
-				} else {
-					*(uint16_t *)fb = cmap_base[*bmap];
-					bmap++;
+				if (bpix == 16) {
+					*(uint16_t *)fb = cmap16_base[*bmap++];
 					fb += sizeof(uint16_t) / sizeof(*fb);
+				} else if (bpix == 32) {
+					*(uint32_t *)fb = cmap32_base[*bmap++];
+					fb += 4;
+				} else {
+					fb_put_byte(&fb, &bmap);
 				}
 			}
 			bmap += (padded_width - width);

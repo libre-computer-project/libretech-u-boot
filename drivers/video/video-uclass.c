@@ -229,6 +229,12 @@ static int video_post_probe(struct udevice *dev)
 	struct udevice *cons;
 	int ret;
 
+	if (priv->bpix == VIDEO_BPP32) {
+		priv->cmap = realloc(priv->cmap, 256 * sizeof(uint));
+		if (!priv->cmap)
+			return -ENOMEM;
+	}
+
 	/* Set up the line and display size */
 	priv->fb = map_sysmem(plat->base, plat->size);
 	if (!priv->line_length)
