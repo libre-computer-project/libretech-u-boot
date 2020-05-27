@@ -50,7 +50,8 @@
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE (512*512*4)
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_VIDEO_LOGO
-
+#define CONFIG_SYS_MEMTEST_START 0x08000000
+#define CONFIG_SYS_MEMTEST_END 0x7fffffff
 #include <configs/meson64.h>
 
 #endif /* __CONFIG_H */
