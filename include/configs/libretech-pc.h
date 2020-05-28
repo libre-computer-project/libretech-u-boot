@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Configuration for LibreTech AC
+ * Configuration for LibreTech PC
  *
  * Copyright (C) 2017 Baylibre, SAS
  * Author: Neil Armstrong <narmstrong@baylibre.com>
@@ -12,6 +12,7 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(ROMUSB, romusb, na)  \
 	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
@@ -29,12 +30,13 @@
         "fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"bootmenu_0=Boot=boot; echo \"Boot failed.\"; sleep 30; $menucmd\0" \
 	"bootmenu_1=Boot USB=run bootcmd_usb0; echo \"USB Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_2=Boot eMMC=run bootcmd_mmc0; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_3=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_4=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_5=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0:0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_6=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_7=Reboot=reset\0" \
+	"bootmenu_2=Boot SD Card=run bootcmd_mmc0; echo \"SD Card Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_3=Boot eMMC=run bootcmd_mmc1; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_4=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_5=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_6=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0:0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_7=Detect USB Devices; if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_8=Reboot=reset\0" \
 	"bootmenu_delay=30\0" \
 	"menucmd=bootmenu\0" \
 	"splashimage=0x08000000\0" \
@@ -49,7 +51,7 @@
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_MEMTEST_START 0x08000000
-#define CONFIG_SYS_MEMTEST_END 0x17ffffff
+#define CONFIG_SYS_MEMTEST_END 0x7fffffff
 #include <configs/meson64.h>
 
 #endif /* __CONFIG_H */
