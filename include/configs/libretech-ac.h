@@ -37,7 +37,7 @@
 	"bootmenu_7=Reboot=reset\0" \
 	"bootmenu_delay=30\0" \
 	"menucmd=bootmenu\0" \
-	"splashimage=0x08000000\0" \
+	"splashimage=0x08080000\0" \
 	"splashpos=m,m\0" \
 	"splashfile=boot.bmp\0" \
 	"splashsource=mmc_fs\0" \
@@ -49,7 +49,7 @@
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_MEMTEST_START 0x08000000
-#define CONFIG_SYS_MEMTEST_END 0x17ffffff
+#define CONFIG_SYS_MEMTEST_END 0x1affffff
 #include <configs/meson64.h>
 
 #endif /* __CONFIG_H */
