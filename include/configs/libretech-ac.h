@@ -32,7 +32,7 @@
 	"bootmenu_2=Boot eMMC=run bootcmd_mmc0; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_3=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_4=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_5=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0:0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_5=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
 	"bootmenu_6=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
 	"bootmenu_7=Reboot=reset\0" \
 	"bootmenu_delay=30\0" \
