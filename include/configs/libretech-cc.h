@@ -34,13 +34,25 @@
 	"bootmenu_3=Boot eMMC=run bootcmd_mmc1; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_4=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_5=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_6=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0:0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_7=Detect USB Devices; if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_8=Reboot=reset\0" \
+	"bootmenu_6=SD USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"SD not detected.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_7=eMMC USB Drive Mode=mmc list; if mmc dev 1; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 1; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_8=Detect USB Devices; if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_9=Reboot=reset\0" \
 	"bootmenu_delay=30\0" \
 	"menucmd=bootmenu\0" \
+	"splashimage=0x08080000\0" \
+	"splashpos=m,m\0" \
+	"splashfile=boot.bmp\0" \
+	"splashsource=mmc_fs\0" \
         BOOTENV
 
+#define CONFIG_SPLASH_SOURCE
+#define CONFIG_SPLASHIMAGE_GUARD
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE (512*512*4)
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_SYS_MEMTEST_START 0x08000000
+#define CONFIG_SYS_MEMTEST_END 0x3affffff
 #include <configs/meson64.h>
 
 #endif /* __CONFIG_H */
