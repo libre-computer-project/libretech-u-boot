@@ -12,7 +12,7 @@
 / {
 	compatible = "libretech,aml-s912-pc", "amlogic,s912",
 		     "amlogic,meson-gxm";
-	model = "Libre Computer AML-S912-PC";
+	model = "Libre Computer AML-S912-PC S912";
 
 	typec2_vbus: regulator-typec2_vbus {
 		compatible = "regulator-fixed";
