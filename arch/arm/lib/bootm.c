@@ -232,7 +232,6 @@ __weak void board_prep_linux(bootm_headers_t *images) { }
 static void boot_prep_linux(bootm_headers_t *images)
 {
 	char *commandline = env_get("bootargs");
-
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
 #ifdef CONFIG_OF_LIBFDT
 		debug("using: FDT\n");
@@ -270,6 +269,20 @@ static void boot_prep_linux(bootm_headers_t *images)
 		}
 		setup_board_tags(&params);
 		setup_end_tag(gd->bd);
+	} else if (IS_ENABLED(CONFIG_OF_CONTROL)) {
+#ifdef CONFIG_OF_LIBFDT
+		images->ft_addr = (char *)env_get_hex("fdtcontroladdr", 0);
+		if (!images->ft_addr) {
+			printf("FDT address failed! hanging...");
+			hang();
+		}
+
+		debug("using: U-Boot's FDT\n");
+		if (image_setup_linux(images)) {
+			printf("FDT creation failed! hanging...");
+			hang();
+		}
+#endif
 	} else {
 		printf("FDT and ATAGS support not compiled in - hanging\n");
 		hang();
