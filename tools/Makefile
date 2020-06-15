@@ -261,7 +261,6 @@ ifneq ($(wildcard $(srctree)/$(src)/logos/$(VENDOR).bmp),)
 LOGO_BMP= $(srctree)/$(src)/logos/$(VENDOR).bmp
 endif
 endif
-
 endif # !LOGO_BMP
 
 #
@@ -284,8 +283,13 @@ $(LOGO_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-info $(LOGO_BMP) > $@
 
 ifeq ($(CONFIG_DM_VIDEO),y)
+ifneq ($(wildcard $(LOGO_BMP).gz),)
+$(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
+	$(obj)/bmp_logo --gen-bmp-gz $(LOGO_BMP) $(LOGO_BMP).gz > $@
+else
 $(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-bmp $(LOGO_BMP) > $@
+endif
 else
 $(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-data $(LOGO_BMP) > $@

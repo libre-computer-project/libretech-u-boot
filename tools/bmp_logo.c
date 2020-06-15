@@ -3,7 +3,8 @@
 enum {
 	MODE_GEN_INFO,
 	MODE_GEN_DATA,
-	MODE_GEN_BMP
+	MODE_GEN_BMP,
+	MODE_GEN_BMP_GZ
 };
 
 typedef struct bitmap_s {		/* bitmap description */
@@ -17,7 +18,7 @@ typedef struct bitmap_s {		/* bitmap description */
 
 void usage(const char *prog)
 {
-	fprintf(stderr, "Usage: %s [--gen-info|--gen-data|--gen-bmp] file\n",
+	fprintf(stderr, "Usage: %s [--gen-info|--gen-data|--gen-bmp|--gen-bmp-gz] file\n",
 		prog);
 }
 
@@ -76,7 +77,7 @@ int main (int argc, char *argv[])
 {
 	int	mode, i, x;
 	int	size;
-	FILE	*fp;
+	FILE	*fp, *gzfp;
 	bitmap_t bmp;
 	bitmap_t *b = &bmp;
 	uint16_t data_offset, n_colors, hdr_size;
@@ -92,6 +93,8 @@ int main (int argc, char *argv[])
 		mode = MODE_GEN_DATA;
 	else if (!strcmp(argv[1], "--gen-bmp"))
 		mode = MODE_GEN_BMP;
+	else if (!strcmp(argv[1], "--gen-bmp-gz"))
+		mode = MODE_GEN_BMP_GZ;
 	else {
 		usage(argv[0]);
 		exit(EXIT_FAILURE);
@@ -102,9 +105,17 @@ int main (int argc, char *argv[])
 		perror(argv[2]);
 		exit (EXIT_FAILURE);
 	}
-
+	
 	if (fgetc (fp) != 'B' || fgetc (fp) != 'M')
 		error ("Input file is not a bitmap", fp);
+	
+	if (mode == MODE_GEN_BMP_GZ){
+		gzfp = fopen(argv[3], "rb");
+		if (!gzfp) {
+			perror(argv[3]);
+			exit (EXIT_FAILURE);
+		}
+	}
 
 	/*
 	 * read width and height of the image, and the number of colors used;
@@ -182,6 +193,11 @@ int main (int argc, char *argv[])
 		fseek(fp, 0L, SEEK_END);
 		size = ftell(fp);
 		fseek(fp, 0L, SEEK_SET);
+	} else if (mode == MODE_GEN_BMP_GZ) {
+		/* copy full bmp file */
+		fseek(gzfp, 0L, SEEK_END);
+		size = ftell(gzfp);
+		fseek(gzfp, 0L, SEEK_SET);
 	} else {
 		fseek(fp, (long)data_offset, SEEK_SET);
 	}
@@ -200,6 +216,10 @@ int main (int argc, char *argv[])
 		/* write full bmp */
 		for (i = 0; i < size; i++)
 			b->data[i] = (uint8_t)fgetc(fp);
+	} else if (mode == MODE_GEN_BMP_GZ) {
+		/* write full bmp */
+		for (i = 0; i < size; i++)
+			b->data[i] = (uint8_t)fgetc(gzfp);
 	} else {
 		for (i = (b->height - 1) * b->width; i >= 0; i -= b->width) {
 			for (x = 0; x < b->width; x++) {
@@ -224,5 +244,6 @@ int main (int argc, char *argv[])
 
 out:
 	fclose(fp);
+	if (mode == MODE_GEN_BMP_GZ) fclose(gzfp);
 	return 0;
 }
