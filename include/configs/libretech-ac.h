@@ -44,6 +44,19 @@
 #define BOOTMENU_ITEMS_ENV
 #endif
 
+#define SELF_TEST_SPI_READ \
+	"self_test_spi_read=sf probe; " \
+	"setexpr self_test_spi_read_i 0; " \
+	"sf read $kernel_addr_r 0 0x1000000; " \
+	"crc32 $kernel_addr_r 0x1000000 $ramdisk_addr_r; " \
+	"while test $? -eq 0; do " \
+		"setexpr self_test_spi_read_i $self_test_spi_read_i + 1; " \
+		"sf read $kernel_addr_r 0 0x1000000; " \
+		"crc32 $kernel_addr_r 0x1000000 $pxefile_addr_r; " \
+		"cmp.w $ramdisk_addr_r $pxefile_addr_r 1; " \
+	"done; " \
+	"echo \"SELF TEST SPI FAILED AT ITERATION $self_test_spi_read_i\"\0" 
+
 #ifdef CONFIG_CMD_BMP
 #define CONFIG_SPLASH_SOURCE
 #define CONFIG_SPLASHIMAGE_GUARD
@@ -73,6 +86,7 @@
 	ETHEREALOS_BOOTCMD \
 	BOOTMENU_ITEMS_ENV \
 	SPLASH_ENV \
+	SELF_TEST_SPI_READ \
 	BOOTENV
 
 #ifdef CONFIG_CMD_MEMTEST
