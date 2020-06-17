@@ -149,6 +149,38 @@ static int env_sf_save(void)
 	return ret;
 }
 #endif /* CMD_SAVEENV */
+#if defined(CONFIG_CMD_ERASEENV)
+/* THIS IS A HACK FOR LIBRE COMPUTER ENV*/
+static int env_sf_erase(void)
+{
+	u32	sector;
+	int	ret = 1;
+
+	ret = setup_flash_device();
+	if (ret)
+		return ret;
+
+	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, CONFIG_ENV_SECT_SIZE);
+
+	puts("Erasing SPI flash...");
+	ret = spi_flash_erase(env_flash, CONFIG_ENV_OFFSET,
+		sector * CONFIG_ENV_SECT_SIZE);
+	if (ret)
+		goto done;
+
+	ret = spi_flash_erase(env_flash, CONFIG_ENV_OFFSET_REDUND,
+		sector * CONFIG_ENV_SECT_SIZE);
+	if (ret)
+		goto done;
+	
+	puts("done\n");
+	ret = 0;
+
+ done:
+
+	return ret;
+}
+#endif /* CMD_ERASEENV */
 
 static int env_sf_load(void)
 {
@@ -248,7 +280,33 @@ static int env_sf_save(void)
 	return ret;
 }
 #endif /* CMD_SAVEENV */
+#if defined(CONFIG_CMD_ERASEENV)
+/* THIS IS A HACK FOR LIBRE COMPUTER ENV*/
+static int env_sf_erase(void)
+{
+	u32	sector;
+	int	ret = 1;
 
+	ret = setup_flash_device();
+	if (ret)
+		return ret;
+
+	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, CONFIG_ENV_SECT_SIZE);
+
+	puts("Erasing SPI flash...");
+	ret = spi_flash_erase(env_flash, CONFIG_ENV_OFFSET,
+		sector * CONFIG_ENV_SECT_SIZE);
+	if (ret)
+		goto done;
+
+	ret = 0;
+	puts("done\n");
+
+ done:
+
+	return ret;
+}
+#endif /* CMD_ERASEENV */
 static int env_sf_load(void)
 {
 	int ret;
@@ -315,6 +373,9 @@ U_BOOT_ENV_LOCATION(sf) = {
 	.load		= env_sf_load,
 #ifdef CMD_SAVEENV
 	.save		= env_save_ptr(env_sf_save),
+#endif
+#if defined(CONFIG_CMD_ERASEENV)
+	.erase          = env_sf_erase,
 #endif
 #if defined(INITENV) && (CONFIG_ENV_ADDR != 0x0)
 	.init		= env_sf_init,
