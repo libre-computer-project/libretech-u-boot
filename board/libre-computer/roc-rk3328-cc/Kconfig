@@ -1,0 +1,15 @@
+if TARGET_LIBRETECH_ROC_RK3328_CC
+
+config SYS_BOARD
+	default "roc-rk3328-cc"
+
+config SYS_VENDOR
+	default "libre-computer"
+
+config SYS_CONFIG_NAME
+	default "libretech-roc-rk3328-cc"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif

@@ -1287,6 +1287,9 @@ u-boot-nodtb.bin: u-boot FORCE
 	$(call DO_STATIC_RELA,$<,$@,$(CONFIG_SYS_TEXT_BASE))
 	$(BOARD_SIZE_CHECK)
 
+u-boot-nodtb.bin.lzma: u-boot-nodtb.bin
+	$(call if_changed,lzma)
+
 u-boot.ldr:	u-boot
 		$(CREATE_LDR_ENV)
 		$(LDR) -T $(CONFIG_CPU) -c $@ $< $(LDR_FLAGS)
@@ -1331,7 +1334,7 @@ ifeq ($(CONFIG_SPL_FIT_GENERATOR),"arch/arm/mach-imx/mkimage_fit_atf.sh")
 U_BOOT_ITS_DEPS += u-boot-nodtb.bin
 endif
 ifeq ($(CONFIG_SPL_FIT_GENERATOR),"arch/arm/mach-rockchip/make_fit_atf.py")
-U_BOOT_ITS_DEPS += u-boot
+U_BOOT_ITS_DEPS += u-boot u-boot-nodtb.bin.lzma
 endif
 $(U_BOOT_ITS): $(U_BOOT_ITS_DEPS) FORCE
 	$(srctree)/$(CONFIG_SPL_FIT_GENERATOR) \

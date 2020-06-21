@@ -9,8 +9,10 @@
 
 #define CONFIG_SYS_NS16550_MEM32
 
+#ifndef CONFIG_SPL_PAD_TO
 /* ((CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR - 64) * 512) */
 #define CONFIG_SPL_PAD_TO		8355840
+#endif
 
 #ifndef CONFIG_SPL_BUILD
 
@@ -74,6 +76,8 @@
 #else
 #define ROOT_UUID "69DAD710-2CE4-4E3C-B16C-21A1D49ABED3;\0"
 #endif
+
+#ifndef PARTS_DEFAULT
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=loader1,start=32K,size=4000K,uuid=${uuid_gpt_loader1};" \
@@ -83,5 +87,5 @@
 	"name=rootfs,size=-,uuid="ROOT_UUID
 
 #endif
-
+#endif
 #endif /* _ROCKCHIP_COMMON_H_ */

@@ -16,6 +16,10 @@
 #include <asm/cache.h>
 #include <linux/libfdt.h>
 
+#include <lzma/LzmaTypes.h>
+#include <lzma/LzmaDec.h>
+#include <lzma/LzmaTools.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ
@@ -261,7 +265,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 			debug("%s ", genimg_get_type_name(type));
 	}
 
-	if (IS_ENABLED(CONFIG_SPL_GZIP)) {
+	if (IS_ENABLED(CONFIG_SPL_GZIP) || IS_ENABLED(CONFIG_SPL_LZMA)) {
 		fit_image_get_comp(fit, node, &image_comp);
 		debug("%s ", genimg_get_comp_name(image_comp));
 	}
@@ -324,6 +328,15 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		if (gunzip((void *)load_addr, CONFIG_SYS_BOOTM_LEN,
 			   src, &size)) {
 			puts("Uncompressing error\n");
+			return -EIO;
+		}
+		length = size;
+	} else if (IS_ENABLED(CONFIG_SPL_LZMA) && image_comp == IH_COMP_LZMA) {
+		size = length;
+		if (lzmaBuffToBuffDecompress((void *)load_addr, CONFIG_SYS_BOOTM_LEN,
+			   src, &size)) {
+			puts("Uncompressing error\n");
+			printf("%u %u %u %u\n",load_addr,CONFIG_SYS_BOOTM_LEN,src,size);
 			return -EIO;
 		}
 		length = size;
