@@ -6,8 +6,8 @@
 #ifndef __LIBRETECH_ROC_RK3328_CC_H
 #define __LIBRETECH_ROC_RK3328_CC_H
 
-#define CONFIG_SPL_MAX_SIZE             0x1c000
-#define CONFIG_SPL_PAD_TO		114688
+#define CONFIG_SPL_MAX_SIZE             0x1d800
+#define CONFIG_SPL_PAD_TO		120832
 
 #include <configs/rk3328_common.h>
 

@@ -322,24 +322,16 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 #ifdef CONFIG_SPL_FIT_IMAGE_POST_PROCESS
 	board_fit_image_post_process(&src, &length);
 #endif
-
 	if (IS_ENABLED(CONFIG_SPL_GZIP) && image_comp == IH_COMP_GZIP) {
 		size = length;
-		if (gunzip((void *)load_addr, CONFIG_SYS_BOOTM_LEN,
+		void * tmpbuffer = (void *)load_addr + 0x100000;
+		if (gunzip(tmpbuffer, CONFIG_SYS_BOOTM_LEN,
 			   src, &size)) {
 			puts("Uncompressing error\n");
 			return -EIO;
 		}
 		length = size;
-	} else if (IS_ENABLED(CONFIG_SPL_LZMA) && image_comp == IH_COMP_LZMA) {
-		size = length;
-		if (lzmaBuffToBuffDecompress((void *)load_addr, CONFIG_SYS_BOOTM_LEN,
-			   src, &size)) {
-			puts("Uncompressing error\n");
-			printf("%u %u %u %u\n",load_addr,CONFIG_SYS_BOOTM_LEN,src,size);
-			return -EIO;
-		}
-		length = size;
+		memcpy((void *)load_addr, tmpbuffer, length);
 	} else {
 		memcpy((void *)load_addr, src, length);
 	}
