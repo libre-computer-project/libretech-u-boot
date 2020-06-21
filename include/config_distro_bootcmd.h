@@ -142,16 +142,30 @@
 			"${fdt_addr_r} ${prefix}${efi_fdtfile}\0"         \
 	\
 	"efi_dtb_prefixes=/ /dtb/ /dtb/current/\0"                        \
-	"scan_dev_for_efi="                                               \
-		"setenv efi_fdtfile ${fdtfile}; "                         \
-		BOOTENV_EFI_SET_FDTFILE_FALLBACK                          \
+	"scan_dev_for_dtb="                                               \
 		"for prefix in ${efi_dtb_prefixes}; do "                  \
 			"if test -e ${devtype} "                          \
 					"${devnum}:${distro_bootpart} "   \
 					"${prefix}${efi_fdtfile}; then "  \
+				"echo Found FDT ${prefix}${efi_fdtfile}; "\
 				"run load_efi_dtb; "                      \
+				"if test 1 -eq $?; then "                 \
+					"echo FDT LOAD FAILED: "          \
+						"continuing...; "         \
+				"else "                                   \
+					"loaded_fdt=1; "                  \
+				"fi; "                                    \
 			"fi;"                                             \
-		"done;"                                                   \
+		"done\0"                                                  \
+	"scan_dev_for_efi="                                               \
+		"loaded_fdt=0; "                                          \
+		"setenv efi_fdtfile ${lc_fdtfile}; "                      \
+		"run scan_dev_for_dtb; "                                  \
+		"if test 0 -eq $loaded_fdt; then "                        \
+			"setenv efi_fdtfile ${fdtfile}; "                 \
+			BOOTENV_EFI_SET_FDTFILE_FALLBACK                  \
+			"run scan_dev_for_dtb; "                          \
+		"fi; "                                                    \
 		"if test -e ${devtype} ${devnum}:${distro_bootpart} "     \
 					"efi/boot/"BOOTEFI_NAME"; then "  \
 				"echo Found EFI removable media binary "  \

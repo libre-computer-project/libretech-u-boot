@@ -93,7 +93,7 @@ struct video_priv {
 	u32 colour_fg;
 	u32 colour_bg;
 	bool flush_dcache;
-	ushort *cmap;
+	void *cmap;
 	u8 fg_col_idx;
 	u8 bg_col_idx;
 };
