@@ -10,6 +10,9 @@ config TARGET_EVB_RK3328
 	  with full function and phisical connectors support like
 	  usb2.0 host ports, LVDS, JTAG, MAC, SDcard, HDMI, USB-2-serial...
 
+config TARGET_LIBRETECH_ROC_RK3328_CC
+	bool "Libre Computer ROC-RK3328-CC"
+
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
@@ -39,6 +42,16 @@ config TPL_MAX_SIZE
 config TPL_STACK
 	default 0xff098000
 
+if TARGET_EVB_RK3328
+
 source "board/rockchip/evb_rk3328/Kconfig"
+
+endif
+
+if TARGET_LIBRETECH_ROC_RK3328_CC
+
+source "board/libre-computer/roc-rk3328-cc/Kconfig"
+
+endif
 
 endif

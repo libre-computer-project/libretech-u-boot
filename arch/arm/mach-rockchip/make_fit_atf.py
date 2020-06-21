@@ -31,11 +31,11 @@ DT_HEADER = """
 DT_UBOOT = """
 		uboot {
 			description = "U-Boot (64-bit)";
-			data = /incbin/("u-boot-nodtb.bin");
+			data = /incbin/("u-boot-nodtb.bin.lzma");
 			type = "standalone";
 			os = "U-Boot";
 			arch = "arm64";
-			compression = "none";
+			compression = "lzma";
 			load = <0x%08x>;
 		};
 
