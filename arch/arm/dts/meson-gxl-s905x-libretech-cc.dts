@@ -19,6 +19,7 @@
 	aliases {
 		serial0 = &uart_AO;
 		ethernet0 = &ethmac;
+		spi0 = &spifc;
 	};
 
 	chosen {
@@ -264,6 +265,20 @@
 	mmc-pwrseq = <&emmc_pwrseq>;
 	vmmc-supply = <&vcc_3v3>;
 	vqmmc-supply = <&vddio_boot>;
+};
+
+&spifc {
+	status = "okay";
+	pinctrl-0 = <&nor_pins>;
+	pinctrl-names = "default";
+
+	qd25lq128: spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <20000000>;
+	};
 };
 
 &uart_AO {
