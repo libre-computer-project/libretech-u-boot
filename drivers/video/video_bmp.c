@@ -173,29 +173,16 @@ static void video_set_cmap(struct udevice *dev,
 			   struct bmp_color_table_entry *cte, unsigned colours)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
-	u16 *cmap16;
-	u32 *cmap32;
 	int i;
+	ushort *cmap = priv->cmap;
 
 	debug("%s: colours=%d\n", __func__, colours);
-	if (priv->bpix == VIDEO_BPP16) {
-		cmap16 = priv->cmap;
-		for (i = 0; i < colours; ++i) {
-			*cmap16 = ((cte->red << 8) & 0xf800) |
-				((cte->green << 3) & 0x07e0) |
-				((cte->blue  >> 3) & 0x001f);
-			cmap16++;
-			cte++;
-		}
-	} else if (priv->bpix == VIDEO_BPP32) {
-		cmap32 = priv->cmap;
-		for (i = 0; i < colours; ++i) {
-			*cmap32 = (cte->red  << 16) |
-				  (cte->green << 8) |
-				  cte->blue;
-			cmap32++;
-			cte++;
-		}
+	for (i = 0; i < colours; ++i) {
+		*cmap = ((cte->red   << 8) & 0xf800) |
+			((cte->green << 3) & 0x07e0) |
+			((cte->blue  >> 3) & 0x001f);
+		cmap++;
+		cte++;
 	}
 }
 
@@ -203,8 +190,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		      bool align)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
-	u32 *cmap32_base = NULL;
-	u16 *cmap16_base = NULL;
+	ushort *cmap_base = NULL;
 	int i, j;
 	uchar *fb;
 	struct bmp_image *bmp = map_sysmem(bmp_image, 0);
@@ -242,7 +228,8 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	}
 
 	/*
-	 * We support displaying 8bpp and 24bpp BMPs on 16bpp or 32bpp LCDs
+	 * We support displaying 8bpp and 24bpp BMPs on 16bpp LCDs
+	 * and displaying 24bpp BMPs on 32bpp LCDs
 	 */
 	if (bpix != bmp_bpix &&
 	    !(bmp_bpix == 8 && bpix == 16) &&
@@ -288,10 +275,10 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		if (compression == BMP_BI_RLE8) {
 			if (bpix != 16) {
 				/* TODO implement render code for bpix != 16 */
-				printf("Error: only support 16 bpix\n");
+				printf("Error: only support 16 bpix");
 				return -EPROTONOSUPPORT;
 			}
-			video_display_rle8_bitmap(dev, bmp, priv->cmap, fb, x,
+			video_display_rle8_bitmap(dev, bmp, cmap_base, fb, x,
 						  y, width, height);
 			break;
 		}
