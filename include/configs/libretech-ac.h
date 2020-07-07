@@ -21,47 +21,18 @@
 
 #define ETHEREALOS
 
-#ifdef CONFIG_CMD_BOOTI
-#define VMLINUZ_BOOTCMD "bootcmd_vmlinuz=echo \"Loading vmlinuz...\"; " \
-	"if load mmc 0 $kernel_addr_r vmlinuz; then " \
-		"echo \"Loading initrd.img...\"; " \
-		"if load mmc 0 $ramdisk_addr_r initrd.img; then " \
-			"part uuid mmc 0:2 partuuid; " \
-			"env set bootargs root=PARTUUID=$partuuid; " \
-			"booti $kernel_addr_r $ramdisk_addr_r:$filesize; " \
-		"fi; " \
-	"fi\0"
-#define VMLINUZ_BOOTMENU_ITEM "bootmenu_5=Boot vmlinuz=run bootcmd_vmlinuz; echo \"vmlinuz Boot failed.\"; sleep 5; $menucmd -1\0"
-#else
-#define VMLINUZ_BOOTCMD
-#define VMLINUZ_BOOTMENU_ITEM
-#endif
-
-#ifdef CONFIG_EFI_LOAD_FILE2_INITRD
-#define VMLINUZ_EFI_STUB_BOOTCMD "bootcmd_vmlinuz_efi_stub=echo \"Loading vmlinuz...\"; "\
-	"if load mmc 0 $kernel_addr_r vmlinuz; then " \
-		"part uuid mmc 0:2 partuuid; " \
-		"env set bootargs root=PARTUUID=$partuuid; " \
-		"bootefi $kernel_addr_r; " \
-	"fi\0"
-#define VMLINUZ_EFI_STUB_BOOTMENU_ITEM "bootmenu_6=Boot vmlinuz EFI stub=run bootcmd_vmlinuz_efi_stub; echo \"vmlinuz EFI stub Boot failed.\"; sleep 5; $menucmd -1\0"
-#else
-#define VMLINUZ_EFI_STUB_BOOTCMD
-#define VMLINUZ_EFI_STUB_BOOTMENU_ITEM "bootmenu_6==$menucmd -1\0"
-#endif
-
 #ifdef ETHEREALOS
 #define ETHEREALOS_OFFSET 0x100000
 #define ETHEREALOS_SIZE 0x0
 #define ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_7=Boot OS Tool=env set bootargs \"noinitrd lcost\"; run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_8=Boot EtherealOS=env set bootargs noinitrd; run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
-#define ETHEREALOS_BOOTCMD "bootcmd_etherealos=if test " __stringify(ETHEREALOS_SIZE) " -gt 0; then if sf probe && sf read $pxefile_addr_r " __stringify(ETHEREALOS_OFFSET) " " __stringify (ETHEREALOS_SIZE) "; then bootm $pxefile_addr_r; fi; else echo Ethereal OS not available.; fi\0"
+	"bootmenu_5=Boot LOST=env set bootargs \"noinitrd lost\"; run bootcmd_etherealos; echo \"LOST Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_6=Boot EtherealOS=env set bootargs noinitrd; run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
+#define ETHEREALOS_ENV "bootcmd_etherealos=if test " __stringify(ETHEREALOS_SIZE) " -gt 0; then if sf probe && sf read $pxefile_addr_r " __stringify(ETHEREALOS_OFFSET) " " __stringify (ETHEREALOS_SIZE) "; then bootm $pxefile_addr_r; fi; else echo OS not available.; fi\0"
 #else
+#define ETHEREALOS_ENV
 #define ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_7==$menucmd -1\0" \
-	"bootmenu_8==$menucmd -1\0"
-#define ETHEREALOS_BOOTCMD
+	"bootmenu_5==$menucmd -1\0" \
+	"bootmenu_6==$menucmd -1\0"
 #endif
 
 #ifdef CONFIG_CMD_BOOTMENU
@@ -71,12 +42,10 @@
 	"bootmenu_2=Boot eMMC=run bootcmd_mmc0; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_3=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_4=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
-	VMLINUZ_BOOTMENU_ITEM \
-	VMLINUZ_EFI_STUB_BOOTMENU_ITEM \
 	ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_9=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_10=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_11=Reboot=reset\0" \
+	"bootmenu_7=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_8=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_9=Reboot=reset\0" \
 	"bootmenu_delay=30\0" \
 	"menucmd=bootmenu\0"
 #else
@@ -123,9 +92,7 @@
 	"lc_fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	SPI_NOR_SIZE_ENV \
-	VMLINUZ_BOOTCMD \
-	VMLINUZ_EFI_STUB_BOOTCMD \
-	ETHEREALOS_BOOTCMD \
+	ETHEREALOS_ENV \
 	BOOTMENU_ITEMS_ENV \
 	SELF_TEST_SPI_READ \
 	SPLASH_ENV \
