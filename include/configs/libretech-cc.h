@@ -98,11 +98,6 @@
 	SELF_TEST_SPI_READ \
 	BOOTENV
 
-#ifdef CONFIG_CMD_MEMTEST
-#define CONFIG_SYS_MEMTEST_START 0x08000000
-#define CONFIG_SYS_MEMTEST_END 0x3affffff
-#endif
-
 #include <configs/meson64.h>
 
 #endif /* __CONFIG_H */
