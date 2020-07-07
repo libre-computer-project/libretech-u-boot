@@ -12,6 +12,8 @@
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/mem.h>
+#include <init.h>
+#include <net.h>
 #include <splash.h>
 #include <lcd.h>
 
