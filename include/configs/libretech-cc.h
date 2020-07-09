@@ -97,6 +97,8 @@
 	"fdt_addr_r=0x08008000\0" \
 	"scriptaddr=0x08000000\0" \
 	"kernel_addr_r=0x08080000\0" \
+	"kernel_comp_addr_r=0x10000000\0" \
+	"kernel_comp_size=0x03000000\0" \
 	"pxefile_addr_r=0x01080000\0" \
 	"ramdisk_addr_r=0x13000000\0" \
 	"lc_fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
