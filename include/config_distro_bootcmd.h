@@ -468,9 +468,20 @@
 		"done\0"                                                  \
 	\
 	"boot_vmlinuz_initrd_img="                                        \
-		"part uuid ${devtype} ${devnum}:2 root_partuuid; "        \
-		"env set bootargs root=PARTUUID=${root_partuuid} "        \
-			"rootwait; "                                      \
+		"part list ${devtype} ${devnum} rootplist; "              \
+		"env exists rootplist || setenv rootplist 1; "            \
+		"for distro_rootpart in ${rootplist}; do "                \
+			"if test -d ${devtype} "                          \
+					"${devnum}:${distro_rootpart} "   \
+				"/root; then "                            \
+				"part uuid ${devtype} "                   \
+					"${devnum}:${distro_rootpart} "   \
+					"rootpart_uuid; "                 \
+				"env set bootargs "                       \
+					"root=PARTUUID=${rootpart_uuid} " \
+					"rw rootwait; "                   \
+			"fi; "                                            \
+		"done; "                                                  \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
 			"${kernel_addr_r} ${prefix}vmlinuz; "             \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
@@ -484,6 +495,8 @@
 				"${ramdisk_addr_r}:${filesize} "          \
 				"${fdtcontroladdr}; "                     \
 		"fi; "                                                    \
+		"env delete rootpart_uuid; "                              \
+		"env delete rootplist; "                                  \
 		"env delete bootargs; "                                   \
 		"env delete root_partuuid\0"                              \
 	\
