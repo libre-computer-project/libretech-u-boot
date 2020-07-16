@@ -18,43 +18,13 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
-#define SPI_NOR_SIZE 0x1000000
-#define SPI_NOR_SIZE_ENV "spi_nor_size=" __stringify(SPI_NOR_SIZE) "\0"
+#define LC_SPI_NOR
+#define LC_ETHEREALOS
 
-#define ETHEREALOS
+#ifdef LC_SPI_NOR
 
-#ifdef ETHEREALOS
-#define ETHEREALOS_OFFSET 0x100000
-#define ETHEREALOS_SIZE 0x0
-#define ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_5=Boot LOST=env set bootargs \"noinitrd lost\"; run bootcmd_etherealos; echo \"LOST Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_6=Boot EtherealOS=env set bootargs noinitrd; run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
-#define ETHEREALOS_ENV "bootcmd_etherealos=if test " __stringify(ETHEREALOS_SIZE) " -gt 0; then if sf probe && sf read $pxefile_addr_r " __stringify(ETHEREALOS_OFFSET) " " __stringify (ETHEREALOS_SIZE) "; then bootm $pxefile_addr_r; fi; else echo OS not available.; fi\0"
-#else
-#define ETHEREALOS_ENV
-#define ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_5==$menucmd -1\0" \
-	"bootmenu_6==$menucmd -1\0"
-#endif
-
-#ifdef CONFIG_CMD_BOOTMENU
-#define BOOTMENU_ITEMS_ENV \
-	"bootmenu_0=Boot=boot; echo \"Boot failed.\"; sleep 5; $menucmd\0" \
-	"bootmenu_1=Boot USB=run bootcmd_usb0; echo \"USB Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_2=Boot eMMC=run bootcmd_mmc0; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_3=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_4=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
-	ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_7=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_8=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_9=Reboot=reset\0" \
-	"bootmenu_delay=30\0" \
-	"menucmd=bootmenu\0"
-#else
-#define BOOTMENU_ITEMS_ENV
-#endif
-
-#define SELF_TEST_SPI_READ \
+#define LC_SPI_NOR_SIZE 0x1000000
+#define LC_SPI_NOR_READ_TEST \
 	"self_test_spi_read=sf probe; " \
 	"setexpr self_test_spi_read_i 0; " \
 	"sf read $kernel_addr_r 0 $spi_nor_size; " \
@@ -66,6 +36,57 @@
 		"cmp.w $ramdisk_addr_r $pxefile_addr_r 1; " \
 	"done; " \
 	"echo \"SELF TEST SPI FAILED AT ITERATION $self_test_spi_read_i\"\0" 
+#define LC_SPI_NOR_ENV "spi_nor_size=" __stringify(LC_SPI_NOR_SIZE) "\0" \
+	LC_SPI_NOR_READ_TEST
+
+#else
+
+#define LC_SPI_NOR_ENV
+
+#endif
+
+#ifdef LC_ETHEREALOS
+
+#define LC_ETHEREALOS_OFFSET 0x100000
+#define LC_ETHEREALOS_SIZE 0x0
+#define LC_ETHEREALOS_TEST_LOAD_SPI "etherealos_test_load_spi=if test $boot_source = \"spi\"; then sf probe && sf read $pxefile_addr_r $etherealos_offset $etherealos_size; fi\0"
+#define LC_ETHEREALOS_BOOTMENU_ITEM \
+	"bootmenu_5=Boot LOST=env set bootargs \"lost\"; run bootcmd_etherealos; echo \"LOST Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_6=Boot EtherealOS=run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
+#define LC_ETHEREALOS_BOOTCMD "bootcmd_etherealos=if test $etherealos_size -gt 0; then run etherealos_test_load_spi; if test $? -eq 0; then bootm $pxefile_addr_r; fi; else echo OS not available.; fi\0"
+#define LC_ETHEREALOS_ENV \
+	"etherealos_offset=" __stringify(LC_ETHEREALOS_OFFSET) "\0" \
+	"etherealos_size=" __stringify(LC_ETHEREALOS_SIZE) "\0" \
+	LC_ETHEREALOS_TEST_LOAD_SPI \
+	LC_ETHEREALOS_BOOTCMD \
+	LC_ETHEREALOS_BOOTMENU_ITEM
+
+#else
+
+#define LC_ETHEREALOS_BOOTMENU_ITEM \
+	"bootmenu_5==$menucmd -1\0" \
+	"bootmenu_6==$menucmd -1\0"
+#define LC_ETHEREALOS_ENV LC_ETHEREALOS_BOOTMENU_ITEM
+
+#endif
+
+#ifdef CONFIG_CMD_BOOTMENU
+#define LC_BOOTMENU_ITEMS_ENV \
+	"bootmenu_0=Boot=boot; echo \"Boot failed.\"; sleep 5; $menucmd\0" \
+	"bootmenu_1=Boot USB=run bootcmd_usb0; echo \"USB Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_2=Boot eMMC=run bootcmd_mmc0; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_3=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_4=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_7=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_8=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_9=Reboot=reset\0" \
+	"bootmenu_delay=30\0" \
+	"menucmd=bootmenu\0"
+#else
+#define LC_BOOTMENU_ITEMS_ENV
+#endif
+
+#define LC_ENV LC_SPI_NOR_ENV LC_ETHEREALOS_ENV LC_BOOTMENU_ITEMS_ENV
 
 #ifdef CONFIG_CMD_BMP
 #define CONFIG_SPLASH_SOURCE
@@ -95,10 +116,7 @@
 	"ramdisk_addr_r=0x13000000\0" \
 	"lc_fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
-	SPI_NOR_SIZE_ENV \
-	ETHEREALOS_ENV \
-	BOOTMENU_ITEMS_ENV \
-	SELF_TEST_SPI_READ \
+	LC_ENV \
 	SPLASH_ENV \
 	BOOTENV
 
