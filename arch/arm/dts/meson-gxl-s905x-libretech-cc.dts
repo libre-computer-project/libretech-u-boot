@@ -55,7 +55,7 @@
 		compatible = "gpio-leds";
 
 		system {
-			label = "librecomputer:system-status";
+			label = "librecomputer:green";
 			gpios = <&gpio GPIODV_24 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
 			panic-indicator;
@@ -64,7 +64,7 @@
 		blue {
 			label = "librecomputer:blue";
 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "heartbeat";
+			linux,default-trigger = "activity";
 		};
 	};
 
