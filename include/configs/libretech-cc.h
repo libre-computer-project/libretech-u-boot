@@ -13,45 +13,57 @@
 	func(ROMUSB, romusb, na)  \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
+	func(MMC, mmc, 1.1) \
+	func(MMC, mmc, 1.2) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
-#define SPI_NOR_SIZE 0x1000000
-#define SPI_NOR_SIZE_ENV "spi_nor_size=" __stringify(SPI_NOR_SIZE) "\0"
+#define CONFIG_SYS_MMC_ENV_DEV 0
 
-#define ETHEREALOS
+#define LC_ETHEREALOS
 
-#ifdef ETHEREALOS
-#define ETHEREALOS_OFFSET 0x100000
-#define ETHEREALOS_SIZE 0x0
-#define ETHEREALOS_TEST_LOAD_SPI "etherealos_test_load_spi=if test $boot_source = \"spi\"; then sf probe && sf read $pxefile_addr_r $etherealos_offset $etherealos_size; fi\0"
-#define ETHEREALOS_COMPUTE_BLK "etherealos_compute_blk=setexpr etherealos_offset_blk $etherealos_offset / 200; setexpr etherealos_size_blk $etherealos_size / 200\0"
-#define ETHEREALOS_TEST_LOAD_SD "etherealos_test_load_sd=if test $boot_source = \"sd\"; then run etherealos_compute_blk; read mmc 0 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
-#define ETHEREALOS_TEST_LOAD_EMMC "etherealos_test_load_emmc=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
-#define ETHEREALOS_ENV ETHEREALOS_COMPUTE_BLK ETHEREALOS_TEST_LOAD_SPI ETHEREALOS_TEST_LOAD_SD ETHEREALOS_TEST_LOAD_EMMC \
-	"etherealos_offset=" __stringify(ETHEREALOS_OFFSET) "\0" \
-	"etherealos_size=" __stringify(ETHEREALOS_SIZE) "\0" \
-	"bootcmd_etherealos=if test $etherealos_size -gt 0; then run etherealos_test_load_spi || run etherealos_test_load_sd || run etherealos_test_load_emmc; if test $? -eq 0; then bootm $pxefile_addr_r; fi; else echo OS not available.; fi\0"
-#define ETHEREALOS_BOOTMENU_ITEM \
+#ifdef LC_ETHEREALOS
+#define LC_ETHEREALOS_OFFSET 0x100000
+#define LC_ETHEREALOS_SIZE 0x0
+#define LC_ETHEREALOS_TEST_LOAD_SPI "etherealos_test_load_spi=if test $boot_source = \"spi\"; then sf probe && sf read $pxefile_addr_r $etherealos_offset $etherealos_size; fi\0"
+#define LC_ETHEREALOS_COMPUTE_BLK "etherealos_compute_blk=setexpr etherealos_offset_blk $etherealos_offset / 200; setexpr etherealos_size_blk $etherealos_size / 200\0"
+#define LC_ETHEREALOS_TEST_LOAD_SD "etherealos_test_load_sd=if test $boot_source = \"sd\"; then run etherealos_compute_blk; read mmc 0 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
+#define LC_ETHEREALOS_TEST_LOAD_EMMC "etherealos_test_load_emmc=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
+#define LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT0 "etherealos_test_load_emmc_boot0=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1.1 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
+#define LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT1 "etherealos_test_load_emmc_boot1=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1.2 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
+#define LC_ETHEREALOS_BOOTMENU_ITEM \
 	"bootmenu_6=Boot LOST=env set bootargs \"noinitrd lost\"; run bootcmd_etherealos; echo \"LOST Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_7=Boot EtherealOS=env set bootargs noinitrd; run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
+#define LC_ETHEREALOS_BOOTCMD "bootcmd_etherealos=if test $etherealos_size -gt 0; then run etherealos_test_load_sd || run etherealos_test_load_emmc || run etherealos_test_load_emmc_boot0; if test $? -eq 0; then bootm $pxefile_addr_r; fi; else echo OS not available.; fi\0"
+#define LC_ETHEREALOS_ENV \
+	"etherealos_offset=" __stringify(LC_ETHEREALOS_OFFSET) "\0" \
+	"etherealos_size=" __stringify(LC_ETHEREALOS_SIZE) "\0" \
+	LC_ETHEREALOS_COMPUTE_BLK \
+	LC_ETHEREALOS_TEST_LOAD_SD \
+	LC_ETHEREALOS_TEST_LOAD_EMMC \
+	LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT0 \
+	LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT1 \
+	LC_ETHEREALOS_BOOTMENU_ITEM \
+	LC_ETHEREALOS_BOOTCMD
+
 #else
-#define ETHEREALOS_ENV
-#define ETHEREALOS_BOOTMENU_ITEM \
+
+#define LC_ETHEREALOS_BOOTMENU_ITEM \
 	"bootmenu_6==$menucmd -1\0" \
 	"bootmenu_7==$menucmd -1\0"
+#define LC_ETHEREALOS_ENV LC_ETHEREALOS_BOOTMENU_ITEM
+
 #endif
 
 #ifdef CONFIG_CMD_BOOTMENU
-#define BOOTMENU_ITEMS_ENV \
+#define LC_BOOTMENU_ITEMS_ENV \
 	"bootmenu_0=Boot=boot; echo \"Boot failed.\"; sleep 5; $menucmd\0" \
 	"bootmenu_1=Boot USB=run bootcmd_usb0; echo \"USB Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_2=Boot SD Card=run bootcmd_mmc0; echo \"SD Card Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_3=Boot eMMC=run bootcmd_mmc1; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_4=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_5=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
-	ETHEREALOS_BOOTMENU_ITEM \
 	"bootmenu_8=SD Card USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"SD not detected.\"; fi; sleep 5; $menucmd -1\0" \
 	"bootmenu_9=eMMC USB Drive Mode=mmc list; if mmc dev 1; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 1; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
 	"bootmenu_10=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
@@ -59,21 +71,10 @@
 	"bootmenu_delay=30\0" \
 	"menucmd=bootmenu\0"
 #else
-#define BOOTMENU_ITEMS_ENV
+#define LC_BOOTMENU_ITEMS_ENV
 #endif
 
-#define SELF_TEST_SPI_READ \
-	"self_test_spi_read=sf probe; " \
-	"setexpr self_test_spi_read_i 0; " \
-	"sf read $kernel_addr_r 0 $spi_nor_size; " \
-	"crc32 $kernel_addr_r $spi_nor_size $ramdisk_addr_r; " \
-	"while test $? -eq 0; do " \
-		"setexpr self_test_spi_read_i $self_test_spi_read_i + 1; " \
-		"sf read $kernel_addr_r 0 $spi_nor_size; " \
-		"crc32 $kernel_addr_r $spi_nor_size $pxefile_addr_r; " \
-		"cmp.w $ramdisk_addr_r $pxefile_addr_r 1; " \
-	"done; " \
-	"echo \"SELF TEST SPI FAILED AT ITERATION $self_test_spi_read_i\"\0" 
+#define LC_ENV LC_ETHEREALOS_ENV LC_BOOTMENU_ITEMS_ENV
 
 #ifdef CONFIG_CMD_BMP
 #define CONFIG_SPLASH_SOURCE
@@ -103,10 +104,7 @@
 	"ramdisk_addr_r=0x13000000\0" \
 	"lc_fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
-	SPI_NOR_SIZE_ENV \
-	ETHEREALOS_ENV \
-	BOOTMENU_ITEMS_ENV \
-	SELF_TEST_SPI_READ \
+	LC_ENV \
 	SPLASH_ENV \
 	BOOTENV
 
