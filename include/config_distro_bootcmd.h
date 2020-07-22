@@ -471,9 +471,9 @@
 		"part list ${devtype} ${devnum} rootplist; "              \
 		"env exists rootplist || setenv rootplist 1; "            \
 		"for distro_rootpart in ${rootplist}; do "                \
-			"if test -d ${devtype} "                          \
+			"if test -e ${devtype} "                          \
 					"${devnum}:${distro_rootpart} "   \
-				"/root; then "                            \
+				"/etc/hostname; then "                    \
 				"part uuid ${devtype} "                   \
 					"${devnum}:${distro_rootpart} "   \
 					"rootpart_uuid; "                 \
