@@ -44,7 +44,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_INIT_SP_ADDR		0x20000000
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20) /* 64 MiB */
+#define CONFIG_SYS_BOOTM_LEN		(128 << 20) /* 128 MiB */
 
 /* ROM USB boot support, auto-execute boot.scr at scriptaddr */
 #define BOOTENV_DEV_ROMUSB(devtypeu, devtypel, instance) \
