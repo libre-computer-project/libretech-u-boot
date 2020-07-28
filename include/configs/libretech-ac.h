@@ -95,7 +95,7 @@
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_VIDEO_LOGO
 #define SPLASH_ENV \
-	"splashimage=0x08080000\0" \
+	"splashimage=0x01080000\0" \
 	"splashpos=m,m\0" \
 	"splashfile=boot.bmp\0" \
 	"splashsource=mmc_fs\0"
