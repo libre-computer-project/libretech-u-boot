@@ -484,17 +484,21 @@
 		"done; "                                                  \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
 			"${kernel_addr_r} ${prefix}vmlinuz; "             \
-		"load ${devtype} ${devnum}:${distro_bootpart} "           \
-			"${ramdisk_addr_r} ${prefix}initrd.img; "         \
+		"ramdisk_addr_arg=-; "                                    \
+		"if load ${devtype} ${devnum}:${distro_bootpart} "        \
+			"${ramdisk_addr_r} ${prefix}initrd.img; then "    \
+			"ramdisk_addr_arg=$ramdisk_addr_r:$filesize; "    \
+		"fi; "                                                    \
 		"if fdt addr ${fdt_addr_r}; then "                        \
 			"booti ${kernel_addr_r} "                         \
-				"{$ramdisk_addr_r}:${filesize} "          \
+				"${ramdisk_addr_arg} "                    \
 				"${fdt_addr_r}; "                         \
 		"else "                                                   \
 			"booti ${kernel_addr_r} "                         \
-				"${ramdisk_addr_r}:${filesize} "          \
+				"${ramdisk_addr_arg} "                    \
 				"${fdtcontroladdr}; "                     \
 		"fi; "                                                    \
+		"env delete ramdisk_addr_arg; "                           \
 		"env delete rootpart_uuid; "                              \
 		"env delete rootplist; "                                  \
 		"env delete bootargs; "                                   \
@@ -504,13 +508,14 @@
 		"if test -e ${devtype} "                                  \
 				"${devnum}:${distro_bootpart} "           \
 				"${prefix}vmlinuz; then "                 \
+			"echo Found vmlinuz; "                            \
 			"if test -e ${devtype} "                          \
 					"${devnum}:${distro_bootpart} "   \
 					"${prefix}initrd.img; then "      \
-				"echo Found vmlinuz and initrd.img; "     \
-				"run boot_vmlinuz_initrd_img; "           \
-				"echo LINUX BOOT FAILED: continuing...; " \
+				"echo Found initrd.img; "                 \
 			"fi; "                                            \
+			"run boot_vmlinuz_initrd_img; "                   \
+			"echo LINUX BOOT FAILED: continuing...; "         \
 		"fi\0"                                                    \
 	\
 	"scan_dev_for_boot="                                              \
