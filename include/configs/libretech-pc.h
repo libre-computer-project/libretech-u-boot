@@ -74,8 +74,8 @@
 #else
 
 #define LC_ETHEREALOS_BOOTMENU_ITEM \
-		"bootmenu_6==$menucmd -1\0"
-		"bootmenu_7==$menucmd -1\0"
+	"bootmenu_6==$menucmd -1\0" \
+	"bootmenu_7==$menucmd -1\0"
 
 #define LC_ETHEREALOS_ENV LC_ETHEREALOS_BOOTMENU_ITEM
 #endif
