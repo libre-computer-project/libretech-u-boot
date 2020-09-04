@@ -7,13 +7,13 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/gx.h>
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/mem.h>
-#include <init.h>
-#include <net.h>
 #include <splash.h>
 #include <lcd.h>
 
@@ -46,6 +46,6 @@ int misc_init_r(void)
 		if (len == EFUSE_SN_SIZE)
 			env_set("serial#", serial);
 	}
-
+	
 	return 0;
 }

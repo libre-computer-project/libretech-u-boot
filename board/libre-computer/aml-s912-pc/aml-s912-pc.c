@@ -7,11 +7,13 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/gx.h>
-#include <asm/arch/mem.h>
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>
+#include <asm/arch/mem.h>
 #include <splash.h>
 #include <lcd.h>
 
@@ -39,10 +41,10 @@ int misc_init_r(void)
 
 	if (!env_get("serial#")) {
 		len = meson_sm_read_efuse(EFUSE_SN_OFFSET, serial,
-					  EFUSE_SN_SIZE);
+			EFUSE_SN_SIZE);
 		if (len == EFUSE_SN_SIZE)
 			env_set("serial#", serial);
 	}
-
+	
 	return 0;
 }
