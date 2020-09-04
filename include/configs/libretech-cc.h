@@ -60,7 +60,7 @@
 #define LC_BOOTMENU_ITEMS_ENV \
 	"bootmenu_0=Boot=boot; echo \"Boot failed.\"; sleep 5; $menucmd\0" \
 	"bootmenu_1=Boot USB=run bootcmd_usb0; echo \"USB Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_2=Boot eMMC=run bootcmd_mmc1; run bootcmd_mmc1.1; rn bootcmd_mmc1.2 echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_2=Boot eMMC=run bootcmd_mmc1; run bootcmd_mmc1.1; run bootcmd_mmc1.2; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_3=Boot SD Card=run bootcmd_mmc0; echo \"SD Card Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_4=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_5=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
