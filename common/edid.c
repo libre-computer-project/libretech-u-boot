@@ -169,33 +169,17 @@ static bool cea_is_hdmi_vsdb_present(struct edid_cea861_info *info)
 	return false;
 }
 
-int edid_get_timing_validate(u8 *buf, int buf_size,
-			     struct display_timing *timing,
-			     int *panel_bits_per_colourp,
-			     bool (*mode_valid)(void *priv,
-					const struct display_timing *timing),
-			     void *mode_valid_priv)
+bool edid_get_dtd_timing_validate(struct edid_monitor_descriptor *desc,
+				  unsigned int dtd_count,
+				  struct display_timing *timing,
+				  bool (*mode_valid)(void *priv,
+						     const struct display_timing *timing),
+				  void *mode_valid_priv)
 {
-	struct edid1_info *edid = (struct edid1_info *)buf;
-	bool timing_done;
+	bool timing_done = false;
 	int i;
 
-	if (buf_size < sizeof(*edid) || edid_check_info(edid)) {
-		debug("%s: Invalid buffer\n", __func__);
-		return -EINVAL;
-	}
-
-	if (!EDID1_INFO_FEATURE_PREFERRED_TIMING_MODE(*edid)) {
-		debug("%s: No preferred timing\n", __func__);
-		return -ENOENT;
-	}
-
-	/* Look for detailed timing */
-	timing_done = false;
-	for (i = 0; i < 4; i++) {
-		struct edid_monitor_descriptor *desc;
-
-		desc = &edid->monitor_details.descriptor[i];
+	for (i = 0; i < dtd_count; i++, desc++) {
 		if (desc->zero_flag_1 != 0) {
 			decode_timing((u8 *)desc, timing);
 			if (mode_valid)
@@ -208,6 +192,53 @@ int edid_get_timing_validate(u8 *buf, int buf_size,
 				break;
 		}
 	}
+
+	return timing_done;
+}
+
+int edid_get_timing_validate(u8 *buf, int buf_size,
+			     struct display_timing *timing,
+			     int *panel_bits_per_colourp,
+			     bool (*mode_valid)(void *priv,
+					const struct display_timing *timing),
+			     void *mode_valid_priv)
+{
+	struct edid1_info *edid = (struct edid1_info *)buf;
+	struct edid_cea861_info *info = NULL;
+	struct edid_monitor_descriptor *desc;
+	bool timing_done;
+
+	if (buf_size < sizeof(*edid) || edid_check_info(edid)) {
+		debug("%s: Invalid buffer\n", __func__);
+		return -EINVAL;
+	}
+
+	if (!EDID1_INFO_FEATURE_PREFERRED_TIMING_MODE(*edid)) {
+		debug("%s: No preferred timing\n", __func__);
+		return -ENOENT;
+	}
+
+	desc = edid->monitor_details.descriptor;
+	timing_done = edid_get_dtd_timing_validate(desc, 4, timing,
+						   mode_valid, mode_valid_priv);
+
+	if (edid->extension_flag && (buf_size >= EDID_EXT_SIZE)) {
+	        info = (struct edid_cea861_info *)(buf + sizeof(*edid));
+
+		if (info->extension_tag != EDID_CEA861_EXTENSION_TAG)
+			info = NULL;
+	}
+
+	/* Check CEA861 info block for timing if don't have one yet */
+	if (info && !timing_done && info->dtd_offset) {
+		unsigned int dtd_count = EDID_CEA861_DTD_COUNT(*info);
+		desc = (struct edid_monitor_descriptor *)((u8 *)info +
+							  info->dtd_offset);
+
+		timing_done = edid_get_dtd_timing_validate(desc, dtd_count, timing,
+							   mode_valid, mode_valid_priv);
+	}
+
 	if (!timing_done)
 		return -EINVAL;
 
@@ -225,13 +256,8 @@ int edid_get_timing_validate(u8 *buf, int buf_size,
 	}
 
 	timing->hdmi_monitor = false;
-	if (edid->extension_flag && (buf_size >= EDID_EXT_SIZE)) {
-		struct edid_cea861_info *info =
-			(struct edid_cea861_info *)(buf + sizeof(*edid));
-
-		if (info->extension_tag == EDID_CEA861_EXTENSION_TAG)
-			timing->hdmi_monitor = cea_is_hdmi_vsdb_present(info);
-	}
+	if (info)
+		timing->hdmi_monitor = cea_is_hdmi_vsdb_present(info);
 
 	return 0;
 }

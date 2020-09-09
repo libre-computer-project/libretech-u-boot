@@ -20,6 +20,7 @@
 	aliases {
 		serial0 = &uart_AO;
 		ethernet0 = &ethmac;
+		spi0 = &spifc;
 	};
 
 	dio2133: analog-amplifier {
@@ -32,17 +33,6 @@
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
-
-	cvbs-connector {
-		compatible = "composite-video-connector";
-
-		port {
-			cvbs_connector_in: endpoint {
-				remote-endpoint = <&cvbs_vdac_out>;
-			};
-		};
-	};
-
 	emmc_pwrseq: emmc-pwrseq {
 		compatible = "mmc-pwrseq-emmc";
 		reset-gpios = <&gpio BOOT_9 GPIO_ACTIVE_LOW>;
@@ -202,13 +192,6 @@
 	pinctrl-names = "default";
 	hdmi-phandle = <&hdmi_tx>;
 };
-
-&cvbs_vdac_port {
-	cvbs_vdac_out: endpoint {
-		remote-endpoint = <&cvbs_connector_in>;
-	};
-};
-
 &ethmac {
 	status = "okay";
 };
@@ -334,6 +317,20 @@
 	mmc-pwrseq = <&emmc_pwrseq>;
 	vmmc-supply = <&vcc_3v3>;
 	vqmmc-supply = <&vddio_boot>;
+};
+
+&spifc {
+        status = "okay";
+        pinctrl-0 = <&nor_pins>;
+        pinctrl-names = "default";
+
+        qd25lq128: spi-flash@0 {
+                #address-cells = <1>;
+                #size-cells = <1>;
+                compatible = "jedec,spi-nor";
+                reg = <0>;
+                spi-max-frequency = <80000000>;
+        };
 };
 
 &uart_AO {

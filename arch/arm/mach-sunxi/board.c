@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <init.h>
+#include <env.h>
 #include <log.h>
 #include <mmc.h>
 #include <i2c.h>
@@ -353,3 +354,44 @@ void enable_caches(void)
 	dcache_enable();
 }
 #endif
+
+int sunxi_set_boot_source(void)
+{
+	int boot_source = sunxi_get_boot_source();
+
+	const char *source;
+
+	switch (boot_source) {
+		case SUNXI_BOOTED_FROM_MMC0:
+		case SUNXI_BOOTED_FROM_MMC0_HIGH:
+			source = "sd";
+			break;
+		case SUNXI_BOOTED_FROM_NAND:
+			source = "nand";
+			break;
+		case SUNXI_BOOTED_FROM_MMC2:
+		case SUNXI_BOOTED_FROM_MMC2_HIGH:
+			source = "emmc";
+			break;
+		case SUNXI_BOOTED_FROM_SPI:
+			source = "spi";
+			break;
+		default:
+			source = "unknown";
+	}
+	env_set("boot_source", source);
+	return 0;
+}
+
+__weak int sunxi_board_late_init(void)
+{
+	        return 0;
+}
+
+int board_late_init(void)
+{
+	sunxi_set_boot_source();
+
+	return sunxi_board_late_init();
+}
+

@@ -33,6 +33,8 @@
 
 #ifdef CONFIG_ARM64
 #define CONFIG_SYS_BOOTM_LEN		(32 << 20)
+#elif CONFIG_ARM
+#define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 #endif
 
 /* Serial & console */
@@ -131,7 +133,8 @@
  * (CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)), but the value will be used
  * directly in a makefile, without the preprocessor expansion.
  */
-#define CONFIG_BOARD_SIZE_LIMIT		0x7e000
+//#define CONFIG_BOARD_SIZE_LIMIT		0x7e000
+#define CONFIG_BOARD_SIZE_LIMIT		0xe6000
 #endif
 
 #if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
@@ -493,6 +496,7 @@ extern int soft_i2c_gpio_scl;
 	"uuid_gpt_system=" UUID_GPT_SYSTEM "\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
 	BOOTCMD_SUNXI_COMPAT \
+	LC_EXTRA_ENV_SETTINGS \
 	BOOTENV
 
 #else /* ifndef CONFIG_SPL_BUILD */

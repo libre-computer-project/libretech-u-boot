@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Configuration for LibreTech AC
- *
- * Copyright (C) 2017 Baylibre, SAS
- * Author: Neil Armstrong <narmstrong@baylibre.com>
+ * Configuration settings for the Allwinner A64 (sun50i) CPU
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define BOOT_TARGET_DEVICES(func) \
-	func(ROMUSB, romusb, na)  \
-	func(MMC, mmc, 0) \
-	func(MMC, mmc, 0.1) \
-	func(MMC, mmc, 0.2) \
-	BOOT_TARGET_DEVICES_USB(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+/*
+ * A64 specific configuration
+ */
+
+#ifndef CONFIG_MACH_SUN50I_H6
+#define GICD_BASE		0x1c81000
+#define GICC_BASE		0x1c82000
+#else
+#define GICD_BASE		0x3021000
+#define GICC_BASE		0x3022000
+#endif
 
 #define LC_SPI_NOR
 #define LC_ETHEREALOS
@@ -48,24 +48,24 @@
 #ifdef LC_ETHEREALOS
 
 #define LC_ETHEREALOS_OFFSET 0x100000
-#define LC_ETHEREALOS_SIZE 0xec8ca3
+#define LC_ETHEREALOS_SIZE 0x0
 #define LC_ETHEREALOS_TEST_LOAD_SPI "etherealos_test_load_spi=if test $boot_source = \"spi\"; then sf probe && sf read $pxefile_addr_r $etherealos_offset $etherealos_size; fi\0"
 #define LC_ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_5=Boot LOST=env set bootargs \"lost\"; run bootcmd_etherealos; echo \"LOST Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_6=Boot EtherealOS=run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
+        "bootmenu_5=Boot LOST=env set bootargs \"lost\"; run bootcmd_etherealos; echo \"LOST Boot failed.\"; sleep 5; $menucmd -1\0" \
+        "bootmenu_6=Boot EtherealOS=run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
 #define LC_ETHEREALOS_BOOTCMD "bootcmd_etherealos=if test $etherealos_size -gt 0; then run etherealos_test_load_spi; if test $? -eq 0; then bootm $pxefile_addr_r; fi; else echo OS not available.; fi\0"
 #define LC_ETHEREALOS_ENV \
-	"etherealos_offset=" __stringify(LC_ETHEREALOS_OFFSET) "\0" \
-	"etherealos_size=" __stringify(LC_ETHEREALOS_SIZE) "\0" \
-	LC_ETHEREALOS_TEST_LOAD_SPI \
-	LC_ETHEREALOS_BOOTCMD \
-	LC_ETHEREALOS_BOOTMENU_ITEM
+        "etherealos_offset=" __stringify(LC_ETHEREALOS_OFFSET) "\0" \
+        "etherealos_size=" __stringify(LC_ETHEREALOS_SIZE) "\0" \
+        LC_ETHEREALOS_TEST_LOAD_SPI \
+        LC_ETHEREALOS_BOOTMENU_ITEM \
+        LC_ETHEREALOS_BOOTCMD
 
 #else
 
 #define LC_ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_5==$menucmd -1\0" \
-	"bootmenu_6==$menucmd -1\0"
+        "bootmenu_5==$menucmd -1\0" \
+        "bootmenu_6==$menucmd -1\0"
 #define LC_ETHEREALOS_ENV LC_ETHEREALOS_BOOTMENU_ITEM
 
 #endif
@@ -74,14 +74,14 @@
 #define LC_BOOTMENU_ITEMS_ENV \
 	"bootmenu_0=Boot=boot; echo \"Boot failed.\"; sleep 5; $menucmd\0" \
 	"bootmenu_1=Boot USB=run bootcmd_usb0; echo \"USB Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_2=Boot eMMC=run bootcmd_mmc0; run bootcmd_mmc0.1; run bootcmd_mmc0.2; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_2=Boot SD Card=run bootcmd_mmc0; echo \"SD Card Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_3=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_4=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_7=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_7=SD Card USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0:0; echo \"USB Drive Mode ended.\"; else echo \"SD Card not detected.\"; fi; sleep 5; $menucmd -1\0" \
 	"bootmenu_8=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
 	"bootmenu_9=Reboot=reset\0" \
 	"bootmenu_delay=30\0" \
-	"menucmd=bootmenu\0"
+	"menucmd=bootmenu\0" 
 #else
 #define LC_BOOTMENU_ITEMS_ENV
 #endif
@@ -95,7 +95,7 @@
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_VIDEO_LOGO
 #define SPLASH_ENV \
-	"splashimage=0x01080000\0" \
+	"splashimage=0x4fd00000\0" \
 	"splashpos=m,m\0" \
 	"splashfile=boot.bmp\0" \
 	"splashsource=mmc_fs\0"
@@ -103,23 +103,14 @@
 #define SPLASH_ENV
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"stdin=" STDIN_CFG "\0" \
-	"stdout=" STDOUT_CFG "\0" \
-	"stderr=" STDOUT_CFG "\0" \
-	"fdt_addr_r=0x08008000\0" \
-	"scriptaddr=0x08000000\0" \
-	"kernel_addr_r=0x08080000\0" \
-	"kernel_comp_addr_r=0x10000000\0" \
-	"kernel_comp_size=0x03000000\0" \
-	"pxefile_addr_r=0x01080000\0" \
-	"ramdisk_addr_r=0x13000000\0" \
-	"lc_fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+#define LC_EXTRA_ENV_SETTINGS \
 	LC_ENV \
 	SPLASH_ENV \
-	BOOTENV
+	"lc_fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0"
 
-#include <configs/meson64.h>
+/*
+ * Include common sunxi configuration where most the settings are
+ */
+#include <configs/sunxi-common.h>
 
 #endif /* __CONFIG_H */

@@ -1,0 +1,4 @@
+add CONFIG_SPLASH_SOURCE=y to configs
+fix libretech-ac.h test load based on boot source
+efi: [Firmware Bug]: ExitBootServices() returned with MMU and Dcache disabled, please fix your firmware!
+test for dt overlay and search and add to fdt
