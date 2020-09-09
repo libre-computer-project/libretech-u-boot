@@ -493,6 +493,7 @@ extern int soft_i2c_gpio_scl;
 	"uuid_gpt_system=" UUID_GPT_SYSTEM "\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
 	BOOTCMD_SUNXI_COMPAT \
+	LC_EXTRA_ENV_SETTINGS \
 	BOOTENV
 
 #else /* ifndef CONFIG_SPL_BUILD */

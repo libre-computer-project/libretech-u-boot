@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Configuration for LibreTech AC
+ * Configuration for LibreTech CC V2
  *
  * Copyright (C) 2017 Baylibre, SAS
  * Author: Neil Armstrong <narmstrong@baylibre.com>
@@ -12,8 +12,9 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(ROMUSB, romusb, na)  \
 	func(MMC, mmc, 0) \
-	func(MMC, mmc, 0.1) \
-	func(MMC, mmc, 0.2) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 1.1) \
+	func(MMC, mmc, 1.2) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
@@ -50,22 +51,31 @@
 #define LC_ETHEREALOS_OFFSET 0x100000
 #define LC_ETHEREALOS_SIZE 0x0
 #define LC_ETHEREALOS_TEST_LOAD_SPI "etherealos_test_load_spi=if test $boot_source = \"spi\"; then sf probe && sf read $pxefile_addr_r $etherealos_offset $etherealos_size; fi\0"
+#define LC_ETHEREALOS_COMPUTE_BLK "etherealos_compute_blk=setexpr etherealos_offset_blk $etherealos_offset / 200; setexpr etherealos_size_blk $etherealos_size / 200\0"
+#define LC_ETHEREALOS_TEST_LOAD_SD "etherealos_test_load_sd=if test $boot_source = \"sd\"; then run etherealos_compute_blk; read mmc 0 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
+#define LC_ETHEREALOS_TEST_LOAD_EMMC "etherealos_test_load_emmc=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
+#define LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT0 "etherealos_test_load_emmc_boot0=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1.1 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
+#define LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT1 "etherealos_test_load_emmc_boot1=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1.2 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
 #define LC_ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_5=Boot LOST=env set bootargs \"lost\"; run bootcmd_etherealos; echo \"LOST Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_6=Boot EtherealOS=run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
+	"bootmenu_6=Boot LOST=env set bootargs \"lost\"; run bootcmd_etherealos; echo \"LOST Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_7=Boot EtherealOS=run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
 #define LC_ETHEREALOS_BOOTCMD "bootcmd_etherealos=if test $etherealos_size -gt 0; then run etherealos_test_load_spi; if test $? -eq 0; then bootm $pxefile_addr_r; fi; else echo OS not available.; fi\0"
 #define LC_ETHEREALOS_ENV \
 	"etherealos_offset=" __stringify(LC_ETHEREALOS_OFFSET) "\0" \
 	"etherealos_size=" __stringify(LC_ETHEREALOS_SIZE) "\0" \
 	LC_ETHEREALOS_TEST_LOAD_SPI \
 	LC_ETHEREALOS_BOOTCMD \
-	LC_ETHEREALOS_BOOTMENU_ITEM
+	LC_ETHEREALOS_BOOTMENU_ITEM \
+	LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT0 \
+	LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT1 \
+	LC_ETHEREALOS_BOOTMENU_ITEM \
+	LC_ETHEREALOS_BOOTCMD
 
 #else
 
 #define LC_ETHEREALOS_BOOTMENU_ITEM \
-	"bootmenu_5==$menucmd -1\0" \
-	"bootmenu_6==$menucmd -1\0"
+	"bootmenu_6==$menucmd -1\0" \
+	"bootmenu_7==$menucmd -1\0"
 #define LC_ETHEREALOS_ENV LC_ETHEREALOS_BOOTMENU_ITEM
 
 #endif
@@ -74,12 +84,14 @@
 #define LC_BOOTMENU_ITEMS_ENV \
 	"bootmenu_0=Boot=boot; echo \"Boot failed.\"; sleep 5; $menucmd\0" \
 	"bootmenu_1=Boot USB=run bootcmd_usb0; echo \"USB Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_2=Boot eMMC=run bootcmd_mmc0; run bootcmd_mmc0.1; run bootcmd_mmc0.2; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_3=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_4=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
-	"bootmenu_7=eMMC USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_8=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
-	"bootmenu_9=Reboot=reset\0" \
+	"bootmenu_2=Boot eMMC=run bootcmd_mmc1; run bootcmd_mmc1.1; run bootcmd_mmc1.2; echo \"eMMC Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_3=Boot SD Card=run bootcmd_mmc0; echo \"SD Card Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_4=Boot PXE=run bootcmd_pxe; echo \"PXE Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_5=Boot DHCP=run bootcmd_dhcp; echo \"DHCP Boot failed.\"; sleep 5; $menucmd -1\0" \
+	"bootmenu_8=eMMC USB Drive Mode=mmc list; if mmc dev 1; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 1; echo \"USB Drive Mode ended.\"; else echo \"eMMC not detected.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_9=SD Card USB Drive Mode=mmc list; if mmc dev 0; then echo \"Press Control+C to end USB Drive Mode.\"; ums 0 mmc 0; echo \"USB Drive Mode ended.\"; else echo \"SD not detected.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_10=Detect USB Devices=if usb reset; then echo \"USB detection complete.\"; else echo \"USB detection failed.\"; fi; sleep 5; $menucmd -1\0" \
+	"bootmenu_11=Reboot=reset\0" \
 	"bootmenu_delay=30\0" \
 	"menucmd=bootmenu\0"
 #else
