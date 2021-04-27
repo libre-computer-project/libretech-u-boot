@@ -1,0 +1,39 @@
+diff --git a/arch/arm/mach-sunxi/board.c b/arch/arm/mach-sunxi/board.c
+index f40fccd8f8..04103e4992 100644
+--- a/arch/arm/mach-sunxi/board.c
++++ b/arch/arm/mach-sunxi/board.c
+@@ -12,6 +12,7 @@
+ #include <common.h>
+ #include <cpu_func.h>
+ #include <init.h>
++#include <env.h>
+ #include <log.h>
+ #include <mmc.h>
+ #include <i2c.h>
+@@ -257,18 +258,26 @@ uint32_t sunxi_get_boot_device(void)
+ 	 * binary over USB. If it is found, it determines where SPL was
+ 	 * read from.
+ 	 */
++
++	const char *source = "boot_source";
++
+ 	switch (boot_source) {
+ 	case SUNXI_INVALID_BOOT_SOURCE:
++		env_set(source, "unknown");
+ 		return BOOT_DEVICE_BOARD;
+ 	case SUNXI_BOOTED_FROM_MMC0:
+ 	case SUNXI_BOOTED_FROM_MMC0_HIGH:
++		env_set(source, "sd");
+ 		return BOOT_DEVICE_MMC1;
+ 	case SUNXI_BOOTED_FROM_NAND:
++		env_set(source, "nand");
+ 		return BOOT_DEVICE_NAND;
+ 	case SUNXI_BOOTED_FROM_MMC2:
+ 	case SUNXI_BOOTED_FROM_MMC2_HIGH:
++		env_set(source, "emmc");
+ 		return BOOT_DEVICE_MMC2;
+ 	case SUNXI_BOOTED_FROM_SPI:
++		env_set(source, "spi");
+ 		return BOOT_DEVICE_SPI;
+ 	}
+ 

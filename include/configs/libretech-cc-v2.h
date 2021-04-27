@@ -51,11 +51,6 @@
 #define LC_ETHEREALOS_OFFSET 0x100000
 #define LC_ETHEREALOS_SIZE 0x0
 #define LC_ETHEREALOS_TEST_LOAD_SPI "etherealos_test_load_spi=if test $boot_source = \"spi\"; then sf probe && sf read $pxefile_addr_r $etherealos_offset $etherealos_size; fi\0"
-#define LC_ETHEREALOS_COMPUTE_BLK "etherealos_compute_blk=setexpr etherealos_offset_blk $etherealos_offset / 200; setexpr etherealos_size_blk $etherealos_size / 200\0"
-#define LC_ETHEREALOS_TEST_LOAD_SD "etherealos_test_load_sd=if test $boot_source = \"sd\"; then run etherealos_compute_blk; read mmc 0 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
-#define LC_ETHEREALOS_TEST_LOAD_EMMC "etherealos_test_load_emmc=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
-#define LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT0 "etherealos_test_load_emmc_boot0=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1.1 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
-#define LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT1 "etherealos_test_load_emmc_boot1=if test $boot_source = \"emmc\"; then run etherealos_compute_blk; read mmc 1.2 $pxefile_addr_r $etherealos_offset_blk $etherealos_size_blk; fi\0"
 #define LC_ETHEREALOS_BOOTMENU_ITEM \
 	"bootmenu_6=Boot LOST=env set bootargs \"lost\"; run bootcmd_etherealos; echo \"LOST Boot failed.\"; sleep 5; $menucmd -1\0" \
 	"bootmenu_7=Boot EtherealOS=run bootcmd_etherealos; echo \"EtherealOS Boot failed.\"; sleep 5; $menucmd -1\0"
@@ -64,10 +59,6 @@
 	"etherealos_offset=" __stringify(LC_ETHEREALOS_OFFSET) "\0" \
 	"etherealos_size=" __stringify(LC_ETHEREALOS_SIZE) "\0" \
 	LC_ETHEREALOS_TEST_LOAD_SPI \
-	LC_ETHEREALOS_BOOTCMD \
-	LC_ETHEREALOS_BOOTMENU_ITEM \
-	LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT0 \
-	LC_ETHEREALOS_TEST_LOAD_EMMC_BOOT1 \
 	LC_ETHEREALOS_BOOTMENU_ITEM \
 	LC_ETHEREALOS_BOOTCMD
 

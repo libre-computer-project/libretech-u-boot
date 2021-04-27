@@ -1,25 +1,22 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Configuration for LibreTech CC
- *
- * Copyright (C) 2017 Baylibre, SAS
- * Author: Neil Armstrong <narmstrong@baylibre.com>
+ * Configuration settings for the Allwinner A64 (sun50i) CPU
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define BOOT_TARGET_DEVICES(func) \
-	func(ROMUSB, romusb, na)  \
-	func(MMC, mmc, 0) \
-	func(MMC, mmc, 1) \
-	func(MMC, mmc, 1.1) \
-	func(MMC, mmc, 1.2) \
-	BOOT_TARGET_DEVICES_USB(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+/*
+ * A64 specific configuration
+ */
 
-#define CONFIG_SYS_MMC_ENV_DEV 0
+#ifndef CONFIG_MACH_SUN50I_H6
+#define GICD_BASE		0x1c81000
+#define GICC_BASE		0x1c82000
+#else
+#define GICD_BASE		0x3021000
+#define GICC_BASE		0x3022000
+#endif
 
 #define LC_ETHEREALOS
 
@@ -84,7 +81,7 @@
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_VIDEO_LOGO
 #define SPLASH_ENV \
-	"splashimage=0x01080000\0" \
+	"splashimage=0x4fd00000\0" \
 	"splashpos=m,m\0" \
 	"splashfile=boot.bmp\0" \
 	"splashsource=mmc_fs\0"
@@ -92,23 +89,14 @@
 #define SPLASH_ENV
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"stdin=" STDIN_CFG "\0" \
-	"stdout=" STDOUT_CFG "\0" \
-	"stderr=" STDOUT_CFG "\0" \
-	"fdt_addr_r=0x08008000\0" \
-	"scriptaddr=0x08000000\0" \
-	"kernel_addr_r=0x08080000\0" \
-	"kernel_comp_addr_r=0x10000000\0" \
-	"kernel_comp_size=0x03000000\0" \
-	"pxefile_addr_r=0x01080000\0" \
-	"ramdisk_addr_r=0x13000000\0" \
-	"lc_fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+#define LC_EXTRA_ENV_SETTINGS \
 	LC_ENV \
 	SPLASH_ENV \
-	BOOTENV
+	"lc_fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0"
 
-#include <configs/meson64.h>
+/*
+ * Include common sunxi configuration where most the settings are
+ */
+#include <configs/sunxi-common.h>
 
 #endif /* __CONFIG_H */
