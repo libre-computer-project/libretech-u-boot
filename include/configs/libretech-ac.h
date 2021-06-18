@@ -12,6 +12,8 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(ROMUSB, romusb, na)  \
 	func(MMC, mmc, 0) \
+	func(MMC, mmc, 0.1) \
+	func(MMC, mmc, 0.2) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
