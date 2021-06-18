@@ -17,5 +17,6 @@
 	func(DHCP, dhcp, na)
 
 #include <configs/meson64.h>
+#include <configs/libretech.h>
 
 #endif /* __CONFIG_H */
