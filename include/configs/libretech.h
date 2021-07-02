@@ -33,5 +33,11 @@
 #define SPLASH_ENV
 #endif
 
+#ifdef LC_SPI_NOR
+#define LC_SPI_NOR_ENV \
+	"spi_nor_size=" __stringify(LC_SPI_NOR_SIZE) "\0"
+#else
+#define LC_SPI_NOR_ENV
+#endif
 
 #endif /* __LIBRETECH_CONFIG_H */
