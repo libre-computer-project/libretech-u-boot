@@ -9,6 +9,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define LC_SPI_NOR
+#define LC_SPI_NOR_SIZE 0x1000000
+
 #include <configs/libretech.h>
 
 #define BOOT_TARGET_DEVICES(func) \
