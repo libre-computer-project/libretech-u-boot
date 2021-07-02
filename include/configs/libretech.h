@@ -17,4 +17,10 @@
 		"fi;" \
 	"done;" \
 
+#ifdef CONFIG_DM_VIDEO
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE (512*512*4)
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#endif
+
 #endif /* __LIBRETECH_CONFIG_H */
