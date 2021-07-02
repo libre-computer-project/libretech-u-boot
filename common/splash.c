@@ -84,7 +84,7 @@ __weak int splash_screen_prepare(void)
 {
 	if (CONFIG_IS_ENABLED(SPLASH_SOURCE))
 		return splash_source_load(default_splash_locations,
-					  ARRAY_SIZE(default_splash_locations));
+					  ARRAY_SIZE(default_splash_locations)) && splash_video_logo_load();
 
 	return splash_video_logo_load();
 }
