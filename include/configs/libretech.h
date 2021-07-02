@@ -7,4 +7,14 @@
 #ifndef __LIBRETECH_CONFIG_H
 #define __LIBRETECH_CONFIG_H
 
+#define BOOTENV_EFI_SET_FDTFILE_FALLBACK \
+	"for prefix in ${efi_dtb_prefixes}; do " \
+		"if test -e ${devtype} " \
+				"${devnum}:${distro_bootpart} " \
+				"${prefix}${vendor}/${board}/platform.dtb; then " \
+			"setenv efi_fdtfile ${vendor}/${board}/platform.dtb; " \
+			"echo \"Using override dtb ${prefix}${vendor}/${board}/platform.dtb\"; " \
+		"fi;" \
+	"done;" \
+
 #endif /* __LIBRETECH_CONFIG_H */
