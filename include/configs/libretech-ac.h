@@ -33,6 +33,7 @@
 	"fdtoverlay_addr_r=0x01000000\0" \
 	"ramdisk_addr_r=0x13000000\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+	SPLASH_ENV \
 	BOOTENV
 
 
