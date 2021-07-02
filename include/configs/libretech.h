@@ -34,7 +34,21 @@
 #endif
 
 #ifdef LC_SPI_NOR
+#define LC_SPI_NOR_READ_TEST \
+	"self_test_spi_nor_read=" \
+		"sf probe; " \
+		"setexpr self_test_spi_nor_read_i 0; " \
+		"time sf read $kernel_addr_r 0 $spi_nor_size; " \
+		"crc32 $kernel_addr_r $spi_nor_size $ramdisk_addr_r; " \
+		"while test $? -eq 0; do " \
+			"setexpr self_test_spi_nor_read_i $self_test_spi_nor_read_i + 1; " \
+			"time sf read $kernel_addr_r 0 $spi_nor_size; " \
+			"crc32 $kernel_addr_r $spi_nor_size $pxefile_addr_r; " \
+			"cmp.w $ramdisk_addr_r $pxefile_addr_r 1; " \
+		"done; " \
+		"echo \"SELF TEST SPI NOR READ FAILED AT ITERATION $self_test_spi_nor_read_i\"\0"
 #define LC_SPI_NOR_ENV \
+	LC_SPI_NOR_READ_TEST \
 	"spi_nor_size=" __stringify(LC_SPI_NOR_SIZE) "\0"
 #else
 #define LC_SPI_NOR_ENV
