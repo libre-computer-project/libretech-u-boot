@@ -259,10 +259,10 @@ static int smbios_write_type1(ulong *current, int handle,
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
 	if (!t->manufacturer)
-		t->manufacturer = smbios_add_string(ctx, "Unknown");
+		t->manufacturer = smbios_add_string(ctx, CONFIG_SYS_VENDOR);
 	t->product_name = smbios_add_prop(ctx, "product");
 	if (!t->product_name)
-		t->product_name = smbios_add_string(ctx, "Unknown Product");
+		t->product_name = smbios_add_string(ctx, CONFIG_SYS_BOARD);
 	t->version = smbios_add_prop_si(ctx, "version",
 					SYSINFO_ID_SMBIOS_SYSTEM_VERSION);
 	if (serial_str) {
@@ -293,10 +293,10 @@ static int smbios_write_type2(ulong *current, int handle,
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
 	if (!t->manufacturer)
-		t->manufacturer = smbios_add_string(ctx, "Unknown");
+		t->manufacturer = smbios_add_string(ctx, CONFIG_SYS_VENDOR);
 	t->product_name = smbios_add_prop(ctx, "product");
 	if (!t->product_name)
-		t->product_name = smbios_add_string(ctx, "Unknown Product");
+		t->product_name = smbios_add_string(ctx, CONFIG_SYS_BOARD);
 	t->version = smbios_add_prop_si(ctx, "version",
 					SYSINFO_ID_SMBIOS_BASEBOARD_VERSION);
 	t->asset_tag_number = smbios_add_prop(ctx, "asset-tag");
@@ -322,7 +322,7 @@ static int smbios_write_type3(ulong *current, int handle,
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
 	if (!t->manufacturer)
-		t->manufacturer = smbios_add_string(ctx, "Unknown");
+		t->manufacturer = smbios_add_string(ctx, CONFIG_SYS_VENDOR);
 	t->chassis_type = SMBIOS_ENCLOSURE_DESKTOP;
 	t->bootup_state = SMBIOS_STATE_SAFE;
 	t->power_supply_state = SMBIOS_STATE_SAFE;
