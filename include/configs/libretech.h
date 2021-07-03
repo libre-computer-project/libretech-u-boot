@@ -54,4 +54,35 @@
 #define LC_SPI_NOR_ENV
 #endif
 
+#ifdef LC_ETHEREALOS
+#define LC_ETHEREALOS_TEST_LOAD_SPI \
+	"etherealos_test_load_spi=" \
+		"if test $boot_source = \"spi\"; then " \
+			"sf probe && time sf read $pxefile_addr_r $etherealos_offset $etherealos_size;" \
+		"fi\0"
+#define LC_ETHEREALOS_BOOTCMD \
+	"bootcmd_etherealos=" \
+		"if test $etherealos_size -gt 0; then " \
+			"run etherealos_test_load_spi; " \
+			"if test $? -eq 0; then " \
+				"bootm $pxefile_addr_r; " \
+			"fi; " \
+		"else " \
+			"echo EtherealOS not available.; " \
+		"fi\0"
+#define LC_ETHEREALOS_ENV \
+	"etherealos_offset=" __stringify(LC_ETHEREALOS_OFFSET) "\0" \
+	"etherealos_size=" __stringify(LC_ETHEREALOS_SIZE) "\0" \
+	LC_ETHEREALOS_TEST_LOAD_SPI \
+	LC_ETHEREALOS_BOOTCMD \
+	LC_ETHEREALOS_BOOTMENU_ITEMS
+#else
+#define LC_ETHEREALOS_ENV
+#endif
+
+#define LC_ENV \
+	LC_SPI_NOR_ENV \
+	LC_ETHEREALOS_ENV \
+	LC_BOOTMENU_ITEMS_ENV
+
 #endif /* __LIBRETECH_CONFIG_H */
