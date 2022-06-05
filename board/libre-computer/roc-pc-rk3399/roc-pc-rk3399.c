@@ -10,6 +10,7 @@
 #include <spl_gpio.h>
 #include <asm/io.h>
 #include <power/regulator.h>
+#include <splash.h>
 
 #include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/gpio.h>
@@ -76,3 +77,23 @@ void led_setup(void)
 }
 
 #endif
+
+#ifdef CONFIG_SPLASH_SCREEN
+static struct splash_location splash_locations[] = {
+        {
+                .name = "mmc_fs",
+                .storage = SPLASH_STORAGE_MMC,
+                .flags = SPLASH_STORAGE_FS,
+                .devpart = "0:1",
+        }
+};
+
+int splash_screen_prepare(void)
+{
+        if (CONFIG_IS_ENABLED(SPLASH_SOURCE))
+                return splash_source_load(splash_locations,
+                        ARRAY_SIZE(splash_locations)) && splash_video_logo_load();
+        return splash_video_logo_load();
+}
+#endif
+
