@@ -59,6 +59,8 @@ static inline int splash_source_load(struct splash_location *locations,
 }
 #endif
 
+int splash_video_logo_load(void);
+
 int splash_screen_prepare(void);
 void splash_get_pos(int *x, int *y);
 int splash_display(void);
