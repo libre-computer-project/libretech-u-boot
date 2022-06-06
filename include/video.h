@@ -109,6 +109,12 @@ struct video_priv {
 	void *fb;
 	int fb_size;
 	void *copy_fb;
+	struct {
+		int x;
+		int y;
+		int endx;
+		int endy;
+	} damage;
 	int line_length;
 	u32 colour_fg;
 	u32 colour_bg;
@@ -211,8 +217,9 @@ int video_fill(struct udevice *dev, u32 colour);
  * @return: 0 on success, error code otherwise
  *
  * Some frame buffers are cached or have a secondary frame buffer. This
- * function syncs these up so that the current contents of the U-Boot frame
- * buffer are displayed to the user.
+ * function syncs the damaged parts of them up so that the current contents
+ * of the U-Boot frame buffer are displayed to the user. It clears the damage
+ * buffer.
  */
 int video_sync(struct udevice *vid, bool force);
 
@@ -331,6 +338,24 @@ static inline int video_sync_copy_all(struct udevice *dev)
 }
 
 #endif
+
+/**
+ * video_damage() - Notify the video subsystem about screen updates.
+ *
+ * @vid:	Device to sync
+ * @x:	        Upper left X coordinate of the damaged rectangle
+ * @y:	        Upper left Y coordinate of the damaged rectangle
+ * @width:	Width of the damaged rectangle
+ * @height:	Height of the damaged rectangle
+ *
+ * @return: 0
+ *
+ * Some frame buffers are cached or have a secondary frame buffer. This
+ * function notifies the video subsystem about rectangles that were updated
+ * within the frame buffer. They may only get written to the screen on the
+ * next call to video_sync().
+ */
+int video_damage(struct udevice *vid, int x, int y, int width, int height);
 
 /**
  * video_is_active() - Test if one video device it active

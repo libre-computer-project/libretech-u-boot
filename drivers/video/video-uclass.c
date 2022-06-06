@@ -21,6 +21,8 @@
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include <linux/types.h>
+#include <linux/bitmap.h>
 #ifdef CONFIG_SANDBOX
 #include <asm/sdl.h>
 #endif
@@ -254,6 +256,37 @@ void video_set_default_colors(struct udevice *dev, bool invert)
 	priv->colour_bg = video_index_to_colour(priv, back);
 }
 
+/* Notify about changes in the frame buffer */
+int video_damage(struct udevice *vid, int x, int y, int width, int height)
+{
+	struct video_priv *priv = dev_get_uclass_priv(vid);
+	int endx = x + width;
+	int endy = y + height;
+
+	if (!CONFIG_IS_ENABLED(VIDEO_DAMAGE))
+		return 0;
+
+	if (x > priv->xsize)
+		return 0;
+
+	if (y > priv->ysize)
+		return 0;
+
+	if (endx > priv->xsize)
+		endx = priv->xsize;
+
+	if (endy > priv->ysize)
+		endy = priv->ysize;
+
+	/* Span a rectangle across all old and new damage */
+	priv->damage.x = min(x, priv->damage.x);
+	priv->damage.y = min(y, priv->damage.y);
+	priv->damage.endx = max(endx, priv->damage.endx);
+	priv->damage.endy = max(endy, priv->damage.endy);
+
+	return 0;
+}
+
 /* Flush video activity to the caches */
 int video_sync(struct udevice *vid, bool force)
 {
@@ -288,6 +321,14 @@ int video_sync(struct udevice *vid, bool force)
 		last_sync = get_timer(0);
 	}
 #endif
+
+	if (CONFIG_IS_ENABLED(VIDEO_DAMAGE)) {
+		priv->damage.x = priv->xsize;
+		priv->damage.y = priv->ysize;
+		priv->damage.endx = 0;
+		priv->damage.endy = 0;
+	}
+
 	return 0;
 }
 
