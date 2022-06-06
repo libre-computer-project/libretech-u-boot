@@ -289,9 +289,45 @@ int video_damage(struct udevice *vid, int x, int y, int width, int height)
 	return 0;
 }
 
+#if defined(CONFIG_ARM) && !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
+static void video_flush_dcache(struct udevice *vid)
+{
+	struct video_priv *priv = dev_get_uclass_priv(vid);
+
+	if (!priv->flush_dcache)
+		return;
+
+	if (!CONFIG_IS_ENABLED(VIDEO_DAMAGE)) {
+		flush_dcache_range((ulong)priv->fb,
+				   ALIGN((ulong)priv->fb + priv->fb_size,
+					 CONFIG_SYS_CACHELINE_SIZE));
+
+		return;
+	}
+
+	if (priv->damage.endx > priv->damage.x) {
+		int lstart = priv->damage.x * VNBYTES(priv->bpix);
+		int lend = priv->damage.endx * VNBYTES(priv->bpix);
+		int y;
+
+		for (y = priv->damage.y; y < priv->damage.endy; y++) {
+			ulong fb = (ulong)priv->fb;
+			ulong start = fb + (y * priv->line_length) + lstart;
+			ulong end = start + lend - lstart;
+
+			start = ALIGN_DOWN(start, CONFIG_SYS_CACHELINE_SIZE);
+			end = ALIGN(end, CONFIG_SYS_CACHELINE_SIZE);
+
+			flush_dcache_range(start, end);
+		}
+	}
+}
+#endif
+
 /* Flush video activity to the caches */
 int video_sync(struct udevice *vid, bool force)
 {
+	struct video_priv *priv = dev_get_uclass_priv(vid);
 	struct video_ops *ops = video_get_ops(vid);
 	int ret;
 
@@ -307,15 +343,8 @@ int video_sync(struct udevice *vid, bool force)
 	 * out whether it exists? For now, ARM is safe.
 	 */
 #if defined(CONFIG_ARM) && !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
-	struct video_priv *priv = dev_get_uclass_priv(vid);
-
-	if (priv->flush_dcache) {
-		flush_dcache_range((ulong)priv->fb,
-				   ALIGN((ulong)priv->fb + priv->fb_size,
-					 CONFIG_SYS_CACHELINE_SIZE));
-	}
+	video_flush_dcache(vid);
 #elif defined(CONFIG_VIDEO_SANDBOX_SDL)
-	struct video_priv *priv = dev_get_uclass_priv(vid);
 	static ulong last_sync;
 
 	if (force || get_timer(last_sync) > 100) {
