@@ -160,6 +160,8 @@ int video_fill(struct udevice *dev, u32 colour)
 	if (ret)
 		return ret;
 
+	video_damage(dev, 0, 0, priv->xsize, priv->ysize);
+
 	return video_sync(dev, false);
 }
 
