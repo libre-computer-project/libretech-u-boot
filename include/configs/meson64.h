@@ -81,6 +81,10 @@
 
 #include <config_distro_bootcmd.h>
 
+#ifndef MESON_DEVICE_SETTINGS
+#define MESON_DEVICE_SETTINGS
+#endif
+
 #ifndef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS \
 	"stdin=" STDIN_CFG "\0" \
@@ -95,6 +99,7 @@
 	"fdtoverlay_addr_r=0x01000000\0" \
 	"ramdisk_addr_r=0x13000000\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+	MESON_DEVICE_SETTINGS \
 	BOOTENV
 #endif
 
