@@ -601,22 +601,6 @@ UCLASS_DRIVER(vidconsole) = {
 	.per_device_auto	= sizeof(struct vidconsole_priv),
 };
 
-#ifdef CONFIG_VIDEO_COPY
-int vidconsole_sync_copy(struct udevice *dev, void *from, void *to)
-{
-	struct udevice *vid = dev_get_parent(dev);
-
-	return video_sync_copy(vid, from, to);
-}
-
-int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
-		       int size)
-{
-	memmove(dst, src, size);
-	return vidconsole_sync_copy(dev, dst, dst + size);
-}
-#endif
-
 void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
