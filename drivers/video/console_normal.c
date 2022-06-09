@@ -18,7 +18,6 @@ static int console_normal_set_row(struct udevice *dev, uint row, int clr)
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
 	void *line, *end;
 	int pixels = VIDEO_FONT_HEIGHT * vid_priv->xsize;
-	int ret;
 	int i;
 
 	line = vid_priv->fb + row * VIDEO_FONT_HEIGHT * vid_priv->line_length;
@@ -53,9 +52,6 @@ static int console_normal_set_row(struct udevice *dev, uint row, int clr)
 	default:
 		return -ENOSYS;
 	}
-	ret = vidconsole_sync_copy(dev, line, end);
-	if (ret)
-		return ret;
 
 	video_damage(dev->parent, 0, VIDEO_FONT_HEIGHT * row, vid_priv->xsize,
 		     VIDEO_FONT_HEIGHT);
@@ -70,14 +66,11 @@ static int console_normal_move_rows(struct udevice *dev, uint rowdst,
 	void *dst;
 	void *src;
 	int size;
-	int ret;
 
 	dst = vid_priv->fb + rowdst * VIDEO_FONT_HEIGHT * vid_priv->line_length;
 	src = vid_priv->fb + rowsrc * VIDEO_FONT_HEIGHT * vid_priv->line_length;
 	size = VIDEO_FONT_HEIGHT * vid_priv->line_length * count;
-	ret = vidconsole_memmove(dev, dst, src, size);
-	if (ret)
-		return ret;
+	memmove(dst, src, size);
 
 	video_damage(dev->parent, 0, VIDEO_FONT_HEIGHT * rowdst, vid_priv->xsize,
 		     VIDEO_FONT_HEIGHT * count);
@@ -94,7 +87,6 @@ static int console_normal_putc_xy(struct udevice *dev, uint x_frac, uint y,
 	int i, row;
 	void *start;
 	void *line;
-	int ret;
 
 	start = vid_priv->fb + y * vid_priv->line_length +
 		VID_TO_PIXEL(x_frac) * VNBYTES(vid_priv->bpix);
@@ -152,10 +144,6 @@ static int console_normal_putc_xy(struct udevice *dev, uint x_frac, uint y,
 
 	video_damage(dev->parent, VID_TO_PIXEL(x_frac), y, VIDEO_FONT_WIDTH,
 		     VIDEO_FONT_HEIGHT);
-
-	ret = vidconsole_sync_copy(dev, start, line);
-	if (ret)
-		return ret;
 
 	return VID_TO_POS(VIDEO_FONT_WIDTH);
 }
