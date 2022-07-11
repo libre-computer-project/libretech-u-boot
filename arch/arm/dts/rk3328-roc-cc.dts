@@ -11,8 +11,8 @@
 	compatible = "libretech,roc-rk3328-cc", "rockchip,rk3328";
 
 	aliases {
-		mmc0 = &sdmmc;
-		mmc1 = &emmc;
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
 	};
 
 	chosen {
