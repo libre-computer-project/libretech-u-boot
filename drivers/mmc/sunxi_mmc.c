@@ -486,7 +486,7 @@ static int sunxi_mmc_core_init(struct mmc *mmc)
 
 	/* Reset controller */
 	writel(SUNXI_MMC_GCTRL_RESET, &priv->reg->gctrl);
-	udelay(1000);
+	udelay(20000);
 
 	return 0;
 }
