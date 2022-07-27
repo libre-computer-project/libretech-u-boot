@@ -10,6 +10,26 @@
 / {
 	model = "Libre Computer Board ALL-H3-CC H5";
 	compatible = "libretech,all-h3-cc-h5", "allwinner,sun50i-h5";
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "libre-computer";
+				product = "all-h3-cc-h5";
+			};
+
+			baseboard {
+				manufacturer = "libre-computer";
+				product = "all-h3-cc-h5";
+			};
+
+			chassis {
+				manufacturer = "libre-computer";
+				product = "all-h3-cc-h5";
+			};
+		};
+	};
 };
 
 &mmc2 {
