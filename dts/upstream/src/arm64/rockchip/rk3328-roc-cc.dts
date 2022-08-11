@@ -5,6 +5,7 @@
 
 /dts-v1/;
 #include "rk3328.dtsi"
+#include "rk3328-roc-cc-dram-timing.dtsi"
 
 / {
 	model = "Firefly roc-rk3328-cc";
