@@ -4,7 +4,7 @@
  */
 
 #include "rk3399-u-boot.dtsi"
-#include "rk3399-sdram-lpddr4-100.dtsi"
+#include "rk3399-sdram-lpddr4-800-1866-100.dtsi"
 
 / {
 	chosen {
