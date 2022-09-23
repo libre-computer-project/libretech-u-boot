@@ -71,7 +71,6 @@ List of mainline supported Rockchip boards:
      - 96boards RK3399 Ficus (ficus-rk3399)
      - 96boards Rock960 (rock960-rk3399)
      - Firefly-RK3399 (firefly_rk3399)
-     - Firefly ROC-RK3399-PC
      - FriendlyElec NanoPC-T4 (nanopc-t4-rk3399)
      - FriendlyElec NanoPi M4 (nanopi-m4-rk3399)
      - FriendlyElec NanoPi M4B (nanopi-m4b-rk3399)
@@ -81,6 +80,7 @@ List of mainline supported Rockchip boards:
      - Khadas Edge (khadas-edge-rk3399)
      - Khadas Edge-Captain (khadas-edge-captain-rk3399)
      - Khadas Edge-V (hadas-edge-v-rk3399)
+     - Libre Computer ROC-RK3399-PC
      - Orange Pi RK3399 (orangepi-rk3399)
      - Pine64 RockPro64 (rockpro64-rk3399)
      - Radxa ROCK Pi 4 (rock-pi-4-rk3399)
