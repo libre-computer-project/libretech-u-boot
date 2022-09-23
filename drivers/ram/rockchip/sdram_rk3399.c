@@ -1721,6 +1721,7 @@ void modify_param(const struct chan_info *chan,
 struct rk3399_sdram_params dfs_cfgs_lpddr4[] = {
 #include "sdram-rk3399-lpddr4-400.inc"
 #include "sdram-rk3399-lpddr4-800.inc"
+#include "sdram-rk3399-lpddr4-933.inc"
 };
 
 static struct rk3399_sdram_params
