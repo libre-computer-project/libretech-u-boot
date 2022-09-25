@@ -15,6 +15,27 @@
 		u-boot,spl-payload-offset = <0x60000>; /* @ 384KB */
 	};
 
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "libre-computer";
+				product = "roc-rk3399-pc";
+			};
+
+			baseboard {
+				manufacturer = "libre-computer";
+				product = "roc-rk3399-pc";
+			};
+
+			chassis {
+				manufacturer = "libre-computer";
+				product = "roc-rk3399-pc";
+			};
+		};
+	};
+
 };
 
 /*
