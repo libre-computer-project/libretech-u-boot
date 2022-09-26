@@ -22,11 +22,6 @@
 		stdout-path = "serial2:1500000n8";
 	};
 
-	backlight: backlight {
-		compatible = "pwm-backlight";
-		pwms = <&pwm0 0 25000 0>;
-	};
-
 	clkin_gmac: external-gmac-clock {
 		compatible = "fixed-clock";
 		clock-frequency = <125000000>;
