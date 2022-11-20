@@ -288,7 +288,7 @@
 			mux {
 				groups = "ao_cec";
 				function = "cec_ao";
-				bias-disable;
+				bias-pull-up;
 			};
 		};
 
