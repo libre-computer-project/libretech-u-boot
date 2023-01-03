@@ -790,6 +790,7 @@ config VIDEO_SUNXI
 	depends on !SUN50I_GEN_H6
 	select VIDEO
 	select DISPLAY
+	select VIDEO_DAMAGE
 	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---

@@ -113,6 +113,7 @@ config TARGET_NOKIA_RX51
 	select CMDLINE_TAG
 	select INITRD_TAG
 	select REVISION_TAG
+	select VIDEO_DAMAGE
 
 config TARGET_TAO3530
 	bool "TAO3530"
