@@ -136,6 +136,10 @@ struct phy_ops {
 	* Return: 0 if OK, or a negative error code
 	*/
 	int	(*configure)(struct phy *phy, void *params);
+
+	unsigned long	(*set_pll)(struct phy *phy, unsigned long rate);
+	int	(*set_bus_width)(struct phy *phy, u32 bus_width);
+	long	(*round_rate)(struct phy *phy, unsigned long rate);
 };
 
 /**
@@ -361,6 +365,12 @@ int generic_setup_phy(struct udevice *dev, struct phy *phy, int index);
  * Return: 0 if OK, or negative error code.
  */
 int generic_shutdown_phy(struct phy *phy);
+
+unsigned long generic_phy_set_pll(struct phy *phy, unsigned long rate);
+
+int generic_phy_set_bus_width(struct phy *phy, u32 bus_width);
+
+long generic_phy_round_rate(struct phy *phy, unsigned long rate);
 
 #else /* CONFIG_PHY */
 

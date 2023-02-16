@@ -206,6 +206,54 @@ int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
 	return generic_phy_get_by_index(dev, index, phy);
 }
 
+unsigned long generic_phy_set_pll(struct phy *phy, unsigned long rate)
+{
+	struct phy_ops const *ops;
+	int ret;
+
+	if (!generic_phy_valid(phy))
+		return 0;
+	ops = phy_dev_ops(phy->dev);
+	if (!ops->set_pll)
+		return 0;
+	ret = ops->set_pll(phy, rate);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to set_pll %s: %d.\n",
+			phy->dev->name, ret);
+
+	return ret;
+}
+
+int generic_phy_set_bus_width(struct phy *phy, u32 bus_width)
+{
+	struct phy_ops const *ops;
+	int ret;
+
+	if (!generic_phy_valid(phy))
+		return 0;
+	ops = phy_dev_ops(phy->dev);
+	if (!ops->set_bus_width)
+		return 0;
+	ret = ops->set_bus_width(phy, bus_width);
+	if (ret)
+		dev_err(phy->dev, "PHY: Failed to set_bus_width %s: %d.\n",
+			phy->dev->name, ret);
+
+	return ret;
+}
+
+long generic_phy_round_rate(struct phy *phy, unsigned long rate)
+{
+	struct phy_ops const *ops;
+
+	if (!generic_phy_valid(phy))
+		return 0;
+	ops = phy_dev_ops(phy->dev);
+	if (!ops->round_rate)
+		return 0;
+	return ops->round_rate(phy, rate);
+}
+
 int generic_phy_init(struct phy *phy)
 {
 	struct phy_counts *counts;
