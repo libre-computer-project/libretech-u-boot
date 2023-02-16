@@ -4,6 +4,13 @@
 
 menu "Rockchip PHY driver"
 
+config PHY_ROCKCHIP_INNO_HDMI
+	bool "Rockchip INNO HDMI PHY Driver"
+	depends on ARCH_ROCKCHIP
+	select PHY
+	help
+	  Enable this to support the Rockchip Innosilicon HDMI PHY.
+
 config PHY_ROCKCHIP_INNO_USB2
 	bool "Rockchip INNO USB2PHY Driver"
 	depends on ARCH_ROCKCHIP
