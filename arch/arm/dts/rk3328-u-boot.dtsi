@@ -73,3 +73,7 @@
 &spi0 {
 	u-boot,dm-pre-reloc;
 };
+
+&vop {
+	u-boot,dm-pre-reloc;
+};
