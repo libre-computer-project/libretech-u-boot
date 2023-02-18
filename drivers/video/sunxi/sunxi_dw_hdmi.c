@@ -358,6 +358,15 @@ static int sunxi_dw_hdmi_probe(struct udevice *dev)
 	return 0;
 }
 
+static const struct dw_hdmi_phy_ops dw_hdmi_sunxi_phy_ops = {
+	.phy_set = sunxi_dw_hdmi_phy_cfg,
+};
+
+static const struct dw_hdmi_plat_data dw_hdmi_sunxi_plat_data = {
+	.phy_force_vendor = true,
+	.phy_ops = &dw_hdmi_sunxi_phy_ops,
+};
+
 static int sunxi_dw_hdmi_of_to_plat(struct udevice *dev)
 {
 	struct sunxi_dw_hdmi_priv *priv = dev_get_priv(dev);
@@ -367,7 +376,7 @@ static int sunxi_dw_hdmi_of_to_plat(struct udevice *dev)
 	hdmi->i2c_clk_high = 0xd8;
 	hdmi->i2c_clk_low = 0xfe;
 	hdmi->reg_io_width = 1;
-	hdmi->phy_set = sunxi_dw_hdmi_phy_cfg;
+	hdmi->data = &dw_hdmi_sunxi_plat_data;
 
 	return 0;
 }

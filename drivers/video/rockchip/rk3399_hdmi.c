@@ -64,8 +64,14 @@ static const struct dm_display_ops rk3399_hdmi_ops = {
 	.enable = rk3399_hdmi_enable,
 };
 
+static const struct dw_hdmi_plat_data rk3399_hdmi_drv_data = {
+};
+
 static const struct udevice_id rk3399_hdmi_ids[] = {
-	{ .compatible = "rockchip,rk3399-dw-hdmi" },
+	{
+		.compatible = "rockchip,rk3399-dw-hdmi",
+		.data = (ulong)&rk3399_hdmi_drv_data
+	},
 	{ }
 };
 
