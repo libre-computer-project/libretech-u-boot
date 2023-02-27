@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <clk.h>
+#include <clk-uclass.h>
 #include <dm.h>
 #include <asm/global_data.h>
 #include <dm/device_compat.h>
@@ -168,6 +168,9 @@ static struct phy_ops rockchip_usb2phy_ops = {
 	.of_xlate = rockchip_usb2phy_of_xlate,
 };
 
+static struct clk_ops rockchip_usb2phy_clk_ops = {
+};
+
 static int rockchip_usb2phy_probe(struct udevice *dev)
 {
 	struct rockchip_usb2phy *priv = dev_get_priv(dev);
@@ -246,6 +249,18 @@ static int rockchip_usb2phy_bind(struct udevice *dev)
 			dev_err(dev,
 				"'%s' cannot bind 'rockchip_usb2phy_port'\n", name);
 			return ret;
+		}
+	}
+
+	if (!ret) {
+		node = dev_ofnode(dev);
+		name = ofnode_get_name(node);
+		dev_dbg(dev, "clk for node %s\n", name);
+		ret = device_bind_driver_to_node(dev, "rockchip_usb2phy_clock",
+						 name, node, &usb2phy_dev);
+		if (ret) {
+			dev_err(dev,
+				"'%s' cannot bind 'rockchip_usb2phy_clock'\n", name);
 		}
 	}
 
@@ -364,6 +379,12 @@ U_BOOT_DRIVER(rockchip_usb2phy_port) = {
 	.name		= "rockchip_usb2phy_port",
 	.id		= UCLASS_PHY,
 	.ops		= &rockchip_usb2phy_ops,
+};
+
+U_BOOT_DRIVER(rockchip_usb2phy_clock) = {
+	.name		= "rockchip_usb2phy_clock",
+	.id		= UCLASS_CLK,
+	.ops		= &rockchip_usb2phy_clk_ops,
 };
 
 U_BOOT_DRIVER(rockchip_usb2phy) = {
