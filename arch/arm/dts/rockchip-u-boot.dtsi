@@ -48,11 +48,21 @@
 					type = "standalone";
 					os = "U-Boot";
 					arch = "arm64";
+#if defined(CONFIG_SPL_GZIP)
+					compression = "gzip";
+#else
 					compression = "none";
+#endif
 					load = <CONFIG_TEXT_BASE>;
 					entry = <CONFIG_TEXT_BASE>;
+#if defined(CONFIG_SPL_GZIP)
+					u-boot-nodtb-gzip {
+					};
+#else
 					u-boot-nodtb {
 					};
+#endif
+
 #ifdef CONFIG_SPL_FIT_SIGNATURE
 					hash {
 						algo = "sha256";
