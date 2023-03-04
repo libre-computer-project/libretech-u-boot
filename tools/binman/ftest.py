@@ -43,6 +43,7 @@ from patman import tout
 U_BOOT_DATA           = b'1234'
 U_BOOT_IMG_DATA       = b'img'
 U_BOOT_NODTB_GZ_DATA  = b'uboot nodtb gz'
+U_BOOT_NODTB_LZMA_DATA  = b'uboot nodtb lzma'
 U_BOOT_SPL_DATA       = b'56780123456789abcdefghijklm'
 U_BOOT_TPL_DATA       = b'tpl9876543210fedcbazywvuts'
 U_BOOT_VPL_DATA       = b'vpl76543210fedcbazywxyz_'
@@ -6409,6 +6410,12 @@ def testUBootnodtbBinGz(self):
         """Test that u-boot-nodtb.bin.gz can be put in a file"""
         data = self._DoReadFile('279_u_boot_nodtb_gzip.dts')
         self.assertEqual(U_BOOT_NODTB_GZ_DATA, data)
+
+def testUBootnodtbBinLzma(self):
+        """Test that u-boot-nodtb.bin.lzma can be put in a file"""
+        data = self._DoReadFile('280_u_boot_nodtb_lzma.dts')
+        self.assertEqual(U_BOOT_NODTB_LZMA_DATA, data)
+
 
 if __name__ == "__main__":
     unittest.main()
