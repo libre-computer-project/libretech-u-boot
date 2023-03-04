@@ -1312,6 +1312,9 @@ u-boot-nodtb.bin: u-boot FORCE
 ifeq ($(CONFIG_SPL_GZIP),y)
 	@gzip -k u-boot-nodtb.bin
 endif
+ifeq ($(CONFIG_SPL_LZMA),y)
+	@lzma -k u-boot-nodtb.bin
+endif
 
 u-boot.ldr:	u-boot
 		$(CREATE_LDR_ENV)
