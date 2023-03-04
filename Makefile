@@ -1309,6 +1309,9 @@ endif
 u-boot-nodtb.bin: u-boot FORCE
 	$(call if_changed,objcopy_uboot)
 	$(BOARD_SIZE_CHECK)
+ifeq ($(CONFIG_SPL_GZIP),y)
+	@gzip -k u-boot-nodtb.bin
+endif
 
 u-boot.ldr:	u-boot
 		$(CREATE_LDR_ENV)
