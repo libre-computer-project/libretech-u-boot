@@ -42,6 +42,7 @@ from patman import tout
 # Contents of test files, corresponding to different entry types
 U_BOOT_DATA           = b'1234'
 U_BOOT_IMG_DATA       = b'img'
+U_BOOT_NODTB_GZ_DATA  = b'uboot nodtb gz'
 U_BOOT_SPL_DATA       = b'56780123456789abcdefghijklm'
 U_BOOT_TPL_DATA       = b'tpl9876543210fedcbazywvuts'
 U_BOOT_VPL_DATA       = b'vpl76543210fedcbazywxyz_'
@@ -6404,6 +6405,10 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self._DoTestFile('278_mkimage_missing_multiple.dts', allow_missing=False)
         self.assertIn("not found in input path", str(e.exception))
 
+def testUBootnodtbBinGz(self):
+        """Test that u-boot-nodtb.bin.gz can be put in a file"""
+        data = self._DoReadFile('279_u_boot_nodtb_gzip.dts')
+        self.assertEqual(U_BOOT_NODTB_GZ_DATA, data)
 
 if __name__ == "__main__":
     unittest.main()
