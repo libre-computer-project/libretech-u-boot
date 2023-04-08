@@ -145,6 +145,7 @@ struct console_tt_priv {
 static int console_truetype_set_row(struct udevice *dev, uint row, int clr)
 {
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met = priv->cur_met;
 	void *end, *line;
@@ -184,9 +185,9 @@ static int console_truetype_set_row(struct udevice *dev, uint row, int clr)
 	default:
 		return -ENOSYS;
 	}
-	ret = vidconsole_sync_copy(dev, line, end);
-	if (ret)
-		return ret;
+
+	video_damage(dev->parent, 0, vc_priv->y_charsize * row, vid_priv->xsize,
+		     vc_priv->y_charsize);
 
 	return 0;
 }
@@ -195,23 +196,24 @@ static int console_truetype_move_rows(struct udevice *dev, uint rowdst,
 				     uint rowsrc, uint count)
 {
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met = priv->cur_met;
 	void *dst;
 	void *src;
-	int i, diff, ret;
+	int i, diff;
 
 	dst = vid_priv->fb + rowdst * met->font_size * vid_priv->line_length;
 	src = vid_priv->fb + rowsrc * met->font_size * vid_priv->line_length;
-	ret = vidconsole_memmove(dev, dst, src, met->font_size *
-				 vid_priv->line_length * count);
-	if (ret)
-		return ret;
+	memmove(dev, dst, src, met->font_size * vid_priv->line_length * count);
 
 	/* Scroll up our position history */
 	diff = (rowsrc - rowdst) * met->font_size;
 	for (i = 0; i < priv->pos_ptr; i++)
 		priv->pos[i].ypos -= diff;
+
+	video_damage(dev->parent, 0, vc_priv->y_charsize * rowdst, vid_priv->xsize,
+		     vc_priv->y_charsize * count);
 
 	return 0;
 }
@@ -370,9 +372,10 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 
 		line += vid_priv->line_length;
 	}
-	ret = vidconsole_sync_copy(dev, start, line);
-	if (ret)
-		return ret;
+
+	video_damage(dev->parent, VID_TO_PIXEL(x) + xoff,
+		     y + priv->baseline + yoff, width, height);
+
 	free(data);
 
 	return width_frac;
@@ -437,9 +440,8 @@ static int console_truetype_erase(struct udevice *dev, int xstart, int ystart,
 		}
 		line += vid_priv->line_length;
 	}
-	ret = vidconsole_sync_copy(dev, start, line);
-	if (ret)
-		return ret;
+
+	video_damage(dev->parent, xstart, ystart, xend - xstart, yend - ystart);
 
 	return 0;
 }
