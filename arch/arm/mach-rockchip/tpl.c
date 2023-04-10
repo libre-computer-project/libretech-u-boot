@@ -24,6 +24,7 @@
 
 #ifdef CONFIG_TPL_BUILD
 #include <linux/delay.h>
+#include <stdlib.h>
 
 #define GRF_GPIO2A_IOMUX	0xff100020
 #define GRF_GPIO2A_P		0xff100120
@@ -55,6 +56,15 @@ struct i2c_regs {
 #define RK8XX_ID_MSK		0xfff0
 #define RK8XX_ON_SOURCE		0xae
 #define RK8XX_OFF_SOURCE	0xaf
+
+enum {
+	RK816_REG_DCDC_EN1 = 0x23,
+	RK816_REG_DCDC_EN2,
+	RK816_REG_DCDC_SLP_EN,
+	RK816_REG_LDO_SLP_EN,
+	RK816_REG_LDO_EN1 = 0x27,
+	RK816_REG_LDO_EN2,
+};
 
 /* the slave address accessed  for master rx mode */
 #define I2C_MRXADDR_SET(vld, addr)		(((vld) << 24) | (addr))
@@ -412,7 +422,7 @@ void rk805_read(uint reg, uint8_t *buff, int len)
 
 	ptr = msg;
 
-	if (!i2c1_setup_offset(reg, offset_buf, ptr)) //23,
+	if (!i2c1_setup_offset(reg, offset_buf, ptr))
 		ptr++;
 
 	if (len) {
@@ -427,6 +437,33 @@ void rk805_read(uint reg, uint8_t *buff, int len)
 	ret = i2c1_xfer(msg, msg_count);
 	if(ret)
 		printf("i2c_write: error sending\n");
+}
+
+int rk805_write(uint reg, const uint8_t *buffer, int len)
+{
+	struct i2c_msg msg[1];
+	uint8_t _buf[I2C_MAX_OFFSET_LEN + 64];
+	uint8_t *buf = _buf;
+	int ret;
+
+	if (len > sizeof(_buf) - I2C_MAX_OFFSET_LEN) {
+		buf = malloc(I2C_MAX_OFFSET_LEN + len);
+		if (!buf)
+			return -ENOMEM;
+	}
+
+	i2c1_setup_offset(reg, buf, msg);
+	msg->len += len;
+	memcpy(buf + 1, buffer, len);
+
+	ret = i2c1_xfer(msg, 1);
+	if(ret)
+		printf("i2c_write: error sending\n");
+
+	if (buf != _buf)
+		free(buf);
+
+	return 0;
 }
 
 void rk805_probe(void)
@@ -486,6 +523,45 @@ void rockchip_pinctrl1_init(void)
         writel(0x30000, GRF_GPIO1D_IOMUX); //setmux
         writel(0x30001, GRF_GPIO1D_P); //setpull
 }
+
+void buck1_clrsetbits(uint reg, uint clr, uint set)
+{
+	u32 val = 0;
+
+	rk805_read(reg, (uint8_t *)&val, 1);
+
+	val = (val & ~clr) | set;
+	rk805_write(reg, (uint8_t *)&val, 1);
+}
+
+void buck1_set_suspend_enable(int buck, bool enable)
+{
+	uint mask = 0;
+
+	mask = 1 << buck;
+
+	buck1_clrsetbits(RK816_REG_DCDC_SLP_EN, mask, enable ? mask : 0);
+}
+
+void buck1_set_suspend_value(int buck, int uvolt)
+{
+	int mask = 0x3f;
+	int val;
+
+	val = 0x17;
+
+	buck1_clrsetbits(0x30, mask, val); // info->vsel_sleep_reg = 0x30
+}
+
+void buck1_set_enable(int buck, bool enable)
+{
+	uint value, en_reg;
+
+	en_reg = 0x23;
+	value = 0x11;
+
+	rk805_write(en_reg, (uint8_t *)&value, 1);
+}
 #endif
 
 void board_init_f(ulong dummy)
@@ -527,6 +603,11 @@ void board_init_f(ulong dummy)
 
 	/* init i2c1 */
 	rockchip_i2c1_init();
+
+	 /* init regulator - BUCK1 - VDD_LOG */
+	buck1_set_suspend_enable(0, 1); /* buck = 0, enable =1 */
+	buck1_set_suspend_value(0, 1000000); /* buck = 0, uvolt = 1000000 */
+	buck1_set_enable(0, 1); /* buck = 0, enable =1 */
 #endif
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
