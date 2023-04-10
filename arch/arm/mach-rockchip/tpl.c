@@ -562,6 +562,12 @@ void buck1_set_enable(int buck, bool enable)
 
 	rk805_write(en_reg, (uint8_t *)&value, 1);
 }
+
+void buck1_set_value(int vol)
+{
+	rk805_write(0x2f, (uint8_t *)&vol, 1);
+}
+
 #endif
 
 void board_init_f(ulong dummy)
@@ -608,6 +614,9 @@ void board_init_f(ulong dummy)
 	buck1_set_suspend_enable(0, 1); /* buck = 0, enable =1 */
 	buck1_set_suspend_value(0, 1000000); /* buck = 0, uvolt = 1000000 */
 	buck1_set_enable(0, 1); /* buck = 0, enable =1 */
+
+	/* set buck1 to 1.2v which is VDD_LOG */
+	buck1_set_value(0x27);
 #endif
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
