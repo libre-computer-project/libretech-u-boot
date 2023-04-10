@@ -22,6 +22,13 @@
 #include <timestamp.h>
 #endif
 
+#ifdef CONFIG_TPL_BUILD
+#define GRF_GPIO2A_IOMUX	0xff100020
+#define GRF_GPIO2A_P		0xff100120
+#define GRF_GPIO1D_IOMUX	0xff10001c
+#define GRF_GPIO1D_P		0xff10011c
+#endif
+
 #define TIMER_LOAD_COUNT_L	0x00
 #define TIMER_LOAD_COUNT_H	0x04
 #define TIMER_CONTROL_REG	0x10
@@ -50,6 +57,23 @@ __weak void rockchip_stimer_init(void)
 	       TIMER_CONTROL_REG);
 #endif
 }
+
+#ifdef CONFIG_TPL_BUILD
+
+void rockchip_pinctrl1_init(void)
+{
+/* setting mux of GPIO2-4 to 2, setting pull of GPIO2-4 to 1 */
+        writel(0x3000200, GRF_GPIO2A_IOMUX); //setmux
+        writel(0x3000000, GRF_GPIO2A_P); //setpull
+/* setting mux of GPIO2-5 to 2, setting pull of GPIO2-5 to 1 */
+        writel(0xc000800, GRF_GPIO2A_IOMUX); //setmux
+        writel(0xc000000, GRF_GPIO2A_P); //setpull
+
+/* setting mux of GPIO1-24 to 0, setting pull of GPIO1-24 to 5 */
+        writel(0x30000, GRF_GPIO1D_IOMUX); //setmux
+        writel(0x30001, GRF_GPIO1D_P); //setpull
+}
+#endif
 
 void board_init_f(ulong dummy)
 {
@@ -83,6 +107,11 @@ void board_init_f(ulong dummy)
 	/* Init ARM arch timer */
 	if (IS_ENABLED(CONFIG_SYS_ARCH_TIMER))
 		timer_init();
+
+#ifdef CONFIG_TPL_BUILD
+	/* pinctrl for i2c1 and pmic interrupt */
+	rockchip_pinctrl1_init();
+#endif
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
