@@ -62,8 +62,8 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led-system {
-			label = "librecomputer:system-status";
+		led-green {
+			label = "librecomputer:green";
 			gpios = <&gpio GPIODV_24 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
 			panic-indicator;
