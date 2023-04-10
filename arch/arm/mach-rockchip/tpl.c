@@ -23,10 +23,93 @@
 #endif
 
 #ifdef CONFIG_TPL_BUILD
+#include <linux/delay.h>
+
 #define GRF_GPIO2A_IOMUX	0xff100020
 #define GRF_GPIO2A_P		0xff100120
 #define GRF_GPIO1D_IOMUX	0xff10001c
 #define GRF_GPIO1D_P		0xff10011c
+
+struct i2c_regs {
+        u32 con;
+        u32 clkdiv;
+        u32 mrxaddr;
+        u32 mrxraddr;
+        u32 mtxcnt;
+        u32 mrxcnt;
+        u32 ien;
+        u32 ipd;
+        u32 fcnt;
+        u32 reserved0[0x37];
+        u32 txdata[8];
+        u32 reserved1[0x38];
+        u32 rxdata[8];
+};
+
+#define I2C1_REG_BASE           0xFF160000
+#define I2C_MAX_OFFSET_LEN	4
+
+#define I2C_CLKDIV_VAL(divl, divh) \
+	(((divl) & 0xffff) | (((divh) << 16) & 0xffff0000))
+
+#define RK8XX_ID_MSK		0xfff0
+#define RK8XX_ON_SOURCE		0xae
+#define RK8XX_OFF_SOURCE	0xaf
+
+/* the slave address accessed  for master rx mode */
+#define I2C_MRXADDR_SET(vld, addr)		(((vld) << 24) | (addr))
+
+/* the slave register address accessed  for master rx mode */
+#define I2C_MRXRADDR_SET(vld, raddr)		(((vld) << 24) | (raddr))
+
+/* i2c timerout */
+#define I2C_TIMEOUT_MS          100
+
+/* rk i2c fifo max transfer bytes */
+#define RK_I2C_FIFO_SIZE        32
+
+#define I2C_CON_EN              (1 << 0)
+#define I2C_CON_MOD(mod)        ((mod) << 1)
+#define I2C_MODE_TX             0x00
+#define I2C_MODE_TRX            0x01
+#define I2C_MODE_RX             0x02
+
+#define I2C_CON_START           (1 << 3)
+#define I2C_CON_STOP            (1 << 4)
+#define I2C_CON_LASTACK         (1 << 5)
+#define I2C_CON_ACTACK          (1 << 6)
+
+/* interrupt enable register */
+#define I2C_MBTFIEN             (1 << 2)
+#define I2C_MBRFIEN             (1 << 3)
+#define I2C_STARTIEN            (1 << 4)
+#define I2C_NAKRCVIEN           (1 << 6)
+
+/* interrupt pending register */
+#define I2C_MBTFIPD		(1 << 2)
+#define I2C_MBRFIPD             (1 << 3)
+#define I2C_STARTIPD            (1 << 4)
+#define I2C_STOPIPD             (1 << 5)
+#define I2C_NAKRCVIPD           (1 << 6)
+#define I2C_IPD_ALL_CLEAN       0x7f
+
+enum i2c_msg_flags {
+        I2C_M_TEN               = 0x0010, /* ten-bit chip address */
+        I2C_M_RD                = 0x0001, /* read data, from slave to master */
+        I2C_M_STOP              = 0x8000, /* send stop after this message */
+        I2C_M_NOSTART           = 0x4000, /* no start before this message */
+        I2C_M_REV_DIR_ADDR      = 0x2000, /* invert polarity of R/W bit */
+        I2C_M_IGNORE_NAK        = 0x1000, /* continue after NAK */
+        I2C_M_NO_RD_ACK         = 0x0800, /* skip the Ack bit on reads */
+        I2C_M_RECV_LEN          = 0x0400, /* length is first received byte */
+};
+
+struct i2c_msg {
+        uint addr;
+        uint flags;
+        uint len;
+        u8 *buf;
+};
 #endif
 
 #define TIMER_LOAD_COUNT_L	0x00
@@ -59,6 +142,336 @@ __weak void rockchip_stimer_init(void)
 }
 
 #ifdef CONFIG_TPL_BUILD
+int i2c1_send_start_bit(void)
+{
+	struct i2c_regs *iregs = (struct i2c_regs *)I2C1_REG_BASE;
+	ulong start;
+
+	writel(I2C_IPD_ALL_CLEAN, &iregs->ipd); //0x001c 0xFF160004
+	writel(I2C_CON_EN | I2C_CON_START, &iregs->con); //0x0000
+	writel(I2C_STARTIEN, &iregs->ien); //0x0018
+
+	start = get_timer(0);
+	while (1) {
+		if (readl(&iregs->ipd) & I2C_STARTIPD) {
+			writel(I2C_STARTIPD, &iregs->ipd); //0x001c
+			break;
+		}
+		if (get_timer(start) > I2C_TIMEOUT_MS)
+			return -ETIMEDOUT;
+		udelay(1);
+	}
+	return 0;
+}
+
+int i2c1_send_stop_bit(void)
+{
+	struct i2c_regs *iregs = (struct i2c_regs *)I2C1_REG_BASE;
+	ulong start;
+
+	writel(I2C_IPD_ALL_CLEAN, &iregs->ipd);
+	writel(I2C_CON_EN | I2C_CON_STOP, &iregs->con);
+	writel(I2C_CON_STOP, &iregs->ien);
+
+	start = get_timer(0);
+	while (1) {
+		if (readl(&iregs->ipd) & I2C_STOPIPD) {
+			writel(I2C_STOPIPD, &iregs->ipd);
+			break;
+		}
+		if (get_timer(start) > I2C_TIMEOUT_MS) {
+			printf("I2C Send Start Bit Timeout\n");
+			return -ETIMEDOUT;
+		}
+		udelay(1);
+	}
+
+	return 0;
+}
+
+inline void i2c1_disable(void)
+{
+	struct i2c_regs *iregs = (struct i2c_regs *)I2C1_REG_BASE;
+
+	writel(0, &iregs->con);
+}
+
+int i2c1_read(uchar chip, uint reg, uint r_len, uchar *buf, uint b_len)
+{
+	struct i2c_regs *iregs = (struct i2c_regs *)I2C1_REG_BASE;
+	uchar *pbuf = buf;
+	uint bytes_remain_len = b_len;
+	uint bytes_xferred = 0;
+	uint words_xferred = 0;
+	ulong start;
+	uint con = 0;
+	uint rxdata;
+	uint i, j;
+	int err;
+	bool snd_chunk = false;
+
+	err = i2c1_send_start_bit();
+	if (err)
+		return err;
+
+	writel(I2C_MRXADDR_SET(1, chip << 1 | 1), &iregs->mrxaddr);
+	if (r_len == 0) {
+		writel(0, &iregs->mrxraddr);
+	} else if (r_len < 4) {
+		writel(I2C_MRXRADDR_SET(r_len, reg), &iregs->mrxraddr);
+	} else {
+		printf("I2C Read: addr len %d not supported\n", r_len);
+		return -EIO;
+	}
+
+	while (bytes_remain_len) {
+		if (bytes_remain_len > RK_I2C_FIFO_SIZE) {
+			con = I2C_CON_EN;
+			bytes_xferred = 32;
+		} else {
+			/*
+			 * The hw can read up to 32 bytes at a time. If we need
+			 * more than one chunk, send an ACK after the last byte.
+			 */
+			con = I2C_CON_EN | I2C_CON_LASTACK;
+			bytes_xferred = bytes_remain_len;
+		}
+		words_xferred = DIV_ROUND_UP(bytes_xferred, 4);
+
+		/*
+		 * make sure we are in plain RX mode if we read a second chunk
+		 */
+		if (snd_chunk)
+			con |= I2C_CON_MOD(I2C_MODE_RX);
+		else
+			con |= I2C_CON_MOD(I2C_MODE_TRX);
+
+		writel(con, &iregs->con);
+		writel(bytes_xferred, &iregs->mrxcnt);
+		writel(I2C_MBRFIEN | I2C_NAKRCVIEN, &iregs->ien);
+
+		start = get_timer(0);
+		while (1) {
+			if (readl(&iregs->ipd) & I2C_NAKRCVIPD) {
+				writel(I2C_NAKRCVIPD, &iregs->ipd);
+				err = -EREMOTEIO;
+			}
+			if (readl(&iregs->ipd) & I2C_MBRFIPD) {
+				writel(I2C_MBRFIPD, &iregs->ipd);
+				break;
+			}
+			if (get_timer(start) > I2C_TIMEOUT_MS) {
+				printf("I2C Read Data Timeout\n");
+				err =  -ETIMEDOUT;
+				goto i2c_exit;
+			}
+			udelay(1);
+		}
+
+		for (i = 0; i < words_xferred; i++) {
+			rxdata = readl(&iregs->rxdata[i]);
+			for (j = 0; j < 4; j++) {
+				if ((i * 4 + j) == bytes_xferred)
+					break;
+				*pbuf++ = (rxdata >> (j * 8)) & 0xff;
+			}
+		}
+
+		bytes_remain_len -= bytes_xferred;
+		snd_chunk = true;
+	}
+
+i2c_exit:
+	i2c1_disable();
+
+	return err;
+}
+
+int i2c1_write(uchar chip, uint reg, uint r_len, uchar *buf, uint b_len)
+{
+	struct i2c_regs *iregs = (struct i2c_regs *)I2C1_REG_BASE;
+	int err;
+	uchar *pbuf = buf;
+	uint bytes_remain_len = b_len + r_len + 1;
+	uint bytes_xferred = 0;
+	uint words_xferred = 0;
+	ulong start;
+	uint txdata;
+	uint i, j;
+
+	err = i2c1_send_start_bit();
+	if (err)
+		return err;
+
+	while (bytes_remain_len) {
+		if (bytes_remain_len > RK_I2C_FIFO_SIZE)
+			bytes_xferred = RK_I2C_FIFO_SIZE;
+		else
+			bytes_xferred = bytes_remain_len;
+		words_xferred = DIV_ROUND_UP(bytes_xferred, 4);
+
+		for (i = 0; i < words_xferred; i++) {
+			txdata = 0;
+			for (j = 0; j < 4; j++) {
+				if ((i * 4 + j) == bytes_xferred)
+					break;
+
+				if (i == 0 && j == 0 && pbuf == buf) {
+					txdata |= (chip << 1);
+				} else if (i == 0 && j <= r_len && pbuf == buf) {
+					txdata |= (reg &
+						(0xff << ((j - 1) * 8))) << 8;
+				} else {
+					txdata |= (*pbuf++)<<(j * 8);
+				}
+			}
+			writel(txdata, &iregs->txdata[i]);
+		}
+
+		writel(I2C_CON_EN | I2C_CON_MOD(I2C_MODE_TX), &iregs->con);
+		writel(bytes_xferred, &iregs->mtxcnt);
+		writel(I2C_MBTFIEN | I2C_NAKRCVIEN, &iregs->ien);
+
+		start = get_timer(0);
+
+		while (1) {
+			if (readl(&iregs->ipd) & I2C_NAKRCVIPD) {
+				writel(I2C_NAKRCVIPD, &iregs->ipd);
+				err = -EREMOTEIO;
+			}
+			if (readl(&iregs->ipd) & I2C_MBTFIPD) {
+				writel(I2C_MBTFIPD, &iregs->ipd);
+				break;
+			}
+			if (get_timer(start) > I2C_TIMEOUT_MS) {
+				printf("I2C Write Data Timeout\n");
+				err =  -ETIMEDOUT;
+				goto i2c_exit;
+			}
+			udelay(1);
+		}
+
+		bytes_remain_len -= bytes_xferred;
+
+	}
+
+i2c_exit:
+	i2c1_disable();
+
+	return err;
+}
+
+int i2c1_xfer(struct i2c_msg *msg, int nmsgs)
+{
+	int ret;
+
+
+	for (; nmsgs > 0; nmsgs--, msg++) {
+		if (msg->flags & I2C_M_RD) {
+			ret = i2c1_read(msg->addr, 0, 0, msg->buf, msg->len);
+		} else {
+			ret = i2c1_write(msg->addr, 0, 0, msg->buf, msg->len);
+		}
+		if (ret) {
+			printf("i2c_write: error sending\n");
+			return -EREMOTEIO;
+		}
+	}
+
+	i2c1_send_stop_bit();
+	i2c1_disable();
+
+	return 0;
+}
+
+int i2c1_setup_offset(uint offset, uint8_t offset_buf[], struct i2c_msg *msg)
+{
+        int offset_len = 1;
+
+        msg->addr = 0x18; //24
+        msg->flags = 0;
+        msg->len = 1;
+
+        msg->buf = offset_buf;
+        if (!offset_len)
+                return -EADDRNOTAVAIL;
+
+        assert(offset_len <= I2C_MAX_OFFSET_LEN);
+
+        while (offset_len--)
+                *offset_buf++ = offset >> (8 * offset_len);
+
+        return 0;
+}
+
+void rk805_read(uint reg, uint8_t *buff, int len)
+{
+	struct i2c_msg msg[2], *ptr;
+	uint8_t offset_buf[I2C_MAX_OFFSET_LEN];
+	int msg_count, ret;
+
+	ptr = msg;
+
+	if (!i2c1_setup_offset(reg, offset_buf, ptr)) //23,
+		ptr++;
+
+	if (len) {
+		ptr->addr = msg->addr;
+		ptr->flags = I2C_M_RD;
+		ptr->len = len;
+		ptr->buf = buff;
+		ptr++;
+	}
+	msg_count = ptr - msg;
+
+	ret = i2c1_xfer(msg, msg_count);
+	if(ret)
+		printf("i2c_write: error sending\n");
+}
+
+void rk805_probe(void)
+{
+	u8 msb, lsb, id_msb, id_lsb;
+	u8 on_source = 0, off_source = 0;
+	int variant;
+	u32 val_on = 0;
+	u32 val_off = 0;
+
+	id_msb = 23;
+	msb = 0;
+
+	rk805_read(id_msb, &msb, 1); // 23, 0, 1
+
+	id_lsb = 24;
+	lsb = 0;
+
+	rk805_read(id_lsb, &lsb, 1); //24, 0, 1
+
+	variant = ((msb << 8) | lsb) & RK8XX_ID_MSK;
+	on_source = RK8XX_ON_SOURCE;
+	off_source = RK8XX_OFF_SOURCE;
+
+	rk805_read(on_source, (uint8_t *)&val_on, 1);
+	rk805_read(off_source, (uint8_t *)&val_off, 1);
+
+	printf("PMIC:  RK%x ", variant);
+
+	if (on_source && off_source)
+		printf("(on=0x%02x, off=0x%02x)", val_on, val_off);
+	printf("\n");
+}
+
+void rockchip_i2c1_init(void)
+{
+	int divl, divh;
+	struct i2c_regs *iregs = (struct i2c_regs *)I2C1_REG_BASE;
+
+	divl = 44;
+	divh = 44;
+	writel(I2C_CLKDIV_VAL(divl, divh), &iregs->clkdiv);
+
+	rk805_probe();
+}
 
 void rockchip_pinctrl1_init(void)
 {
@@ -111,6 +524,9 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_TPL_BUILD
 	/* pinctrl for i2c1 and pmic interrupt */
 	rockchip_pinctrl1_init();
+
+	/* init i2c1 */
+	rockchip_i2c1_init();
 #endif
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
