@@ -112,6 +112,8 @@ static void meson_set_boot_source(void)
 	switch (meson_get_boot_device()) {
 	case BOOT_DEVICE_EMMC:
 		source = "emmc";
+		env_set("bootdevice", "0");
+		env_set("splashdevpart", "0");
 		break;
 
 	case BOOT_DEVICE_NAND:
@@ -124,6 +126,8 @@ static void meson_set_boot_source(void)
 
 	case BOOT_DEVICE_SD:
 		source = "sd";
+		env_set("bootdevice", "1");
+		env_set("splashdevpart", "1");
 		break;
 
 	case BOOT_DEVICE_USB:
@@ -135,6 +139,18 @@ static void meson_set_boot_source(void)
 	}
 
 	env_set("boot_source", source);
+}
+
+int mmc_get_env_dev(void)
+{
+	switch (meson_get_boot_device()) {
+	case BOOT_DEVICE_SD:
+		return 1;
+		break;
+	}
+
+	return CONFIG_SYS_MMC_ENV_DEV;
+
 }
 
 __weak int meson_board_late_init(void)
