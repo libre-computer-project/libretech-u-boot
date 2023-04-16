@@ -21,6 +21,12 @@
 #define EFUSE_MAC_OFFSET	52
 #define EFUSE_MAC_SIZE		6
 
+#define ETH_REG_BASE	0xc8834540
+#define ETH_REG_0		0x4
+#define ETH_REG_2		0x18
+#define GX_ETH_REG_0_INVERT_RMII_CLK    BIT(11)
+#define GX_ETH_REG_0_CLK_EN             BIT(12)
+
 int misc_init_r(void)
 {
 	u8 mac_addr[EFUSE_MAC_SIZE];
@@ -34,6 +40,13 @@ int misc_init_r(void)
 			eth_env_set_enetaddr("ethaddr", mac_addr);
 		else
 			meson_generate_serial_ethaddr();
+
+		if (!IS_ENABLED(CONFIG_ETH_DESIGNWARE_MESON8B)){
+			printf("Net:   Fast Ethernet\n");
+			out_le32(ETH_REG_BASE + ETH_REG_0, GX_ETH_REG_0_INVERT_RMII_CLK | GX_ETH_REG_0_CLK_EN);
+			writel(0x10110181, ETH_REG_BASE + ETH_REG_2);
+		}
+
 	}
 
 	if (!env_get("serial#")) {
