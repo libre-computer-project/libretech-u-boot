@@ -143,6 +143,7 @@ static void meson_set_boot_source(void)
 	env_set("boot_source", source);
 }
 
+#ifdef CONFIG_SYS_MMC_ENV_DEV
 int mmc_get_env_dev(void)
 {
 	switch (meson_get_boot_device()) {
@@ -152,8 +153,8 @@ int mmc_get_env_dev(void)
 	}
 
 	return CONFIG_SYS_MMC_ENV_DEV;
-
 }
+#endif
 
 __weak int meson_board_late_init(void)
 {
