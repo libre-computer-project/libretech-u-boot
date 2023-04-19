@@ -76,12 +76,14 @@
 	func(MMC, mmc, 2) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_NVME(func) \
-	BOOT_TARGET_SCSI(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_SCSI(func)
 #endif
 
 #include <config_distro_bootcmd.h>
+
+#ifndef MESON_DEVICE_SETTINGS
+#define MESON_DEVICE_SETTINGS
+#endif
 
 #ifndef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS \
@@ -97,6 +99,7 @@
 	"fdtoverlay_addr_r=0x01000000\0" \
 	"ramdisk_addr_r=0x13000000\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+	MESON_DEVICE_SETTINGS \
 	BOOTENV
 #endif
 
