@@ -21,6 +21,8 @@
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include <linux/types.h>
+#include <linux/bitmap.h>
 #ifdef CONFIG_SANDBOX
 #include <asm/sdl.h>
 #endif
@@ -129,7 +131,6 @@ int video_reserve(ulong *addrp)
 int video_fill(struct udevice *dev, u32 colour)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
-	int ret;
 
 	switch (priv->bpix) {
 	case VIDEO_BPP16:
@@ -154,9 +155,8 @@ int video_fill(struct udevice *dev, u32 colour)
 		memset(priv->fb, colour, priv->fb_size);
 		break;
 	}
-	ret = video_sync_copy(dev, priv->fb, priv->fb + priv->fb_size);
-	if (ret)
-		return ret;
+
+	video_damage(dev, 0, 0, priv->xsize, priv->ysize);
 
 	return video_sync(dev, false);
 }
@@ -254,11 +254,103 @@ void video_set_default_colors(struct udevice *dev, bool invert)
 	priv->colour_bg = video_index_to_colour(priv, back);
 }
 
+/* Notify about changes in the frame buffer */
+int video_damage(struct udevice *vid, int x, int y, int width, int height)
+{
+	struct video_priv *priv = dev_get_uclass_priv(vid);
+	int endx = x + width;
+	int endy = y + height;
+
+	if (!CONFIG_IS_ENABLED(VIDEO_DAMAGE))
+		return 0;
+
+	if (x > priv->xsize)
+		return 0;
+
+	if (y > priv->ysize)
+		return 0;
+
+	if (endx > priv->xsize)
+		endx = priv->xsize;
+
+	if (endy > priv->ysize)
+		endy = priv->ysize;
+
+	/* Span a rectangle across all old and new damage */
+	priv->damage.x = min(x, priv->damage.x);
+	priv->damage.y = min(y, priv->damage.y);
+	priv->damage.endx = max(endx, priv->damage.endx);
+	priv->damage.endy = max(endy, priv->damage.endy);
+
+	return 0;
+}
+
+static void video_flush_dcache(struct udevice *vid)
+{
+	struct video_priv *priv = dev_get_uclass_priv(vid);
+
+	if (CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		return;
+
+	if (!priv->flush_dcache)
+		return;
+
+	if (!CONFIG_IS_ENABLED(VIDEO_DAMAGE)) {
+		flush_dcache_range((ulong)priv->fb,
+				   ALIGN((ulong)priv->fb + priv->fb_size,
+					 CONFIG_SYS_CACHELINE_SIZE));
+
+		return;
+	}
+
+	if (priv->damage.endx > priv->damage.x) {
+		int lstart = priv->damage.x * VNBYTES(priv->bpix);
+		int lend = priv->damage.endx * VNBYTES(priv->bpix);
+		int y;
+
+		for (y = priv->damage.y; y < priv->damage.endy; y++) {
+			ulong fb = (ulong)priv->fb;
+			ulong start = fb + (y * priv->line_length) + lstart;
+			ulong end = start + lend - lstart;
+
+			start = ALIGN_DOWN(start, CONFIG_SYS_CACHELINE_SIZE);
+			end = ALIGN(end, CONFIG_SYS_CACHELINE_SIZE);
+
+			flush_dcache_range(start, end);
+		}
+	}
+}
+
+static void video_flush_copy(struct udevice *vid)
+{
+	struct video_priv *priv = dev_get_uclass_priv(vid);
+
+	if (!priv->copy_fb)
+		return;
+
+	if (priv->damage.endx && priv->damage.endy) {
+		int lstart = priv->damage.x * VNBYTES(priv->bpix);
+		int lend = priv->damage.endx * VNBYTES(priv->bpix);
+		int y;
+
+		for (y = priv->damage.y; y < priv->damage.endy; y++) {
+			ulong offset = (y * priv->line_length) + lstart;
+			ulong len = lend - lstart;
+
+			memcpy(priv->copy_fb + offset, priv->fb + offset, len);
+		}
+	}
+}
+
 /* Flush video activity to the caches */
 int video_sync(struct udevice *vid, bool force)
 {
+	struct video_priv *priv = dev_get_uclass_priv(vid);
 	struct video_ops *ops = video_get_ops(vid);
 	int ret;
+
+	if (CONFIG_IS_ENABLED(VIDEO_COPY))
+		video_flush_copy(vid);
 
 	if (ops && ops->video_sync) {
 		ret = ops->video_sync(vid);
@@ -266,21 +358,9 @@ int video_sync(struct udevice *vid, bool force)
 			return ret;
 	}
 
-	/*
-	 * flush_dcache_range() is declared in common.h but it seems that some
-	 * architectures do not actually implement it. Is there a way to find
-	 * out whether it exists? For now, ARM is safe.
-	 */
-#if defined(CONFIG_ARM) && !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
-	struct video_priv *priv = dev_get_uclass_priv(vid);
+	video_flush_dcache(vid);
 
-	if (priv->flush_dcache) {
-		flush_dcache_range((ulong)priv->fb,
-				   ALIGN((ulong)priv->fb + priv->fb_size,
-					 CONFIG_SYS_CACHELINE_SIZE));
-	}
-#elif defined(CONFIG_VIDEO_SANDBOX_SDL)
-	struct video_priv *priv = dev_get_uclass_priv(vid);
+#if defined(CONFIG_VIDEO_SANDBOX_SDL)
 	static ulong last_sync;
 
 	if (force || get_timer(last_sync) > 100) {
@@ -288,6 +368,14 @@ int video_sync(struct udevice *vid, bool force)
 		last_sync = get_timer(0);
 	}
 #endif
+
+	if (CONFIG_IS_ENABLED(VIDEO_DAMAGE)) {
+		priv->damage.x = priv->xsize;
+		priv->damage.y = priv->ysize;
+		priv->damage.endx = 0;
+		priv->damage.endy = 0;
+	}
+
 	return 0;
 }
 
@@ -334,69 +422,6 @@ int video_get_ysize(struct udevice *dev)
 
 	return priv->ysize;
 }
-
-#ifdef CONFIG_VIDEO_COPY
-int video_sync_copy(struct udevice *dev, void *from, void *to)
-{
-	struct video_priv *priv = dev_get_uclass_priv(dev);
-
-	if (priv->copy_fb) {
-		long offset, size;
-
-		/* Find the offset of the first byte to copy */
-		if ((ulong)to > (ulong)from) {
-			size = to - from;
-			offset = from - priv->fb;
-		} else {
-			size = from - to;
-			offset = to - priv->fb;
-		}
-
-		/*
-		 * Allow a bit of leeway for valid requests somewhere near the
-		 * frame buffer
-		 */
-		if (offset < -priv->fb_size || offset > 2 * priv->fb_size) {
-#ifdef DEBUG
-			char str[120];
-
-			snprintf(str, sizeof(str),
-				 "[** FAULT sync_copy fb=%p, from=%p, to=%p, offset=%lx]",
-				 priv->fb, from, to, offset);
-			console_puts_select_stderr(true, str);
-#endif
-			return -EFAULT;
-		}
-
-		/*
-		 * Silently crop the memcpy. This allows callers to avoid doing
-		 * this themselves. It is common for the end pointer to go a
-		 * few lines after the end of the frame buffer, since most of
-		 * the update algorithms terminate a line after their last write
-		 */
-		if (offset + size > priv->fb_size) {
-			size = priv->fb_size - offset;
-		} else if (offset < 0) {
-			size += offset;
-			offset = 0;
-		}
-
-		memcpy(priv->copy_fb + offset, priv->fb + offset, size);
-	}
-
-	return 0;
-}
-
-int video_sync_copy_all(struct udevice *dev)
-{
-	struct video_priv *priv = dev_get_uclass_priv(dev);
-
-	video_sync_copy(dev, priv->fb, priv->fb + priv->fb_size);
-
-	return 0;
-}
-
-#endif
 
 #define SPLASH_DECL(_name) \
 	extern u8 __splash_ ## _name ## _begin[]; \
