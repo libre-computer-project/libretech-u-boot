@@ -12,9 +12,13 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(ROMUSB, romusb, na)  \
 	func(MMC, mmc, 0) \
-	BOOT_TARGET_DEVICES_USB(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	func(MMC, mmc, 2) \
+	BOOT_TARGET_DEVICES_USB(func)
+
+#include <configs/libretech.h>
+
+#define MESON_DEVICE_SETTINGS \
+			SPLASH_ENV
 
 #include <configs/meson64.h>
 
