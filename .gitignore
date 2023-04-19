@@ -108,3 +108,6 @@ __pycache__
 
 # moveconfig database
 /moveconfig.db
+
+drivers/video/u_boot_logo.S
+keep-syms-lto.c
