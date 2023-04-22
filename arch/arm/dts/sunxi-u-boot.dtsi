@@ -46,12 +46,17 @@
 					arch = "arm64";
 #if defined(CONFIG_SPL_GZIP)
 					compression = "gzip";
+#elif defined(CONFIG_SPL_LZMA)
+					compression = "lzma";
 #else
 					compression = "none";
 #endif
 					load = <CONFIG_TEXT_BASE>;
 #if defined(CONFIG_SPL_GZIP)
 					u-boot-nodtb-gzip {
+					};
+#elif defined(CONFIG_SPL_LZMA)
+					u-boot-nodtb-lzma {
 					};
 #else
 					u-boot-nodtb {
