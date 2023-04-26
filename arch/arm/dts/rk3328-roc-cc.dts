@@ -7,8 +7,8 @@
 #include "rk3328.dtsi"
 
 / {
-	model = "Firefly roc-rk3328-cc";
-	compatible = "firefly,roc-rk3328-cc", "rockchip,rk3328";
+	model = "Libre Computer ROC-RK3328-CC";
+	compatible = "libretech,roc-rk3328-cc", "rockchip,rk3328";
 
 	aliases {
 		mmc0 = &sdmmc;
