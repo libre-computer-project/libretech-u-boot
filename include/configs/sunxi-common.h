@@ -318,6 +318,8 @@
 #define FDTFILE CONFIG_DEFAULT_DEVICE_TREE ".dtb"
 #endif
 
+#include <configs/libretech.h>
+
 #define CFG_EXTRA_ENV_SETTINGS \
 	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
@@ -329,6 +331,7 @@
 	"uuid_gpt_system=" UUID_GPT_SYSTEM "\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
 	BOOTCMD_SUNXI_COMPAT \
+	SPLASH_ENV \
 	BOOTENV
 
 #endif /* _SUNXI_COMMON_CONFIG_H */
