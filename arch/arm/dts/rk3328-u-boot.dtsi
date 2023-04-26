@@ -28,7 +28,7 @@
 	};
 
 	usb_host0_xhci: usb@ff600000 {
-		compatible = "rockchip,rk3328-xhci";
+		compatible = "rockchip,rk3328-xhci", "rockchip,rk3328-dwc3", "snps,dwc3";
 		reg = <0x0 0xff600000 0x0 0x100000>;
 		interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>;
 		snps,dis-enblslpm-quirk;
