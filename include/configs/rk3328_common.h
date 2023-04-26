@@ -23,10 +23,12 @@
 	"kernel_comp_size=0x2000000\0"
 
 #include <config_distro_bootcmd.h>
+#include <configs/libretech.h>
 #define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \
+	SPLASH_ENV \
 	BOOTENV
 
 #endif
