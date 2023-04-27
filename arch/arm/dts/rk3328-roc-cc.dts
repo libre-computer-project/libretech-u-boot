@@ -7,6 +7,8 @@
 #include "rk3328.dtsi"
 #include "rk3328-roc-cc-dram-timing.dtsi"
 
+#include <dt-bindings/leds/common.h>
+
 / {
 	model = "Libre Computer ROC-RK3328-CC";
 	compatible = "libretech,roc-rk3328-cc", "rockchip,rk3328";
@@ -100,16 +102,18 @@
 		compatible = "gpio-leds";
 
 		power_led: led-0 {
-			label = "firefly:blue:power";
-			linux,default-trigger = "heartbeat";
+			label = "librecomputer:red";
+			color = <LED_COLOR_ID_RED>;
 			gpios = <&rk805 1 GPIO_ACTIVE_LOW>;
 			default-state = "on";
+			panic-indicator;
 			mode = <0x23>;
 		};
 
 		user_led: led-1 {
-			label = "firefly:yellow:user";
-			linux,default-trigger = "mmc1";
+			label = "librecomputer:green";
+			color = <LED_COLOR_ID_GREEN>;
+			linux,default-trigger = "heartbeat";
 			gpios = <&rk805 0 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 			mode = <0x05>;
