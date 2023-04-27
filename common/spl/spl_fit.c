@@ -292,7 +292,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 		if ( (IS_ENABLED(CONFIG_SPL_GZIP) && image_comp == IH_COMP_GZIP) ||
 		   ( (IS_ENABLED(CONFIG_SPL_LZMA) && image_comp == IH_COMP_LZMA)))
 		{
-			ulong cmpr_src_addr = 0x05000000 ;
+			ulong cmpr_src_addr = CONFIG_SYS_LOAD_ADDR ;
 			src_ptr = map_sysmem(ALIGN(cmpr_src_addr, ARCH_DMA_MINALIGN), len);
 		}
 		else
