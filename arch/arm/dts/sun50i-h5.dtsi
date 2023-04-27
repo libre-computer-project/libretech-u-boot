@@ -194,13 +194,13 @@
 
 			trips {
 				cpu_hot_trip: cpu-hot {
-					temperature = <80000>;
+					temperature = <65000>;
 					hysteresis = <2000>;
 					type = "passive";
 				};
 
 				cpu_very_hot_trip: cpu-very-hot {
-					temperature = <100000>;
+					temperature = <80000>;
 					hysteresis = <0>;
 					type = "critical";
 				};
