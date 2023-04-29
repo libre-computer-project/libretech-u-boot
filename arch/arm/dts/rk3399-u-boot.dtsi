@@ -20,15 +20,6 @@
 		reg = <0x0 0xff620000 0x0 0x100>;
 	};
 
-	dfi: dfi@ff630000 {
-		u-boot,dm-pre-reloc;
-		reg = <0x00 0xff630000 0x00 0x4000>;
-		compatible = "rockchip,rk3399-dfi";
-		rockchip,pmu = <&pmugrf>;
-		clocks = <&cru PCLK_DDR_MON>;
-		clock-names = "pclk_ddr_mon";
-	};
-
 	rng: rng@ff8b8000 {
 		compatible = "rockchip,cryptov1-rng";
 		reg = <0x0 0xff8b8000 0x0 0x1000>;
@@ -70,6 +61,11 @@
 
 &cru {
 	u-boot,dm-pre-reloc;
+};
+
+&dfi {
+	u-boot,dm-pre-reloc;
+	status = "okay";
 };
 
 &dmc {
