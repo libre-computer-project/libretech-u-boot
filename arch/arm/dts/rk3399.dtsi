@@ -1505,8 +1505,7 @@
 			<&cru HCLK_PERILP1>, <&cru PCLK_PERILP1>,
 			<&cru ACLK_VIO>, <&cru ACLK_HDCP>,
 			<&cru ACLK_GIC_PRE>,
-			<&cru PCLK_DDR>,
-			<&cru ACLK_VDU>;
+			<&cru PCLK_DDR>;
 		assigned-clock-rates =
 			 <594000000>,  <800000000>,
 			<1000000000>,
@@ -1517,8 +1516,7 @@
 			 <100000000>,   <50000000>,
 			 <400000000>, <400000000>,
 			 <200000000>,
-			 <200000000>,
-			 <400000000>;
+			 <200000000>;
 	};
 
 	grf: syscon@ff770000 {
