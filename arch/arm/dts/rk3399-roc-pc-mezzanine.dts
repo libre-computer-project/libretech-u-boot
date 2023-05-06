@@ -8,8 +8,8 @@
 #include "rk3399-roc-pc.dtsi"
 
 / {
-	model = "Firefly ROC-RK3399-PC Mezzanine Board";
-	compatible = "firefly,roc-rk3399-pc-mezzanine", "rockchip,rk3399";
+	model = "Libre Computer ROC-RK3399-PC";
+	compatible = "libretech,roc-rk3399-pc", "rockchip,rk3399";
 
 	aliases {
 		mmc2 = &sdio0;
