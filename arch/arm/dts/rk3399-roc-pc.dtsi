@@ -10,8 +10,8 @@
 #include "rk3399-op1-opp.dtsi"
 
 / {
-	model = "Firefly ROC-RK3399-PC Board";
-	compatible = "firefly,roc-rk3399-pc", "rockchip,rk3399";
+	model = "Libre Computer ROC-RK3399-PC";
+	compatible = "libretech,roc-rk3399-pc", "rockchip,rk3399";
 
 	aliases {
 		mmc0 = &sdhci;
