@@ -337,6 +337,14 @@
 	status = "okay";
 };
 
+&h265e_mmu {
+	status = "okay";
+};
+
+&saradc {
+	status = "okay";
+};
+
 &sdmmc {
 	bus-width = <4>;
 	cap-mmc-highspeed;
@@ -388,6 +396,10 @@
 	status = "okay";
 };
 
+&vepu_mmu {
+	status = "okay";
+};
+
 &vop {
 	status = "okay";
 };
@@ -395,3 +407,4 @@
 &vop_mmu {
 	status = "okay";
 };
+
