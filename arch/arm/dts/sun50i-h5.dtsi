@@ -15,6 +15,7 @@
 			device_type = "cpu";
 			reg = <0>;
 			enable-method = "psci";
+			next-level-cache = <&L2>;
 			clocks = <&ccu CLK_CPUX>;
 			#cooling-cells = <2>;
 		};
@@ -24,6 +25,7 @@
 			device_type = "cpu";
 			reg = <1>;
 			enable-method = "psci";
+			next-level-cache = <&L2>;
 			clocks = <&ccu CLK_CPUX>;
 			#cooling-cells = <2>;
 		};
@@ -33,6 +35,7 @@
 			device_type = "cpu";
 			reg = <2>;
 			enable-method = "psci";
+			next-level-cache = <&L2>;
 			clocks = <&ccu CLK_CPUX>;
 			#cooling-cells = <2>;
 		};
@@ -42,8 +45,14 @@
 			device_type = "cpu";
 			reg = <3>;
 			enable-method = "psci";
+			next-level-cache = <&L2>;
 			clocks = <&ccu CLK_CPUX>;
 			#cooling-cells = <2>;
+		};
+		L2: l2-cache {
+			compatible = "cache";
+			cache-level = <2>;
+			cache-unified;
 		};
 	};
 
