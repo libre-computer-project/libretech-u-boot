@@ -568,6 +568,14 @@ void buck1_set_value(int vol)
 	rk805_write(0x2f, (uint8_t *)&vol, 1);
 }
 
+void rk805_out_led_ctrl(bool enable)
+{
+	int mask = 0x3;
+	int val = enable ? 0x0 : 0x1;
+
+	buck1_clrsetbits(0x52, mask, val);
+}
+
 #endif
 
 void board_init_f(ulong dummy)
@@ -617,6 +625,8 @@ void board_init_f(ulong dummy)
 
 	/* set buck1 to 1.2v which is VDD_LOG */
 	buck1_set_value(0x27);
+
+	rk805_out_led_ctrl(0);
 #endif
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
