@@ -15,15 +15,6 @@
 		u-boot,spl-payload-offset = <0x60000>; /* @ 384KB */
 	};
 
-	vcc_hub_en: vcc_hub_en-regulator {
-		compatible = "regulator-fixed";
-		enable-active-high;
-		gpio = <&gpio2 RK_PA4 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&hub_rst>;
-		regulator-name = "vcc_hub_en";
-		regulator-always-on;
-	};
 };
 
 /*
