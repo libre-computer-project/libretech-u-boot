@@ -180,7 +180,7 @@
 		enable-active-high;
 		gpio = <&gpio1 RK_PA0 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&vcc5v0_host_en &hub_rst>;
+		pinctrl-0 = <&vcc5v0_host_en>;
 		regulator-name = "vcc5v0_host";
 		vin-supply = <&vcc_sys>;
 	};
@@ -192,6 +192,17 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&vcc_vbus_typec1_en>;
 		regulator-name = "vcc_vbus_typec1";
+		regulator-always-on;
+		vin-supply = <&vcc_sys>;
+	};
+
+	vcc_hub_en: vcc_hub_en-regulator {
+		compatible = "regulator-fixed";
+		enable-active-high;
+		gpio = <&gpio2 RK_PA4 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&hub_rst>;
+		regulator-name = "vcc_hub_en";
 		regulator-always-on;
 		vin-supply = <&vcc_sys>;
 	};
