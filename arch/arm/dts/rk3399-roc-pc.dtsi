@@ -122,7 +122,7 @@
 		regulator-name = "sys_12v";
 		regulator-always-on;
 		regulator-boot-on;
-		vin-supply = <&dc_12v>;
+		/* vin-supply = <&dc_12v>; */
 	};
 
 	/* switched by pmic_sleep */
