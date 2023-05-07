@@ -12,7 +12,7 @@
 	};
 
 	config {
-		u-boot,spl-payload-offset = <0x60000>; /* @ 384KB */
+		u-boot,spl-payload-offset = <0x62000>; /* @ 384KB */
 	};
 
 	smbios {
