@@ -84,7 +84,7 @@ static struct splash_location splash_locations[] = {
                 .name = "mmc_fs",
                 .storage = SPLASH_STORAGE_MMC,
                 .flags = SPLASH_STORAGE_FS,
-                .devpart = "0:1",
+                .devpart = "0:auto",
         }
 };
 
