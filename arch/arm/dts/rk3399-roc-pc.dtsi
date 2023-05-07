@@ -5,6 +5,7 @@
 
 /dts-v1/;
 #include <dt-bindings/input/linux-event-codes.h>
+#include <dt-bindings/leds/common.h>
 #include <dt-bindings/pwm/pwm.h>
 #include "rk3399.dtsi"
 #include "rk3399-op1-opp.dtsi"
@@ -68,23 +69,26 @@
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
-		pinctrl-0 = <&work_led_pin>, <&diy_led_pin>, <&yellow_led_pin>;
+		pinctrl-0 = <&led_green_pin>, <&led_red_pin>, <&led_yellow_pin>;
 
-		work_led: led-0 {
-			label = "green:work";
+		led_green: led-green {
+			label = "librecomputer:green";
+			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&gpio2 RK_PD3 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
 		};
 
-		diy_led: led-1 {
-			label = "red:diy";
+		led_red: led-red {
+			label = "librecomputer:red";
+			color = <LED_COLOR_ID_RED>;
 			gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
 			default-state = "off";
 			linux,default-trigger = "activity";
 		};
 
-		yellow_led: led-2 {
-			label = "yellow:yellow-led";
+		led_yellow: led-yellow {
+			label = "librecomputer:yellow";
+			color = <LED_COLOR_ID_YELLOW>;
 			gpios = <&gpio0 RK_PA2 GPIO_ACTIVE_HIGH>;
 			default-state = "off";
 			linux,default-trigger = "heartbeat";
@@ -673,15 +677,15 @@
 	};
 
 	leds {
-		diy_led_pin: diy-led-pin {
+		led_red_pin: led-red-pin {
 			rockchip,pins = <0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
-		work_led_pin: work-led-pin {
+		led_green_pin: led-green-pin {
 			rockchip,pins = <2 RK_PD3 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
-		yellow_led_pin: yellow-led-pin {
+		led_yellow_pin: led-yellow-pin {
 			rockchip,pins = <0 RK_PA2 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
