@@ -113,4 +113,4 @@ drivers/video/u_boot_logo.S
 keep-syms-lto.c
 
 /build
-/simple-bin.*
+/simple-bin*
