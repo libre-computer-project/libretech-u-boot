@@ -7,6 +7,7 @@
 #include <dt-bindings/input/linux-event-codes.h>
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/pwm/pwm.h>
+#include <dt-bindings/usb/pd.h>
 #include "rk3399.dtsi"
 #include "rk3399-op1-opp.dtsi"
 
@@ -574,6 +575,47 @@
 		pinctrl-0 = <&fusb1_int>;
 		vbus-supply = <&vcc_vbus_typec1>;
 		status = "okay";
+
+		connector {
+			compatible = "usb-c-connector";
+			data-role = "dual";
+			label = "USB-C1";
+			power-role = "source";
+			source-pdos =
+				<PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					usbc1_hs: endpoint {
+						remote-endpoint =
+							<&u2phy1_typec_hs>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					usbc1_ss: endpoint {
+						remote-endpoint =
+							<&tcphy1_typec_ss>;
+					};
+				};
+
+				port@2 {
+					reg = <2>;
+
+					usbc1_dp: endpoint {
+						remote-endpoint =
+							<&tcphy1_typec_dp>;
+					};
+				};
+			};
+		};
 	};
 };
 
@@ -591,6 +633,48 @@
 		pinctrl-0 = <&fusb0_int>;
 		vbus-supply = <&vcc_vbus_typec0>;
 		status = "okay";
+
+		connector {
+			compatible = "usb-c-connector";
+			data-role = "dual";
+			label = "USB-C0";
+			op-sink-microwatt = <1000000>;
+			power-role = "sink";
+			sink-pdos =
+				<PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					usbc0_hs: endpoint {
+						remote-endpoint =
+							<&u2phy0_typec_hs>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					usbc0_ss: endpoint {
+						remote-endpoint =
+							<&tcphy0_typec_ss>;
+					};
+				};
+
+				port@2 {
+					reg = <2>;
+
+					usbc0_dp: endpoint {
+						remote-endpoint =
+							<&tcphy0_typec_dp>;
+					};
+				};
+			};
+		};
 	};
 
 	mp8859: regulator@66 {
@@ -815,8 +899,40 @@
 	status = "okay";
 };
 
+&tcphy0_dp {
+	port {
+		tcphy0_typec_dp: endpoint {
+			remote-endpoint = <&usbc0_dp>;
+		};
+	};
+};
+
+&tcphy0_usb3 {
+	port {
+		tcphy0_typec_ss: endpoint {
+			remote-endpoint = <&usbc0_ss>;
+		};
+	};
+};
+
 &tcphy1 {
 	status = "okay";
+};
+
+&tcphy1_dp {
+	port {
+		tcphy1_typec_dp: endpoint {
+			remote-endpoint = <&usbc1_dp>;
+		};
+	};
+};
+
+&tcphy1_usb3 {
+	port {
+		tcphy1_typec_ss: endpoint {
+			remote-endpoint = <&usbc1_ss>;
+		};
+	};
 };
 
 &tsadc {
@@ -839,6 +955,12 @@
 		phy-supply = <&vcc5v0_host>;
 		status = "okay";
 	};
+
+	port {
+		u2phy0_typec_hs: endpoint {
+			remote-endpoint = <&usbc0_hs>;
+		};
+	};
 };
 
 &u2phy1 {
@@ -852,6 +974,12 @@
 	u2phy1_host: host-port {
 		phy-supply = <&vcc5v0_host>;
 		status = "okay";
+	};
+
+	port {
+		u2phy1_typec_hs: endpoint {
+			remote-endpoint = <&usbc1_hs>;
+		};
 	};
 };
 
