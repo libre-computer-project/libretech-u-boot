@@ -128,6 +128,8 @@ static void meson_set_boot_source(void)
 
 	case BOOT_DEVICE_SD:
 		source = "sd";
+		env_set("bootdevice", "1");
+		env_set("splashdevpart", "1");
 		break;
 
 	case BOOT_DEVICE_USB:
