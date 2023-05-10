@@ -151,8 +151,9 @@
 
 		mkimage {
 			filename = "idbloader-spi.img";
-			args = "-n", CONFIG_SYS_SOC, "-T", "rkspi";
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
 			multiple-data-files;
+			offset = <0x8000>;
 
 #ifdef CONFIG_ROCKCHIP_EXTERNAL_TPL
 			rockchip-tpl {
