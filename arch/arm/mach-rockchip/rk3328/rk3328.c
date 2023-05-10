@@ -21,6 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FW_DDR_CON_REG		0xFF7C0040
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_SPINOR] "/spi@ff190000",
 	[BROM_BOOTSOURCE_EMMC] = "/mmc@ff520000",
 	[BROM_BOOTSOURCE_SD] = "/mmc@ff500000",
 };
