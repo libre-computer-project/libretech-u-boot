@@ -122,6 +122,8 @@ static void meson_set_boot_source(void)
 
 	case BOOT_DEVICE_SPI:
 		source = "spi";
+		env_set("bootdevice", "0");
+		env_set("splashdevpart", "0");
 		break;
 
 	case BOOT_DEVICE_SD:

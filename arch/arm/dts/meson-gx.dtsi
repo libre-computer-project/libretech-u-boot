@@ -138,7 +138,7 @@
 
 			trips {
 				cpu_passive: cpu-passive {
-					temperature = <60000>; /* millicelsius */
+					temperature = <65000>; /* millicelsius */
 					hysteresis = <2000>; /* millicelsius */
 					type = "passive";
 				};
@@ -213,6 +213,10 @@
 		sm: secure-monitor {
 			compatible = "amlogic,meson-gx-sm", "amlogic,meson-gxbb-sm";
 		};
+	};
+
+	system-suspend {
+		compatible = "amlogic,meson-gx-pm";
 	};
 
 	efuse: efuse {
@@ -451,6 +455,11 @@
 					#clock-cells = <1>;
 					#reset-cells = <1>;
 				};
+			};
+
+			vrtc: rtc@a8 {
+				compatible = "amlogic,meson-vrtc";
+				reg = <0x0 0x000a8 0x0 0x4>;
 			};
 
 			cec_AO: cec@100 {
