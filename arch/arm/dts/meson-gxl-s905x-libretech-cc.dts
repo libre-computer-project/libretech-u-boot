@@ -9,6 +9,7 @@
 
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/sound/meson-aiu.h>
+#include <dt-bindings/leds/common.h>
 
 #include "meson-gxl-s905x.dtsi"
 
@@ -62,8 +63,9 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led-system {
-			label = "librecomputer:system-status";
+		led-green {
+			label = "librecomputer:green";
+			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&gpio GPIODV_24 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
 			panic-indicator;
@@ -71,6 +73,7 @@
 
 		led-blue {
 			label = "librecomputer:blue";
+			color = <LED_COLOR_ID_BLUE>;
 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
