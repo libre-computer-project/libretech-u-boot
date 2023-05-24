@@ -111,3 +111,4 @@ __pycache__
 
 drivers/video/u_boot_logo.S
 keep-syms-lto.c
+simple-bin*
