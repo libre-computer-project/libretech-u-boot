@@ -605,7 +605,7 @@ static const struct udevice_id dwc3_glue_ids[] = {
 	{ .compatible = "ti,dwc3", .data = (ulong)&ti_ops },
 	{ .compatible = "ti,am437x-dwc3", .data = (ulong)&ti_ops },
 	{ .compatible = "ti,am654-dwc3" },
-	{ .compatible = "rockchip,rk3328-dwc3" },
+	{ .compatible = "rockchip,rk3328-dwc3", .data = (ulong)&rk_ops },
 	{ .compatible = "rockchip,rk3399-dwc3" },
 	{ .compatible = "qcom,dwc3" },
 	{ .compatible = "fsl,imx8mp-dwc3", .data = (ulong)&imx8mp_ops },
