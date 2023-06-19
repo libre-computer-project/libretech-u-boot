@@ -138,7 +138,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 {
 	struct mmc *mmc = host->mmc;
 	int ret = 0;
-	u32 timeout, mask, size, i, len = 0;
+	u32 timeout, reset_timeout = 100, status, ctrl, mask, size, i, len = 0;
 	u32 *buf = NULL;
 	ulong start = get_timer(0);
 	u32 fifo_depth = (((host->fifoth_val & RX_WMARK_MASK) >>
@@ -159,6 +159,24 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 		/* Error during data transfer. */
 		if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
 			debug("%s: DATA ERROR!\n", __func__);
+
+			dwmci_wait_reset(host, DWMCI_RESET_ALL);
+			dwmci_writel(host, DWMCI_CMD, DWMCI_CMD_PRV_DAT_WAIT |
+				     DWMCI_CMD_UPD_CLK | DWMCI_CMD_START);
+
+			do {
+				status = dwmci_readl(host, DWMCI_CMD);
+				if (!reset_timeout--)
+					break;
+				udelay(100);
+			} while (status & DWMCI_CMD_START);
+
+			if (!host->fifo_mode) {
+				ctrl = dwmci_readl(host, DWMCI_BMOD);
+				ctrl |= DWMCI_BMOD_IDMAC_RESET;
+				dwmci_writel(host, DWMCI_BMOD, ctrl);
+			}
+
 			ret = -EINVAL;
 			break;
 		}
