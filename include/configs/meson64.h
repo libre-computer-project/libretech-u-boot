@@ -76,7 +76,9 @@
 	func(MMC, mmc, 2) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_NVME(func) \
-	BOOT_TARGET_SCSI(func)
+	BOOT_TARGET_SCSI(func) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
 #endif
 
 #include <config_distro_bootcmd.h>
