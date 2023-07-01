@@ -231,10 +231,6 @@
 		};
 	};
 
-	system-suspend {
-		compatible = "amlogic,meson-gx-pm";
-	};
-
 	efuse: efuse {
 		compatible = "amlogic,meson-gx-efuse", "amlogic,meson-gxbb-efuse";
 		#address-cells = <1>;
