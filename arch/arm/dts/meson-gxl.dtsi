@@ -411,9 +411,13 @@
 		};
 
 		nor_pins: nor {
-			mux {
-				groups = "nor_d",
-				       "nor_q",
+			mux-0 {
+				groups = "nor_d";
+				bias-pull-up;
+			};
+
+			mux-1 {
+				groups = "nor_q",
 				       "nor_c",
 				       "nor_cs";
 				function = "nor";
