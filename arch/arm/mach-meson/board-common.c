@@ -21,6 +21,7 @@
 #include <asm/unaligned.h>
 #include <efi_loader.h>
 #include <u-boot/crc.h>
+#include <splash.h>
 
 #include <asm/psci.h>
 
@@ -168,3 +169,22 @@ int board_late_init(void)
 
 	return meson_board_late_init();
 }
+
+#ifdef CONFIG_SPLASH_SCREEN
+static struct splash_location splash_locations[] = {
+        {
+                .name = "mmc_fs",
+                .storage = SPLASH_STORAGE_MMC,
+                .flags = SPLASH_STORAGE_FS,
+                .devpart = "0:auto",
+        }
+};
+
+int splash_screen_prepare(void)
+{
+        if (CONFIG_IS_ENABLED(SPLASH_SOURCE))
+                return splash_source_load(splash_locations,
+                        ARRAY_SIZE(splash_locations)) && splash_video_logo_load();
+        return splash_video_logo_load();
+}
+#endif
