@@ -46,19 +46,21 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led-blue {
-			color = <LED_COLOR_ID_BLUE>;
-			function = LED_FUNCTION_STATUS;
+		led-green {
+			label = "librecomputer:green";
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_PANIC;
 			gpios = <&gpio GPIODV_24 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "heartbeat";
+			default-state = "on";
 			panic-indicator;
 		};
 
-		led-green {
-			color = <LED_COLOR_ID_GREEN>;
-			function = LED_FUNCTION_DISK_ACTIVITY;
+		led-blue {
+			label = "librecomputer:blue";
+			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_HEARTBEAT;
 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "disk-activity";
+			linux,default-trigger = "heartbeat";
 		};
 	};
 
