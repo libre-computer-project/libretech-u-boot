@@ -38,51 +38,12 @@
 
 #define CFG_SYS_SDRAM_BASE		0
 
-/* ROM USB boot support, auto-execute boot.scr at scriptaddr */
-#define BOOTENV_DEV_ROMUSB(devtypeu, devtypel, instance) \
-	"bootcmd_romusb=" \
-		"if test \"${boot_source}\" = \"usb\" && " \
-				"test -n \"${scriptaddr}\"; then " \
-			"echo '(ROM USB boot)'; " \
-			"source ${scriptaddr}; " \
-		"fi\0"
-
-#define BOOTENV_DEV_NAME_ROMUSB(devtypeu, devtypel, instance)	\
-		"romusb "
-
-#ifdef CONFIG_CMD_USB
-#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
-#else
-#define BOOT_TARGET_DEVICES_USB(func)
-#endif
-
-#ifdef CONFIG_CMD_NVME
-	#define BOOT_TARGET_NVME(func) func(NVME, nvme, 0)
-#else
-	#define BOOT_TARGET_NVME(func)
-#endif
-
-#ifdef CONFIG_CMD_SCSI
-	#define BOOT_TARGET_SCSI(func) func(SCSI, scsi, 0)
-#else
-	#define BOOT_TARGET_SCSI(func)
-#endif
-
-#ifndef BOOT_TARGET_DEVICES
-#define BOOT_TARGET_DEVICES(func) \
-	func(ROMUSB, romusb, na)  \
-	func(MMC, mmc, 0) \
-	func(MMC, mmc, 1) \
-	func(MMC, mmc, 2) \
-	BOOT_TARGET_DEVICES_USB(func) \
-	BOOT_TARGET_NVME(func) \
-	BOOT_TARGET_SCSI(func)
-#endif
-
-#include <config_distro_bootcmd.h>
-
 #ifndef MESON_DEVICE_SETTINGS
 #define MESON_DEVICE_SETTINGS
+#endif
+
+#ifndef BOOT_TARGETS
+#define BOOT_TARGETS "mmc0 mmc1 nvme scsi usb pxe dhcp spi"
 #endif
 
 #ifndef CFG_EXTRA_ENV_SETTINGS
@@ -100,8 +61,7 @@
 	"ramdisk_addr_r=0x13000000\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	MESON_DEVICE_SETTINGS \
-	BOOTENV
+	"boot_targets=" BOOT_TARGETS "\0"
 #endif
-
 
 #endif /* __MESON64_CONFIG_H */
