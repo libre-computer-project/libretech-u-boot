@@ -48,45 +48,45 @@
 	gpio-keys {
 		compatible = "gpio-keys";
 
-		key1 {
+		key-1 {
 			label = "A";
 			linux,code = <BTN_0>;
 			gpios = <&gpio GPIOH_6 GPIO_ACTIVE_LOW>;
 			interrupt-parent = <&gpio_intc>;
-			interrupts = <34 IRQ_TYPE_EDGE_BOTH>;
+			interrupts = <IRQID_GPIOH_6 IRQ_TYPE_EDGE_BOTH>;
 		};
 
-		key2 {
+		key-2 {
 			label = "B";
 			linux,code = <BTN_1>;
 			gpios = <&gpio GPIOH_7 GPIO_ACTIVE_LOW>;
 			interrupt-parent = <&gpio_intc>;
-			interrupts = <35 IRQ_TYPE_EDGE_BOTH>;
+			interrupts = <IRQID_GPIOH_7 IRQ_TYPE_EDGE_BOTH>;
 		};
 
-		key3 {
+		key-3 {
 			label = "C";
 			linux,code = <BTN_2>;
 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_LOW>;
 			interrupt-parent = <&gpio_intc>;
-			interrupts = <2 IRQ_TYPE_EDGE_BOTH>;
+			interrupts = <IRQID_GPIOAO_2 IRQ_TYPE_EDGE_BOTH>;
 		};
 
-		mic_mute {
+		key-mic-mute {
 			label = "MicMute";
 			linux,code = <SW_MUTE_DEVICE>;
 			linux,input-type = <EV_SW>;
 			gpios = <&gpio_ao GPIOE_2 GPIO_ACTIVE_LOW>;
 			interrupt-parent = <&gpio_intc>;
-			interrupts = <99 IRQ_TYPE_EDGE_BOTH>;
+			interrupts = <IRQID_GPIOE_2 IRQ_TYPE_EDGE_BOTH>;
 		};
 
-		power_key {
+		key-power {
 			label = "PowerKey";
 			linux,code = <KEY_POWER>;
 			gpios = <&gpio_ao GPIOAO_3 GPIO_ACTIVE_LOW>;
 			interrupt-parent = <&gpio_intc>;
-			interrupts = <3 IRQ_TYPE_EDGE_BOTH>;
+			interrupts = <IRQID_GPIOAO_3 IRQ_TYPE_EDGE_BOTH>;
 		};
 	};
 
@@ -171,7 +171,6 @@
 		regulator-max-microvolt = <3300000>;
 		vin-supply = <&vddao_3v3>;
 		gpio = <&gpio GPIOH_8 GPIO_OPEN_DRAIN>;
-		enable-active-low;
 		regulator-always-on;
 	};
 
@@ -185,7 +184,7 @@
 		regulator-min-microvolt = <690000>;
 		regulator-max-microvolt = <1050000>;
 
-		vin-supply = <&dc_in>;
+		pwm-supply = <&dc_in>;
 
 		pwms = <&pwm_AO_cd 1 1500 0>;
 		pwm-dutycycle-range = <100 0>;
@@ -201,14 +200,6 @@
 		regulator-max-microvolt = <1800000>;
 		vin-supply = <&vddao_3v3>;
 		regulator-always-on;
-	};
-
-	reserved-memory {
-		/* TEE Reserved Memory */
-		bl32_reserved: bl32@5000000 {
-			reg = <0x0 0x05300000 0x0 0x2000000>;
-			no-map;
-		};
 	};
 
 	sdio_pwrseq: sdio-pwrseq {
@@ -256,7 +247,6 @@
 		assigned-clock-rates = <294912000>,
 				       <270950400>,
 				       <393216000>;
-		status = "okay";
 
 		dai-link-0 {
 			sound-dai = <&frddr_a>;
@@ -592,7 +582,7 @@
 	bluetooth {
 		compatible = "brcm,bcm43438-bt";
 		interrupt-parent = <&gpio_intc>;
-		interrupts = <95 IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <IRQID_GPIOX_18 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "host-wakeup";
 		shutdown-gpios = <&gpio GPIOX_17 GPIO_ACTIVE_HIGH>;
 		max-speed = <2000000>;

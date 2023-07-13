@@ -89,6 +89,7 @@
 		l2: l2-cache0 {
 			compatible = "cache";
 			cache-level = <2>;
+			cache-unified;
 		};
 	};
 
@@ -547,4 +548,8 @@
 
 &usb {
 	power-domains = <&pwrc PWRC_SM1_USB_ID>;
+};
+
+&npu {
+	power-domains = <&pwrc PWRC_SM1_NNA_ID>;
 };

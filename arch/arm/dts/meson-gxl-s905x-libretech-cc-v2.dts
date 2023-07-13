@@ -167,7 +167,6 @@
 		assigned-clock-rates = <294912000>,
 				       <270950400>,
 				       <393216000>;
-		status = "okay";
 
 		dai-link-0 {
 			sound-dai = <&aiu AIU_CPU CPU_I2S_FIFO>;
@@ -284,7 +283,7 @@
 	pinctrl-0 = <&nor_pins>;
 	pinctrl-names = "default";
 
-	nor_4u1: spi-flash@0 {
+	nor_4u1: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
@@ -305,7 +304,6 @@
 };
 
 &usb2_phy0 {
-	pinctrl-names = "default";
 	phy-supply = <&vcc5v>;
 };
 
