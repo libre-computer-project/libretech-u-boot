@@ -236,6 +236,7 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-g12a-u200.dtb \
 	meson-g12b-a311d-bananapi-m2s.dtb \
 	meson-g12b-a311d-khadas-vim3.dtb \
+	meson-g12b-a311d-libretech-cc.dtb \
 	meson-g12b-bananapi-cm4-cm4io.dtb \
 	meson-g12b-gsking-x.dtb \
 	meson-g12b-gtking.dtb \
@@ -248,6 +249,7 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-sm1-bananapi-m2-pro.dtb \
 	meson-sm1-bananapi-m5.dtb \
 	meson-sm1-khadas-vim3l.dtb \
+	meson-sm1-s905d3-libretech-cc.dtb \
 	meson-sm1-odroid-c4.dtb \
 	meson-sm1-odroid-hc4.dtb \
 	meson-sm1-sei610.dtb
