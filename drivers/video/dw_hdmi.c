@@ -936,6 +936,22 @@ int dw_hdmi_phy_wait_for_hpd(struct dw_hdmi *hdmi)
 	return -1;
 }
 
+int dw_hdmi_detect_hpd(struct dw_hdmi *hdmi)
+{
+	int ret;
+
+	ret = dw_hdmi_phy_wait_for_hpd(hdmi);
+	if (ret < 0) {
+		debug("hdmi can not get hpd signal\n");
+		return -ENODEV;
+	}
+
+	if (hdmi->ops->read_hpd)
+		hdmi->ops->read_hpd(hdmi, true);
+
+	return 0;
+}
+
 void dw_hdmi_phy_init(struct dw_hdmi *hdmi)
 {
 	/* enable phy i2cm done irq */
@@ -988,7 +1004,7 @@ int dw_hdmi_enable(struct dw_hdmi *hdmi, const struct display_timing *edid)
 
 	hdmi_av_composer(hdmi, edid);
 
-	ret = hdmi->phy_set(hdmi, edid->pixelclock.typ);
+	ret = hdmi->ops->phy_set(hdmi, edid->pixelclock.typ);
 	if (ret)
 		return ret;
 
@@ -1009,9 +1025,36 @@ int dw_hdmi_enable(struct dw_hdmi *hdmi, const struct display_timing *edid)
 	return 0;
 }
 
+static const struct dw_hdmi_phy_ops dw_hdmi_synopsys_phy_ops = {
+	.phy_set = dw_hdmi_phy_cfg,
+};
+
+static void dw_hdmi_detect_phy(struct dw_hdmi *hdmi)
+{
+	if (!hdmi->data)
+		return;
+
+	/* hook Synopsys PHYs ops */
+	if (!hdmi->data->phy_force_vendor) {
+		hdmi->ops = &dw_hdmi_synopsys_phy_ops;
+		return;
+	}
+
+	/* Vendor HDMI PHYs must assign phy_ops in plat_data */
+	if (!hdmi->data->phy_ops) {
+		printf("Unsupported Vendor HDMI phy_ops\n");
+		return;
+	}
+
+	/* hook Vendor HDMI PHYs ops */
+	hdmi->ops = hdmi->data->phy_ops;
+}
+
 void dw_hdmi_init(struct dw_hdmi *hdmi)
 {
 	uint ih_mute;
+
+	dw_hdmi_detect_phy(hdmi);
 
 	/*
 	 * boot up defaults are:
@@ -1037,4 +1080,7 @@ void dw_hdmi_init(struct dw_hdmi *hdmi)
 
 	/* enable i2c client nack % arbitration error irq */
 	hdmi_write(hdmi, ~0x44, HDMI_I2CM_CTLINT);
+
+	if (hdmi->ops->setup_hpd)
+		hdmi->ops->setup_hpd(hdmi);
 }
