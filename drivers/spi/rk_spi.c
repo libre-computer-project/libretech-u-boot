@@ -566,3 +566,4 @@ U_BOOT_DRIVER(rockchip_rk3288_spi) = {
 };
 
 DM_DRIVER_ALIAS(rockchip_rk3288_spi, rockchip_rk3368_spi)
+DM_DRIVER_ALIAS(rockchip_rk3288_spi, rockchip_rk3328_spi)

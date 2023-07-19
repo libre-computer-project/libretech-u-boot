@@ -74,7 +74,7 @@ static int spl_node_to_boot_device(int node)
 	 * extended with awareness of the BLK layer (and matching OF_CONTROL)
 	 * soon.
 	 */
-	if (!uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node, &parent))
+	if (!uclass_get_device_by_of_offset(UCLASS_SPI, node, &parent))
 		return BOOT_DEVICE_SPI;
 
 	return -1;

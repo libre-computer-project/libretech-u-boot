@@ -48,10 +48,26 @@
 					type = "standalone";
 					os = "U-Boot";
 					arch = "arm64";
-					compression = "none";
 					load = <CONFIG_TEXT_BASE>;
 					entry = <CONFIG_TEXT_BASE>;
+#if defined(CONFIG_SPL_GZIP)
+					compression = "gzip";
+#elif defined(CONFIG_SPL_LZMA)
+					compression = "lzma";
+#elif defined(CONFIG_SPL_LZ4)
+					compression = "lz4";
+#else
+					compression = "none";
+#endif
+
 					u-boot-nodtb {
+#if defined(CONFIG_SPL_GZIP)
+						compress = "gzip";
+#elif defined(CONFIG_SPL_LZMA)
+						compress = "lzma";
+#elif defined(CONFIG_SPL_LZ4)
+						compress = "lz4";
+#endif
 					};
 #ifdef CONFIG_SPL_FIT_SIGNATURE
 					hash {
@@ -136,8 +152,9 @@
 
 		mkimage {
 			filename = "idbloader-spi.img";
-			args = "-n", CONFIG_SYS_SOC, "-T", "rkspi";
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
 			multiple-data-files;
+			offset = <0x8000>;
 
 #ifdef CONFIG_ROCKCHIP_EXTERNAL_TPL
 			rockchip-tpl {

@@ -48,11 +48,6 @@
 	bootph-pre-ram;
 };
 
-&usb_host0_xhci {
-	vbus-supply = <&vcc_host_5v>;
-	status = "okay";
-};
-
 /*
  * This makes XHCI responsible for toggling VBUS. This is needed to work
  * around an issue where either XHCI only works with USB 2.0 or OTG doesn't
