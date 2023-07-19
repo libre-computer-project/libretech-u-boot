@@ -213,7 +213,7 @@ static int distro_efi_read_bootflow_file(struct udevice *dev,
 					 struct bootflow *bflow)
 {
 	struct blk_desc *desc = NULL;
-	ulong fdt_addr, size;
+	ulong fdt_addr, size = CONFIG_SYS_BOOTM_LEN;
 	char fname[256];
 	int ret, seq;
 
