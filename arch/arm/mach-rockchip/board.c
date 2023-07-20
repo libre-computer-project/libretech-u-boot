@@ -25,6 +25,7 @@
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/misc.h>
 #include <power/regulator.h>
+#include <splash.h>
 #include <vsprintf.h>
 
 DECLARE_GLOBAL_DATA_PTR;
