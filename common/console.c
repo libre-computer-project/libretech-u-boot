@@ -992,7 +992,7 @@ int console_announce_r(void)
 
 	display_options_get_banner(false, buf, sizeof(buf));
 
-	console_puts_select(stdout, false, buf);
+	console_puts_select(stdout, true, buf);
 #endif
 
 	return 0;
