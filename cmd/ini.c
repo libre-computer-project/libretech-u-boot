@@ -113,7 +113,7 @@ static char *memgets(char *str, int num, char **mem, size_t *memsize)
    Returns 0 on success, line number of first error on parse error (doesn't
    stop on first error).
 */
-static int ini_parse(char *filestart, size_t filelen,
+int ini_parse(char *filestart, size_t filelen,
 	int (*handler)(void *, char *, char *, char *),	void *user)
 {
 	/* Uses a fair bit of stack (use heap instead if you need to) */
@@ -199,7 +199,7 @@ static int ini_parse(char *filestart, size_t filelen,
 	return error;
 }
 
-static int ini_handler(void *user, char *section, char *name, char *value)
+int ini_handler(void *user, char *section, char *name, char *value)
 {
 	char *requested_section = (char *)user;
 #ifdef CONFIG_INI_CASE_INSENSITIVE
