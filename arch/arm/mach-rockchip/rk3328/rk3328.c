@@ -4,7 +4,9 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <init.h>
+#include <spl.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/grf_rk3328.h>
@@ -21,6 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FW_DDR_CON_REG		0xFF7C0040
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_SPINOR] "/spi@ff190000",
 	[BROM_BOOTSOURCE_EMMC] = "/mmc@ff520000",
 	[BROM_BOOTSOURCE_SD] = "/mmc@ff500000",
 };
@@ -100,3 +103,22 @@ void board_debug_uart_init(void)
 	/* enable FIFO */
 	writel(0x1, &uart->sfe);
 }
+
+#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
+void spl_perform_fixups(struct spl_image_info *spl_image)
+{
+	void *blob = spl_image->fdt_addr;
+	int chosen;
+
+	if (!blob)
+		return;
+
+	chosen = fdt_find_or_add_subnode(blob, 0, "chosen");
+	if (chosen < 0) {
+		pr_err("%s: could not find/create '/chosen'\n", __func__);
+		return;
+	}
+
+	fdt_setprop_u32(blob, chosen, "u-boot,spl-boot-device", spl_image->boot_device);
+}
+#endif
