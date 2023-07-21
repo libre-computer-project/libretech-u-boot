@@ -327,6 +327,51 @@ int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 }
 #endif
 
+#ifdef CONFIG_SPLASH_SCREEN
+static struct splash_location splash_locations[] = {
+        {
+                .name = "mmc_fs",
+                .storage = SPLASH_STORAGE_MMC,
+                .flags = SPLASH_STORAGE_FS,
+                .devpart = "0:auto",
+        }
+};
+
+int splash_screen_prepare(void)
+{
+        if (CONFIG_IS_ENABLED(SPLASH_SOURCE))
+                return splash_source_load(splash_locations,
+                        ARRAY_SIZE(splash_locations)) && splash_video_logo_load();
+        return splash_video_logo_load();
+}
+#endif
+
+int rk_mmc_get_boot_dev(){
+	const fdt32_t *prop;
+	int size;
+	prop = ofnode_read_chosen_prop("u-boot,spl-boot-device", &size);
+	if (prop == NULL) return -1;
+	return __be32_to_cpu(*prop) == 1;
+}
+
+#ifdef CONFIG_SYS_MMC_ENV_DEV
+int mmc_get_env_dev(void) {
+	int mmc_boot_device = rk_mmc_get_boot_dev();
+	if (mmc_boot_device == -1) return CONFIG_SYS_MMC_ENV_DEV;
+
+	return mmc_boot_device;
+}
+#endif
+
+void env_set_bootdevice(void)
+{
+	int bootdev = rk_mmc_get_boot_dev() == 1;
+	env_set("bootdevice", simple_itoa(bootdev));
+#ifdef CONFIG_SPLASH_SOURCE
+	env_set("splashdevpart", simple_itoa(bootdev));
+#endif
+}
+
 #ifdef CONFIG_MISC_INIT_R
 __weak int misc_init_r(void)
 {
