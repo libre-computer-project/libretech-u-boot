@@ -444,6 +444,7 @@ static int initr_env(void)
 
 	/* Initialize from environment */
 	image_load_addr = env_get_ulong("loadaddr", 16, image_load_addr);
+	env_set_bootdevice();
 
 	return 0;
 }
