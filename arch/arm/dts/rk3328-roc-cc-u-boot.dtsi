@@ -7,7 +7,7 @@
 #include "rk3328-sdram-ddr4-1866.dtsi"
 / {
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &spi0, &sdmmc, &emmc;
+		u-boot,spl-boot-order = "same-as-spl", &spi0, &emmc, &sdmmc;
 	};
 
 	config {
