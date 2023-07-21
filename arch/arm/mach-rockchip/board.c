@@ -8,6 +8,8 @@
 #include <dm.h>
 #include <efi_loader.h>
 #include <fastboot.h>
+#include <fs.h>
+#include <ini.h>
 #include <init.h>
 #include <log.h>
 #include <mmc.h>
@@ -23,6 +25,7 @@
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/misc.h>
 #include <power/regulator.h>
+#include <vsprintf.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -393,3 +396,18 @@ __weak int misc_init_r(void)
 	return ret;
 }
 #endif
+
+#ifdef CONFIG_CMD_INI
+void env_ini_load(){
+	int res;
+	char *load_addr;
+	loff_t size;
+	res = fs_set_blk_dev("mmc", env_get("bootdevice"), FS_TYPE_ANY);
+	if (res) return;
+	load_addr = (char *)hextoul(env_get("loadaddr"), NULL);
+	res = fs_read("boot.ini",load_addr, 0, 0, &size);
+	if (res) return;
+	ini_parse(load_addr, size, ini_handler, "");
+}
+#endif
+
