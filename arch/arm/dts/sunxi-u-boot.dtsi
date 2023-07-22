@@ -49,10 +49,24 @@
 					type = "standalone";
 					os = "u-boot";
 					arch = "arm64";
-					compression = "none";
 					load = <CONFIG_TEXT_BASE>;
-
+#if defined(CONFIG_SPL_GZIP)
+					compression = "gzip";
+#elif defined(CONFIG_SPL_LZMA)
+					compression = "lzma";
+#elif defined(CONFIG_SPL_LZ4)
+					compression = "lz4";
+#else
+					compression = "none";
+#endif
 					u-boot-nodtb {
+#if defined(CONFIG_SPL_GZIP)
+						compress = "gzip";
+#elif defined(CONFIG_SPL_LZMA)
+						compress = "lzma";
+#elif defined(CONFIG_SPL_LZ4)
+						compress = "lz4";
+#endif
 					};
 				};
 

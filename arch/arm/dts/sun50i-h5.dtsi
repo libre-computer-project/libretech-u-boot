@@ -15,6 +15,7 @@
 			device_type = "cpu";
 			reg = <0>;
 			enable-method = "psci";
+			next-level-cache = <&L2>;
 			clocks = <&ccu CLK_CPUX>;
 			clock-latency-ns = <244144>; /* 8 32k periods */
 			#cooling-cells = <2>;
@@ -25,6 +26,7 @@
 			device_type = "cpu";
 			reg = <1>;
 			enable-method = "psci";
+			next-level-cache = <&L2>;
 			clocks = <&ccu CLK_CPUX>;
 			clock-latency-ns = <244144>; /* 8 32k periods */
 			#cooling-cells = <2>;
@@ -35,6 +37,7 @@
 			device_type = "cpu";
 			reg = <2>;
 			enable-method = "psci";
+			next-level-cache = <&L2>;
 			clocks = <&ccu CLK_CPUX>;
 			clock-latency-ns = <244144>; /* 8 32k periods */
 			#cooling-cells = <2>;
@@ -45,9 +48,15 @@
 			device_type = "cpu";
 			reg = <3>;
 			enable-method = "psci";
+			next-level-cache = <&L2>;
 			clocks = <&ccu CLK_CPUX>;
 			clock-latency-ns = <244144>; /* 8 32k periods */
 			#cooling-cells = <2>;
+		};
+		L2: l2-cache {
+			compatible = "cache";
+			cache-level = <2>;
+			cache-unified;
 		};
 	};
 
@@ -194,13 +203,13 @@
 
 			trips {
 				cpu_hot_trip: cpu-hot {
-					temperature = <80000>;
+					temperature = <65000>;
 					hysteresis = <2000>;
 					type = "passive";
 				};
 
 				cpu_very_hot_trip: cpu-very-hot {
-					temperature = <100000>;
+					temperature = <80000>;
 					hysteresis = <0>;
 					type = "critical";
 				};

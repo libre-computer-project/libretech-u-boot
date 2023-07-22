@@ -5,6 +5,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	aliases {
@@ -31,14 +32,18 @@
 		compatible = "gpio-leds";
 
 		pwr_led {
-			label = "librecomputer:green:pwr";
+			label = "librecomputer:green";
+			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>; /* PL10 */
 			default-state = "on";
+			panic-indicator;
 		};
 
 		status_led {
-			label = "librecomputer:blue:status";
+			label = "librecomputer:blue";
+			color = <LED_COLOR_ID_BLUE>;
 			gpios = <&pio 0 7 GPIO_ACTIVE_HIGH>; /* PA7 */
+			linux,default-trigger = "heartbeat";
 		};
 	};
 
@@ -176,6 +181,14 @@
 	hdmi_out_con: endpoint {
 		remote-endpoint = <&hdmi_con_in>;
 	};
+};
+
+&hdmi_sound {
+	status = "okay";
+};
+
+&i2s2 {
+	status = "okay";
 };
 
 &ir {
