@@ -5,3 +5,26 @@
  */
 
 #include "meson-gxl-u-boot.dtsi"
+
+/ {
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "libre-computer";
+				product = "aml-s905x-cc-v2";
+			};
+
+			baseboard {
+				manufacturer = "libre-computer";
+				product = "aml-s905x-cc-v2";
+			};
+
+			chassis {
+				manufacturer = "libre-computer";
+				product = "aml-s905x-cc-v2";
+			};
+		};
+	};
+};
