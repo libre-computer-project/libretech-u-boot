@@ -192,7 +192,7 @@
 	"ramdisk ram " RAMDISK_ADDR_R " 0x4000000\0"
 
 #ifndef BOOT_TARGETS
-#define BOOT_TARGETS "mmc0 mmc1 nvme scsi usb pxe dhcp spi"
+#define BOOT_TARGETS "mmc0 mmc1 usb spi"
 #endif
 
 #ifdef CONFIG_USB_KEYBOARD
