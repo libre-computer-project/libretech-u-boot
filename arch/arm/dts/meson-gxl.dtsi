@@ -134,6 +134,8 @@
 		 <&clkc CLKID_MPLL2>,
 		 <&clkc CLKID_FCLK_DIV2>;
 	clock-names = "stmmaceth", "clkin0", "clkin1", "timing-adjustment";
+	resets = <&reset RESET_ETHERNET>;
+	reset-names = "stmmaceth";
 
 	mdio0: mdio {
 		#address-cells = <1>;
@@ -214,7 +216,7 @@
 				groups = "i2c_sck_ao",
 				       "i2c_sda_ao";
 				function = "i2c_ao";
-				bias-disable;
+				bias-pull-up;
 			};
 		};
 
@@ -286,7 +288,7 @@
 			mux {
 				groups = "ao_cec";
 				function = "cec_ao";
-				bias-disable;
+				bias-pull-up;
 			};
 		};
 
@@ -425,7 +427,20 @@
 					"spi_mosi",
 					"spi_sclk";
 				function = "spi";
-				bias-disable;
+			};
+		};
+
+		spi_idle_high_pins: spi-idle-high-pins {
+			mux {
+				groups = "spi_sclk";
+				bias-pull-up;
+			};
+		};
+
+		spi_idle_low_pins: spi-idle-low-pins {
+			mux {
+				groups = "spi_sclk";
+				bias-pull-down;
 			};
 		};
 
@@ -565,7 +580,7 @@
 				groups = "i2c_sck_b",
 				      "i2c_sda_b";
 				function = "i2c_b";
-				bias-disable;
+				bias-pull-up;
 			};
 		};
 
@@ -759,16 +774,23 @@
 		};
 	};
 
-	eth-phy-mux {
-		compatible = "mdio-mux-mmioreg", "mdio-mux";
+	eth_phy_mux: mdio@558 {
+		compatible = "amlogic,gxl-mdio-mux";
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0x0 0x55c 0x0 0x4>;
-		mux-mask = <0xffffffff>;
+		clocks = <&clkc CLKID_FCLK_DIV4>;
+		clock-names = "ref";
+		reg = <0x0 0x558 0x0 0xc>;
 		mdio-parent-bus = <&mdio0>;
 
-		internal_mdio: mdio@e40908ff {
-			reg = <0xe40908ff>;
+		external_mdio: mdio@0 {
+			reg = <0x0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		internal_mdio: mdio@1 {
+			reg = <0x1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 
@@ -778,12 +800,6 @@
 				reg = <8>;
 				max-speed = <100>;
 			};
-		};
-
-		external_mdio: mdio@2009087f {
-			reg = <0x2009087f>;
-			#address-cells = <1>;
-			#size-cells = <0>;
 		};
 	};
 };

@@ -21,8 +21,8 @@
 	#size-cells = <2>;
 
 	aliases {
-		mmc0 = &sd_emmc_b; /* SD card */
-		mmc1 = &sd_emmc_c; /* eMMC */
+		mmc0 = &sd_emmc_c; /* eMMC */
+		mmc1 = &sd_emmc_b; /* SD card */
 		mmc2 = &sd_emmc_a; /* SDIO */
 	};
 
@@ -89,6 +89,7 @@
 			compatible = "arm,cortex-a53";
 			reg = <0x0 0x0>;
 			enable-method = "psci";
+			cpu-idle-states = <&CPU_SLEEP_0>;
 			next-level-cache = <&l2>;
 			clocks = <&scpi_dvfs 0>;
 			#cooling-cells = <2>;
@@ -99,6 +100,7 @@
 			compatible = "arm,cortex-a53";
 			reg = <0x0 0x1>;
 			enable-method = "psci";
+			cpu-idle-states = <&CPU_SLEEP_0>;
 			next-level-cache = <&l2>;
 			clocks = <&scpi_dvfs 0>;
 			#cooling-cells = <2>;
@@ -109,6 +111,7 @@
 			compatible = "arm,cortex-a53";
 			reg = <0x0 0x2>;
 			enable-method = "psci";
+			cpu-idle-states = <&CPU_SLEEP_0>;
 			next-level-cache = <&l2>;
 			clocks = <&scpi_dvfs 0>;
 			#cooling-cells = <2>;
@@ -119,6 +122,7 @@
 			compatible = "arm,cortex-a53";
 			reg = <0x0 0x3>;
 			enable-method = "psci";
+			cpu-idle-states = <&CPU_SLEEP_0>;
 			next-level-cache = <&l2>;
 			clocks = <&scpi_dvfs 0>;
 			#cooling-cells = <2>;
@@ -126,6 +130,18 @@
 
 		l2: l2-cache0 {
 			compatible = "cache";
+		};
+	};
+
+	idle-states {
+		entry-method = "arm,psci";
+		CPU_SLEEP_0: cpu-sleep-0 {
+			compatible = "arm,idle-state";
+			arm,psci-suspend-param = <0x0010000>;
+			local-timer-stop;
+			entry-latency-us = <8000>;
+			exit-latency-us = <8000>;
+			min-residency-us = <20000>;
 		};
 	};
 
@@ -138,19 +154,19 @@
 
 			trips {
 				cpu_passive: cpu-passive {
-					temperature = <80000>; /* millicelsius */
+					temperature = <65000>; /* millicelsius */
 					hysteresis = <2000>; /* millicelsius */
 					type = "passive";
 				};
 
 				cpu_hot: cpu-hot {
-					temperature = <90000>; /* millicelsius */
+					temperature = <70000>; /* millicelsius */
 					hysteresis = <2000>; /* millicelsius */
 					type = "hot";
 				};
 
 				cpu_critical: cpu-critical {
-					temperature = <110000>; /* millicelsius */
+					temperature = <80000>; /* millicelsius */
 					hysteresis = <2000>; /* millicelsius */
 					type = "critical";
 				};
@@ -186,7 +202,7 @@
 	};
 
 	psci {
-		compatible = "arm,psci-0.2";
+		compatible = "arm,psci-1.0";
 		method = "smc";
 	};
 
@@ -453,6 +469,11 @@
 				};
 			};
 
+			vrtc: rtc@a8 {
+				compatible = "amlogic,meson-vrtc";
+				reg = <0x0 0x000a8 0x0 0x4>;
+			};
+
 			cec_AO: cec@100 {
 				compatible = "amlogic,meson-gx-ao-cec";
 				reg = <0x0 0x00100 0x0 0x14>;
@@ -596,21 +617,21 @@
 			sd_emmc_a: mmc@70000 {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x70000 0x0 0x800>;
-				interrupts = <GIC_SPI 216 IRQ_TYPE_EDGE_RISING>;
+				interrupts = <GIC_SPI 216 IRQ_TYPE_LEVEL_HIGH>;
 				status = "disabled";
 			};
 
 			sd_emmc_b: mmc@72000 {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x72000 0x0 0x800>;
-				interrupts = <GIC_SPI 217 IRQ_TYPE_EDGE_RISING>;
+				interrupts = <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>;
 				status = "disabled";
 			};
 
 			sd_emmc_c: mmc@74000 {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x74000 0x0 0x800>;
-				interrupts = <GIC_SPI 218 IRQ_TYPE_EDGE_RISING>;
+				interrupts = <GIC_SPI 218 IRQ_TYPE_LEVEL_HIGH>;
 				status = "disabled";
 			};
 		};
