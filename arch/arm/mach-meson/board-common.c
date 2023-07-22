@@ -6,6 +6,8 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <fastboot.h>
+#include <fs.h>
+#include <ini.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/boot.h>
@@ -22,6 +24,7 @@
 #include <efi_loader.h>
 #include <u-boot/crc.h>
 #include <splash.h>
+#include <vsprintf.h>
 
 #include <asm/psci.h>
 
@@ -113,8 +116,6 @@ static void meson_set_boot_source(void)
 	switch (meson_get_boot_device()) {
 	case BOOT_DEVICE_EMMC:
 		source = "emmc";
-		env_set("bootdevice", "0");
-		env_set("splashdevpart", "0");
 		break;
 
 	case BOOT_DEVICE_NAND:
@@ -123,14 +124,10 @@ static void meson_set_boot_source(void)
 
 	case BOOT_DEVICE_SPI:
 		source = "spi";
-		env_set("bootdevice", "0");
-		env_set("splashdevpart", "0");
 		break;
 
 	case BOOT_DEVICE_SD:
 		source = "sd";
-		env_set("bootdevice", "1");
-		env_set("splashdevpart", "1");
 		break;
 
 	case BOOT_DEVICE_USB:
@@ -147,16 +144,20 @@ static void meson_set_boot_source(void)
 #ifdef CONFIG_SYS_MMC_ENV_DEV
 int mmc_get_env_dev(void)
 {
-	switch (meson_get_boot_device()) {
-	case BOOT_DEVICE_SD:
+	if (meson_get_boot_device() == BOOT_DEVICE_SD)
 		return 1;
-		break;
-	}
-
+	
 	return CONFIG_SYS_MMC_ENV_DEV;
-
 }
 #endif
+
+void env_set_bootdevice(void){
+	char *bootdev = simple_itoa(meson_get_boot_device() == BOOT_DEVICE_SD);
+	env_set("bootdevice", bootdev);
+#ifdef CONFIG_SPLASH_SOURCE
+	env_set("splashdevpart", bootdev);
+#endif
+}
 
 __weak int meson_board_late_init(void)
 {
@@ -172,19 +173,34 @@ int board_late_init(void)
 
 #ifdef CONFIG_SPLASH_SCREEN
 static struct splash_location splash_locations[] = {
-        {
-                .name = "mmc_fs",
-                .storage = SPLASH_STORAGE_MMC,
-                .flags = SPLASH_STORAGE_FS,
-                .devpart = "0:auto",
-        }
+	{
+		.name = "mmc_fs",
+		.storage = SPLASH_STORAGE_MMC,
+		.flags = SPLASH_STORAGE_FS,
+		.devpart = "0:auto",
+	}
 };
 
 int splash_screen_prepare(void)
 {
-        if (CONFIG_IS_ENABLED(SPLASH_SOURCE))
-                return splash_source_load(splash_locations,
-                        ARRAY_SIZE(splash_locations)) && splash_video_logo_load();
-        return splash_video_logo_load();
+	if (CONFIG_IS_ENABLED(SPLASH_SOURCE))
+		return splash_source_load(splash_locations,
+			ARRAY_SIZE(splash_locations)) && splash_video_logo_load();
+	return splash_video_logo_load();
 }
 #endif
+
+#ifdef CONFIG_CMD_INI
+void env_ini_load(){
+	int res;
+	char *load_addr;
+	loff_t size;
+	res = fs_set_blk_dev("mmc", env_get("bootdevice"), FS_TYPE_ANY);
+	if (res) return;
+	load_addr = (char *)hextoul(env_get("loadaddr"), NULL);
+	res = fs_read("boot.ini",load_addr, 0, 0, &size);
+	if (res) return;
+	ini_parse(load_addr, size, ini_handler, "");
+}
+#endif
+
