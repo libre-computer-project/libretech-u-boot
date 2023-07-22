@@ -543,8 +543,6 @@ int mmc_get_env_dev(void)
 {
 	switch (sunxi_get_boot_device()) {
 	case BOOT_DEVICE_MMC1:
-		return 0;
-	case BOOT_DEVICE_MMC2:
 		return 1;
 	default:
 		return CONFIG_SYS_MMC_ENV_DEV;
@@ -841,9 +839,9 @@ int misc_init_r(void)
 		parse_spl_header(SPL_ADDR);
 	/* or if we booted from MMC, and which one */
 	} else if (boot == BOOT_DEVICE_MMC1) {
-		env_set("mmc_bootdev", "0");
-	} else if (boot == BOOT_DEVICE_MMC2) {
 		env_set("mmc_bootdev", "1");
+	} else if (boot == BOOT_DEVICE_MMC2) {
+		env_set("mmc_bootdev", "0");
 	}
 
 	/* Set fdtfile to match the FIT configuration chosen in SPL. */
