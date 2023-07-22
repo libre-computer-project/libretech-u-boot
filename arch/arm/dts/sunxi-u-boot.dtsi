@@ -12,9 +12,9 @@
 
 / {
 	aliases {
-		mmc0 = &mmc0;
+		mmc0 = &mmc2;
 #if CONFIG_MMC_SUNXI_SLOT_EXTRA == 2
-		mmc1 = &mmc2;
+		mmc1 = &mmc0;
 #endif
 	};
 
