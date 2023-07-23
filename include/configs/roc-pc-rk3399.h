@@ -6,10 +6,13 @@
 #ifndef __ROC_PC_RK3399_H
 #define __ROC_PC_RK3399_H
 
+#include <configs/libretech.h>
+
 #define ROCKCHIP_DEVICE_SETTINGS \
 		"stdin=serial,usbkbd\0" \
 		"stdout=serial,vidconsole\0" \
-		"stderr=serial,vidconsole\0"
+		"stderr=serial,vidconsole\0" \
+		SPLASH_ENV
 
 #include <configs/rk3399_common.h>
 
