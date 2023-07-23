@@ -218,8 +218,9 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 		pr_err("%s: could not find/create '/chosen'\n", __func__);
 		return;
 	}
+	fdt_setprop_u32(blob, chosen, "u-boot,spl-boot-device", spl_image->boot_device);
 	fdt_setprop_string(blob, chosen,
-			   "u-boot,spl-boot-device", boot_ofpath);
+			   "u-boot,spl-boot-ofpath", boot_ofpath);
 }
 
 static void rk3399_force_power_on_reset(void)
