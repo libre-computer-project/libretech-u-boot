@@ -28,8 +28,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GRF_BASE	0xff770000
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
-	[BROM_BOOTSOURCE_EMMC] = "/mmc@fe330000",
 	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff1d0000/flash@0",
+	[BROM_BOOTSOURCE_EMMC] = "/mmc@fe330000",
 	[BROM_BOOTSOURCE_SD] = "/mmc@fe320000",
 };
 
