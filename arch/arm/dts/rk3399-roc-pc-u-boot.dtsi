@@ -4,7 +4,7 @@
  */
 
 #include "rk3399-u-boot.dtsi"
-#include "rk3399-sdram-lpddr4-100.dtsi"
+#include "rk3399-sdram-lpddr4-800-1866-100.dtsi"
 
 / {
 	chosen {
@@ -12,18 +12,30 @@
 	};
 
 	config {
-		u-boot,spl-payload-offset = <0x60000>; /* @ 384KB */
+		u-boot,spl-payload-offset = <0x62000>; /* @ 384KB */
 	};
 
-	vcc_hub_en: vcc_hub_en-regulator {
-		compatible = "regulator-fixed";
-		enable-active-high;
-		gpio = <&gpio2 RK_PA4 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&hub_rst>;
-		regulator-name = "vcc_hub_en";
-		regulator-always-on;
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "libre-computer";
+				product = "roc-rk3399-pc";
+			};
+
+			baseboard {
+				manufacturer = "libre-computer";
+				product = "roc-rk3399-pc";
+			};
+
+			chassis {
+				manufacturer = "libre-computer";
+				product = "roc-rk3399-pc";
+			};
+		};
 	};
+
 };
 
 /*
