@@ -355,7 +355,7 @@ int rk_mmc_get_boot_dev(){
 	int size;
 	prop = ofnode_read_chosen_prop("u-boot,spl-boot-device", &size);
 	if (prop == NULL) return -1;
-	return __be32_to_cpu(*prop) == 1;
+	return __be32_to_cpu(*prop) == 2;
 }
 
 #ifdef CONFIG_SYS_MMC_ENV_DEV
