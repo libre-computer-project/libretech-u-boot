@@ -43,7 +43,7 @@
 #endif
 
 #ifndef BOOT_TARGETS
-#define BOOT_TARGETS "mmc0 mmc1 nvme scsi usb pxe dhcp spi"
+#define BOOT_TARGETS "mmc0 mmc1 usb spi"
 #endif
 
 #ifndef CFG_EXTRA_ENV_SETTINGS
