@@ -1,3 +1,5 @@
+#include "sunxi-u-boot.dtsi"
+
 / {
 	smbios {
 		compatible = "u-boot,sysinfo-smbios";
