@@ -64,7 +64,6 @@
 
 &dfi {
 	bootph-all;
-	status = "okay";
 };
 
 &dmc {
