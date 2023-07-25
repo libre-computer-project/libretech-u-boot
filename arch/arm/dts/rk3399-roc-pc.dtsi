@@ -7,7 +7,7 @@
 #include <dt-bindings/input/linux-event-codes.h>
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/pwm/pwm.h>
-#include "dt-bindings/usb/pd.h"
+#include <dt-bindings/usb/pd.h>
 #include "rk3399.dtsi"
 #include "rk3399-op1-opp.dtsi"
 
@@ -599,7 +599,7 @@
 			label = "USB-C";
 			power-role = "sink";
 			try-power-role = "sink";
-			op-sink-microwatt = <1000000>;
+			op-sink-microwatt = <10000000>;
 			sink-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)
 				     PDO_VAR(5000, 20000, 5000)>;
 		};
