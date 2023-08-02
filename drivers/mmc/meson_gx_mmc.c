@@ -54,8 +54,13 @@ static void meson_mmc_config_clock(struct mmc *mmc)
 
 	/* Clk always on */
 	meson_mmc_clk |= pdata->version->clk_always_on;
-	meson_mmc_clk |= CLK_CO_PHASE_180;
 	meson_mmc_clk |= CLK_TX_PHASE_000;
+
+	/* Core phase according to mode */
+	if (mmc->selected_mode == MMC_LEGACY)
+		meson_mmc_clk |= CLK_CO_PHASE_270;
+	else
+		meson_mmc_clk |= CLK_CO_PHASE_180;
 
 	/* 1GHz / CLK_MAX_DIV = 15,9 MHz */
 	if (mmc->clock > 16000000) {
