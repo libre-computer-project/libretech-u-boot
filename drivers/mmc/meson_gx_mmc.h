@@ -10,8 +10,8 @@
 #include <linux/bitops.h>
 
 enum meson_gx_mmc_compatible {
-	MMC_COMPATIBLE_GX,
-	MMC_COMPATIBLE_SM1,
+	MMC_COMPATIBLE_V2,
+	MMC_COMPATIBLE_V3,
 };
 
 #define SDIO_PORT_A			0
@@ -84,7 +84,12 @@ enum meson_gx_mmc_compatible {
 #define MESON_SD_EMMC_CMD_RSP2		0x64
 #define MESON_SD_EMMC_CMD_RSP3		0x68
 
+struct meson_gx_mmc_version_data {
+	uint32_t clk_always_on;
+};
+
 struct meson_mmc_plat {
+	struct meson_gx_mmc_version_data *version;
 	struct mmc_config cfg;
 	struct mmc mmc;
 	void *regbase;
