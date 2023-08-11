@@ -177,7 +177,7 @@
 		compatible = "pwm-regulator";
 		regulator-name = "VDDCPU_A";
 		regulator-min-microvolt = <730000>;
-		regulator-max-microvolt = <1010000>;
+		regulator-max-microvolt = <1011000>;
 		regulator-boot-on;
 		regulator-always-on;
 		pwm-supply = <&dc_in>;
@@ -189,7 +189,7 @@
 		compatible = "pwm-regulator";
 		regulator-name = "VDDCPU_B";
 		regulator-min-microvolt = <730000>;
-		regulator-max-microvolt = <1010000>;
+		regulator-max-microvolt = <1011000>;
 		regulator-boot-on;
 		regulator-always-on;
 		pwm-supply = <&dc_in>;
