@@ -21,6 +21,8 @@
 	model = "Libre Computer AML-A311D-CC";
 
 	aliases {
+		mmc0 = &sd_emmc_c;
+		mmc1 = &sd_emmc_b;
 		serial0 = &uart_AO;
 		ethernet0 = &ethmac;
 		spi0 = &spifc;
