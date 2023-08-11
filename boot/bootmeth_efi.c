@@ -133,7 +133,7 @@ static int efiload_read_file(struct blk_desc *desc, struct bootflow *bflow)
 {
 	int ret;
 
-	ret = bootmeth_alloc_file(bflow, 0x2000000, 0x10000);
+	ret = bootmeth_alloc_file(bflow, CONFIG_SYS_MALLOC_LEN, 0x10000);
 	if (ret)
 		return log_msg_ret("read", ret);
 
@@ -213,7 +213,7 @@ static int distro_efi_read_bootflow_file(struct udevice *dev,
 					 struct bootflow *bflow)
 {
 	struct blk_desc *desc = NULL;
-	ulong fdt_addr, size;
+	ulong fdt_addr, size = CONFIG_SYS_BOOTM_LEN;
 	char fname[256];
 	int ret, seq;
 
