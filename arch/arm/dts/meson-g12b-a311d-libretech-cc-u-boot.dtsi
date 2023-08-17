@@ -7,10 +7,6 @@
 #include "meson-g12-common-u-boot.dtsi"
 
 / {
-	aliases {
-		spi0 = &spifc;
-	};
-
 	smbios {
 		compatible = "u-boot,sysinfo-smbios";
 
