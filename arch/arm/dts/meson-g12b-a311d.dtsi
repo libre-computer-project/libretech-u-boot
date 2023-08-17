@@ -66,11 +66,11 @@
 			opp-microvolt = <1001000>;
 		};
 
-/*
 		opp-2016000000 {
 			opp-hz = /bits/ 64 <2016000000>;
 			opp-microvolt = <1011000>;
 		};
+/*
 		opp-2208000000 {
 			opp-hz = /bits/ 64 <2208000000>;
 			opp-microvolt = <1011000>;
