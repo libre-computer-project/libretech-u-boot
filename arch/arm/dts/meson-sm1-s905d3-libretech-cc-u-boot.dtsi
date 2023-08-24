@@ -7,6 +7,10 @@
 #include "meson-g12-common-u-boot.dtsi"
 
 / {
+	aliases {
+		/delete-property/ mmc2;
+	};
+
 	smbios {
 		compatible = "u-boot,sysinfo-smbios";
 
