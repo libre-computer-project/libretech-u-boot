@@ -169,7 +169,7 @@
 		compatible = "pwm-regulator";
 		regulator-name = "VDDCPU_B";
 		regulator-min-microvolt = <730000>;
-		regulator-max-microvolt = <1010000>;
+		regulator-max-microvolt = <1011000>;
 		regulator-boot-on;
 		regulator-always-on;
 		pwm-supply = <&dc_in>;
@@ -480,8 +480,6 @@
 
 	bus-width = <4>;
 	cap-sd-highspeed;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
 	sd-uhs-sdr50;
 	sd-uhs-sdr104;
 	max-frequency = <200000000>;

@@ -18,8 +18,8 @@
 	#size-cells = <2>;
 
 	aliases {
-		mmc0 = &sd_emmc_b; /* SD card */
-		mmc1 = &sd_emmc_c; /* eMMC */
+		mmc0 = &sd_emmc_c; /* SD card */
+		mmc1 = &sd_emmc_b; /* eMMC */
 		mmc2 = &sd_emmc_a; /* SDIO */
 	};
 
@@ -2427,19 +2427,19 @@
 
 			trips {
 				cpu_passive: cpu-passive {
-					temperature = <85000>; /* millicelsius */
+					temperature = <65000>; /* millicelsius */
 					hysteresis = <2000>; /* millicelsius */
 					type = "passive";
 				};
 
 				cpu_hot: cpu-hot {
-					temperature = <95000>; /* millicelsius */
+					temperature = <70000>; /* millicelsius */
 					hysteresis = <2000>; /* millicelsius */
 					type = "hot";
 				};
 
 				cpu_critical: cpu-critical {
-					temperature = <110000>; /* millicelsius */
+					temperature = <80000>; /* millicelsius */
 					hysteresis = <2000>; /* millicelsius */
 					type = "critical";
 				};
@@ -2453,13 +2453,13 @@
 
 			trips {
 				ddr_passive: ddr-passive {
-					temperature = <85000>; /* millicelsius */
+					temperature = <65000>; /* millicelsius */
 					hysteresis = <2000>; /* millicelsius */
 					type = "passive";
 				};
 
 				ddr_critical: ddr-critical {
-					temperature = <110000>; /* millicelsius */
+					temperature = <80000>; /* millicelsius */
 					hysteresis = <2000>; /* millicelsius */
 					type = "critical";
 				};
