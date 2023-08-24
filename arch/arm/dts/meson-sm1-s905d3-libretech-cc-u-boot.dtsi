@@ -29,6 +29,8 @@
 				manufacturer = "libre-computer";
 				product = "aml-s905d3-cc-v01";
 			};
+		};
+	};
 };
 /*
 &sd_emmc_c {
