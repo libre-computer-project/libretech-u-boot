@@ -7,7 +7,6 @@
 #include <dt-bindings/input/linux-event-codes.h>
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/pwm/pwm.h>
-#include "dt-bindings/usb/pd.h"
 #include "rk3399.dtsi"
 #include "rk3399-op1-opp.dtsi"
 
@@ -591,18 +590,8 @@
 		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&fusb0_int>;
-		vbus-supply = <&dc_12v>;
+		vbus-supply = <&vcc_vbus_typec0>;
 		status = "okay";
-		connector {
-			compatible = "usb-c-connector";
-			data-role = "dual";
-			label = "USB-C";
-			power-role = "sink";
-			try-power-role = "sink";
-			op-sink-microwatt = <1000000>;
-			sink-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)
-				     PDO_VAR(5000, 20000, 5000)>;
-		};
 	};
 
 	mp8859: regulator@66 {
