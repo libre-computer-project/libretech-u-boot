@@ -31,7 +31,7 @@
 	dioo2133: audio-amplifier-0 {
 		status = "okay";
 		compatible = "simple-audio-amplifier";
-		enable-gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_HIGH>;
+		enable-gpios = <&gpio GPIOX_0 GPIO_ACTIVE_HIGH>;
 		VCC-supply = <&vcc_5v>;
 		sound-name-prefix = "10U2";
 	};
@@ -72,7 +72,7 @@
 		power-button {
 			label = "power";
 			linux,code = <KEY_POWER>;
-			gpios = <&gpio_ao GPIOAO_3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			gpios = <&gpio GPIOX_1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 	};
 
@@ -93,7 +93,7 @@
 		led-orange-blue {
 			color = <LED_COLOR_ID_MULTI>;
 			function = LED_FUNCTION_STATUS;
-			gpios = <&gpio_ao GPIOAO_11 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio GPIOX_3 GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "default-on";
 			panic-indicator;
 		};
@@ -101,7 +101,7 @@
 		led-blue {
 			color = <LED_COLOR_ID_BLUE>;
 			function = LED_FUNCTION_HEARTBEAT;
-			gpios = <&gpio_ao GPIOAO_9 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio GPIOX_7 GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "heartbeat";
 		};
 	};
@@ -129,7 +129,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		vin-supply = <&vddao_3v3>;
-		gpio = <&gpio GPIOA_8 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio GPIOX_2 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		gpio-open-drain;
 	};
@@ -195,7 +195,7 @@
 		regulator-settling-time-up-us = <200>;
 		regulator-settling-time-down-us = <50000>;
 		vin-supply = <&vddao_3v3>;
-		gpios = <&gpio GPIOA_7 GPIO_ACTIVE_HIGH>;
+		gpios = <&gpio GPIOX_4 GPIO_ACTIVE_HIGH>;
 		states = <3300000 0>,
 			 <1800000 1>;
 	};

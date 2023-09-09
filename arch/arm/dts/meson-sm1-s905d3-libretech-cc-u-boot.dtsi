@@ -17,17 +17,17 @@
 		smbios {
 			system {
 				manufacturer = "libre-computer";
-				product = "aml-s905d3-cc-v01";
+				product = "aml-s905d3-cc";
 			};
 
 			baseboard {
 				manufacturer = "libre-computer";
-				product = "aml-s905d3-cc-v01";
+				product = "aml-s905d3-cc";
 			};
 
 			chassis {
 				manufacturer = "libre-computer";
-				product = "aml-s905d3-cc-v01";
+				product = "aml-s905d3-cc";
 			};
 		};
 	};
