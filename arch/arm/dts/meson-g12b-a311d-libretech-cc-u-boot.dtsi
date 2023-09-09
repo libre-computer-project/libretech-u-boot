@@ -13,17 +13,17 @@
 		smbios {
 			system {
 				manufacturer = "libre-computer";
-				product = "aml-a311d-cc-v01";
+				product = "aml-a311d-cc";
 			};
 
 			baseboard {
 				manufacturer = "libre-computer";
-				product = "aml-a311d-cc-v01";
+				product = "aml-a311d-cc";
 			};
 
 			chassis {
 				manufacturer = "libre-computer";
-				product = "aml-a311d-cc-v01";
+				product = "aml-a311d-cc";
 			};
 		};
 	};
