@@ -91,19 +91,21 @@
 	leds {
 		compatible = "gpio-leds";
 
-		power_led: led-0 {
-			label = "librecomputer:red";
+		led-red {
+			label = "red";
 			color = <LED_COLOR_ID_RED>;
+			function = LED_FUNCTION_STATUS;
 			gpios = <&rk805 1 GPIO_ACTIVE_LOW>;
 			default-state = "on";
 			panic-indicator;
 			mode = <0x23>;
 		};
 
-		user_led: led-1 {
-			label = "librecomputer:green";
+		led-green {
+			label = "green";
 			color = <LED_COLOR_ID_GREEN>;
-			linux,default-trigger = "heartbeat";
+			function = LED_FUNCTION_ACTIVITY;
+			linux,default-trigger = "activity";
 			gpios = <&rk805 0 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 			mode = <0x05>;
