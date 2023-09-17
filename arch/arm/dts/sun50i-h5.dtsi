@@ -209,7 +209,7 @@
 				};
 
 				cpu_very_hot_trip: cpu-very-hot {
-					temperature = <80000>;
+					temperature = <100000>;
 					hysteresis = <0>;
 					type = "critical";
 				};
@@ -230,6 +230,13 @@
 			polling-delay-passive = <0>;
 			polling-delay = <0>;
 			thermal-sensors = <&ths 1>;
+			trips {
+				gpu_very_hot_trip: gpu-very-hot {
+					temperature = <100000>;
+					hysteresis = <0>;
+					type = "critical";
+				};
+			};
 		};
 	};
 };
