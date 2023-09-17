@@ -203,7 +203,7 @@
 
 			trips {
 				cpu_hot_trip: cpu-hot {
-					temperature = <65000>;
+					temperature = <80000>;
 					hysteresis = <2000>;
 					type = "passive";
 				};
