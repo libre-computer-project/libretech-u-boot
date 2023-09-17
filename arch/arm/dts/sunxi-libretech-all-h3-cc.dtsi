@@ -32,18 +32,20 @@
 		compatible = "gpio-leds";
 
 		pwr_led {
-			label = "librecomputer:green";
+			label = "green";
 			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_STATUS;
 			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>; /* PL10 */
 			default-state = "on";
 			panic-indicator;
 		};
 
 		status_led {
-			label = "librecomputer:blue";
+			label = "blue";
 			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_ACTIVITY;
 			gpios = <&pio 0 7 GPIO_ACTIVE_HIGH>; /* PA7 */
-			linux,default-trigger = "heartbeat";
+			linux,default-trigger = "activity";
 		};
 	};
 
