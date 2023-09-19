@@ -612,7 +612,7 @@
         hub: hub@1 {
             compatible = "usb5e3,626";
             reg = <1>;
-            reset-gpios = <&gpio GPIOC_7 GPIO_ACTIVE_LOW>;
+            reset-gpios = <&gpio GPIOC_7 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
         };
 };
 
