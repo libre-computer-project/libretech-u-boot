@@ -690,25 +690,6 @@
 			};
 		};
 	};
-/*
-	mp8859: regulator@66 {
-		compatible = "mps,mp8859";
-		reg = <0x66>;
-		dc_12v: mp8859_dcdc {
-			regulator-name = "dc_12v";
-			regulator-min-microvolt = <12000000>;
-			regulator-max-microvolt = <12000000>;
-			regulator-always-on;
-			regulator-boot-on;
-			vin-supply = <&vcc_vbus_typec0>;
-
-			regulator-state-mem {
-				regulator-on-in-suspend;
-				regulator-suspend-microvolt = <12000000>;
-			};
-		};
-	};
-*/
 };
 
 &i2s0 {
@@ -971,7 +952,7 @@
 	};
 
 	u2phy1_host: host-port {
-		phy-supply = <&vcc5v0_host>;
+		phy-supply = <&vcc_vbus_typec1>;
 		status = "okay";
 	};
 
