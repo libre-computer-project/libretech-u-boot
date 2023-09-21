@@ -73,27 +73,29 @@
 		pinctrl-0 = <&led_green_pin>, <&led_red_pin>, <&led_yellow_pin>;
 
 		led_green: led-green {
-			label = "librecomputer:green";
+			label = "green";
 			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_STATUS;
 			gpios = <&gpio2 RK_PD3 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
+			panic-indicator;
 		};
 
 		led_red: led-red {
-			label = "librecomputer:red";
+			label = "red";
 			color = <LED_COLOR_ID_RED>;
+			function = LED_FUNCTION_POWER;
 			gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
-			default-state = "off";
-			linux,default-trigger = "activity";
+			default-state = "on";
 		};
 
 		led_yellow: led-yellow {
-			label = "librecomputer:yellow";
+			label = "yellow";
 			color = <LED_COLOR_ID_YELLOW>;
+			function = LED_FUNCTION_ACTIVITY;
 			gpios = <&gpio0 RK_PA2 GPIO_ACTIVE_HIGH>;
 			default-state = "off";
-			linux,default-trigger = "heartbeat";
-			panic-indicator;
+			linux,default-trigger = "activity";
 		};
 	};
 
