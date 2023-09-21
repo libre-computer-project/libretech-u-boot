@@ -121,6 +121,21 @@
 		regulator-max-microvolt = <5000000>;
 	};
 
+	dc_12v: dc_12v {
+		compatible = "regulator-fixed";
+		regulator-name = "dc_12v";
+		regulator-min-microvolt = <12000000>;
+		regulator-max-microvolt = <12000000>;
+		regulator-always-on;
+		regulator-boot-on;
+		//vin-supply = <&vcc_vbus_typec0>;
+
+		regulator-state-mem {
+			regulator-on-in-suspend;
+			regulator-suspend-microvolt = <12000000>;
+		};
+	};
+
 	sys_12v: sys-12v {
 		compatible = "regulator-fixed";
 		regulator-name = "sys_12v";
