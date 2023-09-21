@@ -230,6 +230,10 @@
 		regulator-always-on;
 		regulator-boot-on;
 		vin-supply = <&vcc_sys>;
+
+		regulator-state-mem {
+			regulator-off-in-suspend;
+		};
 	};
 
 	vcc_hub_en: vcc_hub_en-regulator {
