@@ -124,27 +124,13 @@
 		regulator-max-microvolt = <5000000>;
 	};
 
-	dc_12v: dc_12v {
+	sys_12v: sys-12v {
 		compatible = "regulator-fixed";
-		regulator-name = "dc_12v";
+		regulator-name = "sys_12v";
 		regulator-min-microvolt = <12000000>;
 		regulator-max-microvolt = <12000000>;
 		regulator-always-on;
 		regulator-boot-on;
-		//vin-supply = <&vcc_vbus_typec0>;
-
-		regulator-state-mem {
-			regulator-on-in-suspend;
-			regulator-suspend-microvolt = <12000000>;
-		};
-	};
-
-	sys_12v: sys-12v {
-		compatible = "regulator-fixed";
-		regulator-name = "sys_12v";
-		regulator-always-on;
-		regulator-boot-on;
-		vin-supply = <&dc_12v>;
 	};
 
 	/* switched by pmic_sleep */
@@ -225,6 +211,10 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&vcc5v0_host_en>;
 		regulator-name = "vcc5v0_host";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-always-on;
+		regulator-boot-on;
 		vin-supply = <&vcc_sys>;
 	};
 
@@ -235,7 +225,10 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&vcc_vbus_typec1_en>;
 		regulator-name = "vcc_vbus_typec1";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
 		regulator-always-on;
+		regulator-boot-on;
 		vin-supply = <&vcc_sys>;
 	};
 
@@ -247,6 +240,7 @@
 		pinctrl-0 = <&hub_rst>;
 		regulator-name = "vcc_hub_en";
 		regulator-always-on;
+		regulator-boot-on;
 		vin-supply = <&vcc_sys>;
 	};
 
@@ -257,6 +251,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&vcc_sys_en>;
 		regulator-name = "vcc_sys";
+		regulator-always-on;
 		regulator-boot-on;
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
