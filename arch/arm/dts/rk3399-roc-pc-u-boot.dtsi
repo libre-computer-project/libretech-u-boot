@@ -38,20 +38,6 @@
 
 };
 
-/*
- * should be placed inside mp8859, but not until mp8859 has
- * its own dt-binding.
- */
-&dc_12v {
-	compatible = "regulator-fixed";
-	regulator-name = "dc_12v";
-	regulator-always-on;
-	regulator-boot-on;
-	regulator-min-microvolt = <12000000>;
-	regulator-max-microvolt = <12000000>;
-	vin-supply = <&vcc_vbus_typec0>;
-};
-
 &spi1 {
 	spi_flash: flash@0 {
 		bootph-all;
