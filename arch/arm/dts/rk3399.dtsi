@@ -611,7 +611,7 @@
 	};
 
 	crypto1: crypto@ff8b8000 {
-		compatible = "rockchip,rk3399-crypto";
+		compatible = "rockchip,rk3399-crypto", "rockchip,cryptov1-rng";
 		reg = <0x0 0xff8b8000 0x0 0x4000>;
 		interrupts = <GIC_SPI 135 IRQ_TYPE_LEVEL_HIGH 0>;
 		clocks = <&cru HCLK_M_CRYPTO1>, <&cru HCLK_S_CRYPTO1>, <&cru SCLK_CRYPTO1>;
