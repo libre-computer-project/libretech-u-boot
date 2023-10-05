@@ -737,7 +737,3 @@
 &usb {
 	status = "okay";
 };
-
-&npu {
-	status = "okay";
-};
