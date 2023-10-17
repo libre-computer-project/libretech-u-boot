@@ -29,25 +29,10 @@
 	};
 
 	dioo2133: audio-amplifier-0 {
-		status = "okay";
 		compatible = "simple-audio-amplifier";
 		enable-gpios = <&gpio GPIOX_0 GPIO_ACTIVE_HIGH>;
 		VCC-supply = <&vcc_5v>;
 		sound-name-prefix = "10U2";
-	};
-
-	spdif_dit: audio-codec-0 {
-		status = "okay";
-		compatible = "linux,spdif-dit";
-		#sound-dai-cells = <0>;
-		sound-name-prefix = "DIT";
-	};
-
-	spdif_dir: audio-codec-1 {
-		status = "okay";
-		compatible = "linux,spdif-dir";
-		#sound-dai-cells = <0>;
-		sound-name-prefix = "DIR";
 	};
 
 	/* TOFIX: handle CVBS_DET on SARADC channel 0 */
@@ -66,16 +51,6 @@
 		reset-gpios = <&gpio BOOT_12 GPIO_ACTIVE_LOW>;
 	};
 
-	gpio-keys-polled {
-		compatible = "gpio-keys-polled";
-		poll-interval = <100>;
-		power-button {
-			label = "power";
-			linux,code = <KEY_POWER>;
-			gpios = <&gpio GPIOX_1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-		};
-	};
-
 	hdmi-connector {
 		compatible = "hdmi-connector";
 		type = "a";
@@ -87,22 +62,40 @@
 		};
 	};
 
-	leds {
-		compatible = "gpio-leds";
+	led-blue {
+		compatible = "pwm-leds";
 
-		led-yellow-green {
-			color = <LED_COLOR_ID_MULTI>;
-			function = LED_FUNCTION_STATUS;
-			gpios = <&gpio GPIOX_3 GPIO_ACTIVE_LOW>;
-			linux,default-trigger = "default-on";
-			panic-indicator;
-		};
-
-		led-blue {
+		led {
 			color = <LED_COLOR_ID_BLUE>;
 			function = LED_FUNCTION_ACTIVITY;
-			gpios = <&gpio GPIOX_7 GPIO_ACTIVE_LOW>;
-			linux,default-trigger = "activity";
+			linux,default-trigger = "heartbeat";
+			max-brightness = <255>;
+			pwms = <&pwm_ab 1 1250 0>;
+			active-low;
+		};
+	};
+
+	led-green {
+		compatible = "pwm-leds";
+
+		led {
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_STATUS;
+			linux,default-trigger = "default-on";
+			max-brightness = <255>;
+			pwms = <&pwm_cd 1 1250 0>;
+			active-low;
+		};
+	};
+
+	led-orange {
+		compatible = "gpio-leds";
+
+		led {
+			color = <LED_COLOR_ID_AMBER>;
+			function = LED_FUNCTION_STANDBY;
+			gpios = <&gpio GPIOX_6 GPIO_ACTIVE_LOW>;
+			panic-indicator;
 		};
 	};
 
@@ -129,7 +122,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		vin-supply = <&vddao_3v3>;
-		gpio = <&gpio GPIOX_2 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio GPIOX_2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		enable-active-high;
 		gpio-open-drain;
 	};
@@ -153,8 +146,8 @@
 		regulator-always-on;
 		vin-supply = <&dc_in>;
 		gpio = <&gpio GPIOH_8 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-		gpio-open-drain;
 		enable-active-high;
+		gpio-open-drain;
 	};
 
 	vddao_3v3: regulator-vddao_3v3 {
@@ -202,7 +195,6 @@
 
 	sound {
 		compatible = "amlogic,axg-sound-card";
-		model = "Cottonwood";
 		audio-widgets = "Line", "Lineout";
 		audio-aux-devs = <&tdmout_a>, <&tdmout_b>, <&tdmout_c>,
 				 <&tdmin_a>, <&tdmin_b>, <&tdmin_c>,
@@ -241,35 +233,42 @@
 		};
 
 		/*
-		* Audio setup: The 40 pins header provides access to 2 TDMs
-		* and SPDIF In/Out
-		* - TDM A: 2 lanes on GPIOX
-		*    D0:   40/X9
-		*    D1:   38/X8
-		*    BCLK: 12/X11
-		*    SCLK: 35/X10
-		* - TDM B: 4 lanes on GPIOA
-		*    D0:   39/A3
-		*    D1:   16/A4
-		*    D2:   22/A6
-		*    D3:   18/A5
-		*    BCLK: 29/A1
-		*    SCLK: 31/A2
-		* - 2 Master Clocks: on GPIOA
-		*    MCLK0: 15/A0
-		*    MCLK1: 36/A11
-		* - SPDIF: on GPIOH
-		*    OUT: 19/H4
-		*    IN:  21/H5
-		*
-		* TDM C is not useable on the 40 pins connector so it is
-		* setup for the HDMI 4 lanes i2s.
-		*
-		* No pinctrl is enabled by default to preserve the
-		* genericity of the 40 pins header. Many configurations are
-		* possible based on the desired use case. Please adjust TDM
-		* masks, clock setups and pinctrl accordingly.
-		*/
+		 * Audio setup: The 40 pins header provides access to 2 TDMs,
+		 * SPDIF In/Out and PDM inputs.
+		 * - TDM A: 2 lanes
+		 *    D0:    40/X9
+		 *    D1:    38/X8
+		 *    BCLK:  12/X11
+		 *    FS:    35/X10
+		 * - TDM B: 4 lanes
+		 *    D0:    37/A3
+		 *    D1:    16/A4
+		 *    D2:    18/A5 or 7/AO6
+		 *    D3:    22/A6 or 21/H5
+		 *    BCLK:  29/A1 or 8/AO8
+		 *    FS:    31/A2 or 11/AO7
+		 * - 2 Master Clocks:
+		 *    MCLK0: 15/A0 or 10/AO9
+		 *    MCLK1: 33/X15
+		 * - SPDIF:
+		 *    OUT:   32/A11
+		 *    IN:    21/H5
+		 * - PDM Input:
+		 *    DO:    13/A8
+		 *    D1:    26/A9
+		 *    D2:    22/A6
+		 *    D3:    18/A5
+		 *    DCLK:  36/A7
+		 *
+		 * TDM C is not usable on the 40 pins connector so it is
+		 * setup for the HDMI 4 lanes i2s.
+		 *
+		 * No pinctrl is enabled by default to preserve the
+		 * genericity of the 40 pins header. Many configurations are
+		 * possible based on the desired use case. Please adjust TDM
+		 * masks, clock setups and pinctrl accordingly.
+		 */
+
 		dai-link-6 {
 			sound-dai = <&tdmif_a>;
 			dai-format = "dsp_a";
@@ -334,26 +333,6 @@
 				sound-dai = <&acodec>;
 			};
 		};
-
-		dai-link-11 {
-			sound-dai = <&spdifout_a>;
-
-			codec-0 {
-				sound-dai = <&spdif_dit>;
-			};
-
-			codec-1 {
-				sound-dai = <&tohdmitx TOHDMITX_SPDIF_IN_A>;
-			};
-		};
-
-		dai-link-12 {
-			sound-dai = <&spdifin>;
-
-			codec {
-				sound-dai = <&spdif_dir>;
-			};
-		};
 	};
 };
 
@@ -380,6 +359,18 @@
 &cvbs_vdac_port {
 	cvbs_vdac_out: endpoint {
 		remote-endpoint = <&cvbs_connector_in>;
+	};
+};
+
+&dwc3 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	hub: hub@1 {
+		compatible = "usb5e3,626";
+		reg = <1>;
+		reset-gpios = <&gpio GPIOC_7 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
+		vdd-supply = <&vcc_5v>;
 	};
 };
 
@@ -460,11 +451,27 @@
 };
 
 &pwm_AO_cd {
+	status = "okay";
 	pinctrl-0 = <&pwm_ao_d_e_pins>;
 	pinctrl-names = "default";
 	clocks = <&xtal>;
 	clock-names = "clkin1";
+};
+
+&pwm_ab {
 	status = "okay";
+	pinctrl-0 = <&pwm_b_x7_pins>;
+	pinctrl-names = "default";
+	clocks = <&xtal>;
+	clock-names = "clkin1";
+};
+
+&pwm_cd {
+	status = "okay";
+	pinctrl-0 = <&pwm_d_x3_pins>;
+	pinctrl-names = "default";
+	clocks = <&xtal>;
+	clock-names = "clkin1";
 };
 
 &saradc {
@@ -481,6 +488,8 @@
 
 	bus-width = <4>;
 	cap-sd-highspeed;
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
 	sd-uhs-sdr50;
 	sd-uhs-sdr104;
 	max-frequency = <200000000>;
@@ -521,21 +530,13 @@
 	pinctrl-names = "default";
 	cs-gpios = <&gpio BOOT_14 GPIO_ACTIVE_LOW>;
 
-	w25q128: flash@0 {
-		compatible = "gd25lq128d", "jedec,spi-nor";
+	w25lq128d: flash@0 {
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		spi-max-frequency = <80000000>;
 	};
-};
-
-&spdifin {
-	status = "okay";
-};
-
-&spdifout_a {
-	status = "okay";
 };
 
 &tdmif_a {
@@ -605,15 +606,7 @@
 };
 
 &usb3_pcie_phy {
-	#address-cells = <1>;
-        #size-cells = <0>;
 	phy-supply = <&vcc_5v>;
-
-        hub: hub@1 {
-            compatible = "usb5e3,626";
-            reg = <1>;
-            reset-gpios = <&gpio GPIOC_7 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
-        };
 };
 
 &usb {

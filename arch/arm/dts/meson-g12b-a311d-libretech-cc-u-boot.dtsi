@@ -4,20 +4,27 @@
  * Author: Jerome Brunet <jbrunet@baylibre.com>
  */
 
-#include "meson-g12-common-u-boot.dtsi"
+#include "meson-libretech-cottonwood-u-boot.dtsi"
 
 / {
-	aliases {
-		spi0 = &spifc;
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "libre-computer";
+				product = "aml-a311d-cc";
+			};
+
+			baseboard {
+				manufacturer = "libre-computer";
+				product = "aml-a311d-cc";
+			};
+
+			chassis {
+				manufacturer = "libre-computer";
+				product = "aml-a311d-cc";
+			};
+		};
 	};
-};
-
-&sd_emmc_c {
-	status = "okay";
-	pinctrl-0 = <&emmc_ctrl_pins>, <&emmc_data_4b_pins>;
-	bus-width = <4>;
-};
-
-&spifc {
-	status = "okay";
 };

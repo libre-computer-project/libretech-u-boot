@@ -12,13 +12,13 @@
 
 / {
 	compatible = "libretech,aml-a311d-cc", "amlogic,a311d", "amlogic,g12b";
-	model = "Libre Computer AML-A311D-CC";
+	model = "Libre Computer AML-A311D-CC Alta";
 
 	vddcpu_a: regulator-vddcpu-a {
 		compatible = "pwm-regulator";
 		regulator-name = "VDDCPU_A";
 		regulator-min-microvolt = <730000>;
-		regulator-max-microvolt = <1010000>;
+		regulator-max-microvolt = <1011000>;
 		regulator-boot-on;
 		regulator-always-on;
 		pwm-supply = <&dc_in>;
@@ -27,7 +27,7 @@
 	};
 
 	sound {
-		model = "Cottonwood-Big";
+		model = "LC-ALTA";
 		audio-routing = "TDMOUT_A IN 0", "FRDDR_A OUT 0",
 				"TDMOUT_A IN 1", "FRDDR_B OUT 0",
 				"TDMOUT_A IN 2", "FRDDR_C OUT 0",
@@ -40,9 +40,6 @@
 				"TDMOUT_C IN 1", "FRDDR_B OUT 2",
 				"TDMOUT_C IN 2", "FRDDR_C OUT 2",
 				"TDM_C Playback", "TDMOUT_C OUT",
-				"SPDIFOUT_A IN 0", "FRDDR_A OUT 3",
-				"SPDIFOUT_A IN 1", "FRDDR_B OUT 3",
-				"SPDIFOUT_A IN 2", "FRDDR_C OUT 3",
 				"TDMIN_A IN 0", "TDM_A Capture",
 				"TDMIN_B IN 0", "TDM_A Capture",
 				"TDMIN_C IN 0", "TDM_A Capture",
@@ -70,9 +67,6 @@
 				"TODDR_A IN 2", "TDMIN_C OUT",
 				"TODDR_B IN 2", "TDMIN_C OUT",
 				"TODDR_C IN 2", "TDMIN_C OUT",
-				"TODDR_A IN 3", "SPDIFIN Capture",
-				"TODDR_B IN 3", "SPDIFIN Capture",
-				"TODDR_C IN 3", "SPDIFIN Capture",
 				"Lineout", "ACODEC LOLP",
 				"Lineout", "ACODEC LORP";
 	};
@@ -121,9 +115,7 @@
 };
 
 &pwm_ab {
-	status = "okay";
-	pinctrl-0 = <&pwm_a_e_pins>;
-	pinctrl-names = "default";
-	clocks = <&xtal>;
-	clock-names = "clkin0";
+	pinctrl-0 = <&pwm_a_e_pins>, <&pwm_b_x7_pins>;
+	clocks = <&xtal>, <&xtal>;
+	clock-names = "clkin0", "clkin1";
 };
