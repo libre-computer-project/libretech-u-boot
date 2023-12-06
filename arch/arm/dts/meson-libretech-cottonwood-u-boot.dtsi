@@ -11,7 +11,7 @@
 		spi0 = &spifc;
 	};
 };
-
+/*
 &sd_emmc_c {
 	status = "okay";
 	pinctrl-0 = <&emmc_ctrl_pins>, <&emmc_data_4b_pins>;
@@ -21,3 +21,4 @@
 &spifc {
 	status = "okay";
 };
+*/
