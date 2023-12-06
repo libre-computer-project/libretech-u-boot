@@ -63,28 +63,24 @@
 	};
 
 	led-blue {
-		compatible = "pwm-leds";
+		compatible = "gpio-leds";
 
 		led {
 			color = <LED_COLOR_ID_BLUE>;
 			function = LED_FUNCTION_ACTIVITY;
 			linux,default-trigger = "activity";
-			max-brightness = <255>;
-			pwms = <&pwm_ab 1 1250 0>;
-			active-low;
+			gpios = <&gpio GPIOX_7 GPIO_ACTIVE_LOW>;
 		};
 	};
 
 	led-green {
-		compatible = "pwm-leds";
+		compatible = "gpio-leds";
 
 		led {
 			color = <LED_COLOR_ID_GREEN>;
 			function = LED_FUNCTION_STATUS;
 			linux,default-trigger = "default-on";
-			max-brightness = <255>;
-			pwms = <&pwm_cd 1 1250 0>;
-			active-low;
+			gpios = <&gpio GPIOX_3 GPIO_ACTIVE_LOW>;
 		};
 	};
 
