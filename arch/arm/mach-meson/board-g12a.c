@@ -64,8 +64,9 @@ void meson_init_reserved_memory(void *fdt)
 
 phys_size_t get_effective_memsize(void)
 {
+	phys_size_t val = readl(G12A_AO_SEC_GP_CFG0);
 	/* Size is reported in MiB, convert it in bytes */
-	return min(((readl(G12A_AO_SEC_GP_CFG0) & G12A_AO_MEM_SIZE_MASK)
+	return min(((val & G12A_AO_MEM_SIZE_MASK)
 			>> G12A_AO_MEM_SIZE_SHIFT) * SZ_1M, 0xf5000000);
 }
 
