@@ -954,7 +954,7 @@
 						mux {
 							groups = "GPIOX_4";
 							function = "gpio_periphs";
-							bias-pull-down;
+							bias-pull-up;
 							drive-strength-microamp = <4000>;
 						};
 					};
