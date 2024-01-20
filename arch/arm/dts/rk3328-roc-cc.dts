@@ -6,13 +6,15 @@
 /dts-v1/;
 #include "rk3328.dtsi"
 
+#include <dt-bindings/leds/common.h>
+
 / {
-	model = "Firefly roc-rk3328-cc";
-	compatible = "firefly,roc-rk3328-cc", "rockchip,rk3328";
+	model = "Libre Computer ROC-RK3328-CC";
+	compatible = "libretech,roc-rk3328-cc", "rockchip,rk3328";
 
 	aliases {
-		mmc0 = &sdmmc;
-		mmc1 = &emmc;
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
 	};
 
 	chosen {
@@ -24,15 +26,6 @@
 		clock-frequency = <125000000>;
 		clock-output-names = "gmac_clkin";
 		#clock-cells = <0>;
-	};
-
-	dc_12v: dc-12v {
-		compatible = "regulator-fixed";
-		regulator-name = "dc_12v";
-		regulator-always-on;
-		regulator-boot-on;
-		regulator-min-microvolt = <12000000>;
-		regulator-max-microvolt = <12000000>;
 	};
 
 	vcc_sd: sdmmc-regulator {
@@ -78,7 +71,6 @@
 		regulator-boot-on;
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
-		vin-supply = <&dc_12v>;
 	};
 
 	vcc_phy: vcc-phy-regulator {
@@ -88,20 +80,32 @@
 		regulator-boot-on;
 	};
 
+	ir-receiver {
+		compatible = "gpio-ir-receiver";
+		gpios = <&gpio2 RK_PA2 GPIO_ACTIVE_LOW>;
+		pinctrl-0 = <&ir_int>;
+		pinctrl-names = "default";
+	};
+
 	leds {
 		compatible = "gpio-leds";
 
-		power_led: led-0 {
-			label = "firefly:blue:power";
-			linux,default-trigger = "heartbeat";
+		led_red: led-0 {
+			label = "librecomputer:red";
+			color = <LED_COLOR_ID_RED>;
+			function = LED_FUNCTION_STATUS;
+			linux,default-trigger = "default-on";
 			gpios = <&rk805 1 GPIO_ACTIVE_LOW>;
 			default-state = "on";
+			panic-indicator;
 			mode = <0x23>;
 		};
 
-		user_led: led-1 {
-			label = "firefly:yellow:user";
-			linux,default-trigger = "mmc1";
+		led_green: led-1 {
+			label = "librecomputer:green";
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_ACTIVITY;
+			linux,default-trigger = "activity";
 			gpios = <&rk805 0 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 			mode = <0x05>;
@@ -139,12 +143,15 @@
 	max-frequency = <150000000>;
 	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
-	non-removable;
 	pinctrl-names = "default";
 	pinctrl-0 = <&emmc_clk &emmc_cmd &emmc_bus8>;
 	vmmc-supply = <&vcc_io>;
 	vqmmc-supply = <&vcc18_emmc>;
 	status = "okay";
+};
+
+&gpu {
+	mali-supply = <&vdd_logic>;
 };
 
 &gmac2io {
@@ -207,6 +214,7 @@
 				regulator-name = "vdd_logic";
 				regulator-min-microvolt = <712500>;
 				regulator-max-microvolt = <1450000>;
+				regulator-ramp-delay = <12500>;
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-state-mem {
@@ -219,6 +227,7 @@
 				regulator-name = "vdd_arm";
 				regulator-min-microvolt = <712500>;
 				regulator-max-microvolt = <1450000>;
+				regulator-ramp-delay = <12500>;
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-state-mem {
@@ -308,6 +317,12 @@
 };
 
 &pinctrl {
+	ir {
+		ir_int: ir-int {
+			rockchip,pins = <2 RK_PA2 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
 	pmic {
 		pmic_int_l: pmic-int-l {
 			rockchip,pins = <1 RK_PD0 RK_FUNC_GPIO &pcfg_pull_up>;
@@ -321,6 +336,18 @@
 	};
 };
 
+&crypto {
+	status = "okay";
+};
+
+&h265e_mmu {
+	status = "okay";
+};
+
+&saradc {
+	status = "okay";
+};
+
 &sdmmc {
 	bus-width = <4>;
 	cap-mmc-highspeed;
@@ -329,8 +356,6 @@
 	max-frequency = <150000000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdmmc0_clk &sdmmc0_cmd &sdmmc0_dectn &sdmmc0_bus4>;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
 	sd-uhs-sdr50;
 	sd-uhs-sdr104;
 	vmmc-supply = <&vcc_sd>;
@@ -339,6 +364,8 @@
 };
 
 &tsadc {
+	rockchip,hw-tshut-mode = <0>;
+	rockchip,hw-tshut-polarity = <0>;
 	status = "okay";
 };
 
@@ -351,10 +378,6 @@
 };
 
 &u2phy_otg {
-	status = "okay";
-};
-
-&uart2 {
 	status = "okay";
 };
 
@@ -376,6 +399,10 @@
 	status = "okay";
 };
 
+&vepu_mmu {
+	status = "okay";
+};
+
 &vop {
 	status = "okay";
 };
@@ -383,3 +410,4 @@
 &vop_mmu {
 	status = "okay";
 };
+
