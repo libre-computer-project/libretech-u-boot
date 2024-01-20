@@ -7,7 +7,7 @@
 #include "rk3328-sdram-ddr4-666.dtsi"
 / {
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &emmc;
+		u-boot,spl-boot-order = "same-as-spl", &emmc; &sdmmc;
 	};
 
 	smbios {
