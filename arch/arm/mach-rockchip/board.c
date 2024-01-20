@@ -17,6 +17,7 @@
 #include <ram.h>
 #include <syscon.h>
 #include <uuid.h>
+#include <splash.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
