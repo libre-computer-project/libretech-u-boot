@@ -28,6 +28,7 @@
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \
 	SPLASH_ENV \
+	ROCKCHIP_DEVICE_SETTINGS \
 	"boot_targets=" BOOT_TARGETS "\0"
 
 #endif
