@@ -1729,6 +1729,12 @@
 			};
 		};
 
+		crypto: crypto@3e000 {
+			compatible = "amlogic,g12a-crypto";
+			reg = <0x0 0x3e000 0x0 0x48>;
+			interrupts = <GIC_SPI 180 IRQ_TYPE_EDGE_RISING>;
+		};
+
 		aobus: bus@ff800000 {
 			compatible = "simple-bus";
 			reg = <0x0 0xff800000 0x0 0x100000>;
