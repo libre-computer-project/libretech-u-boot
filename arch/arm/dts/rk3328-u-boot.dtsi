@@ -68,3 +68,7 @@
 &spi0 {
 	bootph-all;
 };
+
+&vop {
+	bootph-all;
+};

@@ -8,6 +8,8 @@
 #include <dm.h>
 #include <efi_loader.h>
 #include <fastboot.h>
+#include <fs.h>
+#include <ini.h>
 #include <init.h>
 #include <log.h>
 #include <mmc.h>
@@ -15,6 +17,7 @@
 #include <ram.h>
 #include <syscon.h>
 #include <uuid.h>
+#include <splash.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/boot_mode.h>
@@ -22,6 +25,7 @@
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/misc.h>
 #include <power/regulator.h>
+#include <vsprintf.h>
 
 #if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && defined(CONFIG_EFI_PARTITION)
 
@@ -296,6 +300,51 @@ int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 }
 #endif
 
+#ifdef CONFIG_SPLASH_SCREEN
+static struct splash_location splash_locations[] = {
+        {
+                .name = "mmc_fs",
+                .storage = SPLASH_STORAGE_MMC,
+                .flags = SPLASH_STORAGE_FS,
+                .devpart = "0:auto",
+        }
+};
+
+int splash_screen_prepare(void)
+{
+        if (CONFIG_IS_ENABLED(SPLASH_SOURCE))
+                return splash_source_load(splash_locations,
+                        ARRAY_SIZE(splash_locations)) && splash_video_logo_load();
+        return splash_video_logo_load();
+}
+#endif
+
+int rk_mmc_get_boot_dev(){
+	const fdt32_t *prop;
+	int size;
+	prop = ofnode_read_chosen_prop("u-boot,spl-boot-device", &size);
+	if (prop == NULL) return -1;
+	return __be32_to_cpu(*prop) == 1;
+}
+
+#ifdef CONFIG_SYS_MMC_ENV_DEV
+int mmc_get_env_dev(void) {
+	int mmc_boot_device = rk_mmc_get_boot_dev();
+	if (mmc_boot_device == -1) return CONFIG_SYS_MMC_ENV_DEV;
+
+	return mmc_boot_device;
+}
+#endif
+
+void env_set_bootdevice(void)
+{
+	int bootdev = rk_mmc_get_boot_dev() == 1;
+	env_set("bootdevice", simple_itoa(bootdev));
+#ifdef CONFIG_SPLASH_SOURCE
+	env_set("splashdevpart", simple_itoa(bootdev));
+#endif
+}
+
 #ifdef CONFIG_MISC_INIT_R
 __weak int misc_init_r(void)
 {
@@ -347,5 +396,19 @@ __weak int board_rng_seed(struct abuf *buf)
 	abuf_init_set(buf, data, len);
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_CMD_INI
+void env_ini_load(){
+	int res;
+	char *load_addr;
+	loff_t size;
+	res = fs_set_blk_dev("mmc", env_get("bootdevice"), FS_TYPE_ANY);
+	if (res) return;
+	load_addr = (char *)hextoul(env_get("loadaddr"), NULL);
+	res = fs_read("boot.ini",load_addr, 0, 0, &size);
+	if (res) return;
+	ini_parse(load_addr, size, ini_handler, "");
 }
 #endif
