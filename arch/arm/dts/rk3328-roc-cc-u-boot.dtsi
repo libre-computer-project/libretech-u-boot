@@ -7,11 +7,7 @@
 #include "rk3328-sdram-ddr4-1600.dtsi"
 / {
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &spi0, &emmc, &sdmmc;
-	};
-
-	config {
-		u-boot,spl-payload-offset = <0x28000>; /* @ 384KB */
+		u-boot,spl-boot-order = "same-as-spl", &emmc, &sdmmc;
 	};
 
 	smbios {
@@ -55,10 +51,4 @@
 /* Need this and all the pinctrl/gpio stuff above to set pinmux */
 &vcc_sd {
 	bootph-pre-ram;
-};
-
-&spi0 {
-        spi_flash: spiflash@0 {
-                bootph-pre-ram;
-        };
 };
