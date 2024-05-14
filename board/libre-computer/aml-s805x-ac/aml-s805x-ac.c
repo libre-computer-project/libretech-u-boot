@@ -35,8 +35,6 @@ int misc_init_r(void)
 			meson_generate_serial_ethaddr();
 	}
 
-	meson_init_eth_internal_phy();
-
 	if (!env_get("serial#")) {
 		len = meson_sm_read_efuse(EFUSE_SN_OFFSET, serial,
 			EFUSE_SN_SIZE);
