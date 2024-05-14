@@ -9,7 +9,6 @@
 #include <net.h>
 #include <asm/arch/boot.h>
 #include <asm/arch/eth.h>
-#include <asm/arch/eth-gxl.h>
 #include <asm/arch/gx.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/meson-vpu.h>
@@ -73,13 +72,6 @@ void meson_init_reserved_memory(void *fdt)
 #if defined(CONFIG_VIDEO_MESON)
 	meson_vpu_rsv_fb(fdt);
 #endif
-}
-
-void meson_init_eth_internal_phy(void){
-	if (!IS_ENABLED(CONFIG_MDIO_MUX_MMIOREG)){
-		out_le32(ETH_REG_BASE + ETH_REG_0, GX_ETH_REG_0_INVERT_RMII_CLK | GX_ETH_REG_0_CLK_EN);
-		writel(0x10110181, ETH_REG_BASE + ETH_REG_2);
-	}
 }
 
 phys_size_t get_effective_memsize(void)
