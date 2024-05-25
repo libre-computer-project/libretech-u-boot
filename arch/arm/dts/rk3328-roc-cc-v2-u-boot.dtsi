@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * (C) Copyright 2018-2019 Rockchip Electronics Co., Ltd
+ */
+
+#include "rk3328-u-boot.dtsi"
+#include "rk3328-sdram-ddr4-1600.dtsi"
+/ {
+	chosen {
+		u-boot,spl-boot-order = "same-as-spl", &spi0, &emmc, &sdmmc;
+	};
+
+	config {
+		u-boot,spl-payload-offset = <0x28000>; /* @ 384KB */
+	};
+
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "libre-computer";
+				product = "roc-rk3328-cc-v2";
+			};
+
+			baseboard {
+				manufacturer = "libre-computer";
+				product = "roc-rk3328-cc-v2";
+			};
+
+			chassis {
+				manufacturer = "libre-computer";
+				product = "roc-rk3328-cc-v2";
+			};
+		};
+	};
+};
+
+&gpio0 {
+	bootph-pre-ram;
+};
+
+&pinctrl {
+	bootph-pre-ram;
+};
+
+&sdmmc0m1_pin {
+	bootph-pre-ram;
+};
+
+&pcfg_pull_up_4ma {
+	bootph-pre-ram;
+};
+
+/* Need this and all the pinctrl/gpio stuff above to set pinmux */
+&vcc_sd {
+	bootph-pre-ram;
+};
+
+&spi0 {
+        spi_flash: spiflash@0 {
+                bootph-pre-ram;
+        };
+};
