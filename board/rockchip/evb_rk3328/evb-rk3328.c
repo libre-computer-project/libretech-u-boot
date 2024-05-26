@@ -19,15 +19,19 @@ int rk_board_late_init(void){
 	rk_3328_qos_init();
 	return 0;
 }
-
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
-	int nodeoff = 0;
+	int node_offset = 0;
 
-	while ((nodeoff = fdt_node_offset_by_compatible(blob, 0,
-				"jedec,spi-nor")) >= 0) {
-		fdt_del_node(blob, nodeoff);
-	}
+	node_offset = fdt_node_offset_by_compatible(blob, 0,
+				"jedec,spi-nor");
+	fdt_del_node(blob, node_offset);
+
+	node_offset = fdt_node_offset_by_compatible(blob, 0,
+				"rockchip,rk3328-spi");
+	fdt_setprop(blob, node_offset, "status", "disabled", sizeof("disabled"));
+
+	return 0;
 }
 #endif
