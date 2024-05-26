@@ -7,15 +7,18 @@
 #include "rk3328.dtsi"
 #include "rk3328-roc-cc-dram-timing.dtsi"
 
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/rockchip.h>
 #include <dt-bindings/leds/common.h>
 
 / {
 	model = "Libre Computer ROC-RK3328-CC V2";
-	compatible = "libretech,roc-rk3328-cc-v2", "rockchip,rk3328";
+	compatible = "libretech,roc-rk3328-cc-v2", "libretech,roc-rk3328-cc", "rockchip,rk3328";
 
 	aliases {
 		mmc0 = &emmc;
 		mmc1 = &sdmmc;
+		spi0 = &spi0;
 	};
 
 	chosen {
@@ -364,6 +367,7 @@
 };
 
 &spi0 {
+	status = "okay";
 	spiflash@0 {
 		compatible = "jedec,spi-nor";
 		reg = <0>;
