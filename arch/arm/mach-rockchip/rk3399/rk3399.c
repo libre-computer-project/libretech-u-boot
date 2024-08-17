@@ -31,6 +31,7 @@ const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff1d0000/flash@0",
 	[BROM_BOOTSOURCE_EMMC] = "/mmc@fe330000",
 	[BROM_BOOTSOURCE_SD] = "/mmc@fe320000",
+	[BROM_BOOTSOURCE_USB] = "/memory-controller",
 };
 
 static struct mm_region rk3399_mem_map[] = {
@@ -184,6 +185,7 @@ const char *spl_decode_boot_device(u32 boot_device)
 		{ BOOT_DEVICE_MMC2, "/mmc@fe320000" },
 		{ BOOT_DEVICE_MMC1, "/mmc@fe330000" },
 		{ BOOT_DEVICE_SPI, "/spi@ff1d0000/flash@0" },
+		{ BOOT_DEVICE_RAM, "/memory-controller" },
 	};
 
 	for (i = 0; i < ARRAY_SIZE(spl_boot_devices_tbl); ++i)

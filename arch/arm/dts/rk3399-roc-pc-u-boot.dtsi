@@ -8,7 +8,7 @@
 
 / {
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &spi_flash, &sdhci, &sdmmc;
+		u-boot,spl-boot-order = "same-as-spl", &dmc, &spi_flash, &sdhci, &sdmmc;
 	};
 
 	config {

@@ -66,6 +66,9 @@ static int spl_node_to_boot_device(int node)
 	} else if (!uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node,
 		&parent)) {
 		return BOOT_DEVICE_SPI;
+	} else if (!uclass_get_device_by_of_offset(UCLASS_RAM, node,
+		&parent)) {
+		return BOOT_DEVICE_RAM;
 	}
 
 	/*
