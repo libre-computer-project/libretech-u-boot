@@ -30,7 +30,7 @@
 };
 
 &usb20_otg {
-	hnp-srp-disable;
+	dr_mode = "peripheral";
 };
 
 &vcc_sd {
