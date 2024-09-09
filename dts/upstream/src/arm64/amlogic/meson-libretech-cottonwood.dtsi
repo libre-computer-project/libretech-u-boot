@@ -101,7 +101,7 @@
 
 	dc_in: regulator-dc-in {
 		compatible = "regulator-fixed";
-		regulator-name = "5V_IN";
+		regulator-name = "DC_IN";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		regulator-always-on;
