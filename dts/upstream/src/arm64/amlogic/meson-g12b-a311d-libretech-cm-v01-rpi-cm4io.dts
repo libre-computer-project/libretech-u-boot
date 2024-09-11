@@ -29,6 +29,19 @@
 		};
 	};
 
+	vcc_card: regulator-vcc-card {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC_CARD";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		vin-supply = <&vddao_3v3>;
+
+		enable-gpios = <&gpio BOOT_9 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+
+		regulator-boot-on;
+	};
+
 	sound {
 		compatible = "amlogic,axg-sound-card";
 		model = "LC-ALTA-CM";
@@ -107,6 +120,7 @@
 };
 
 &sd_emmc_b {
+	vmmc-supply = <&vcc_card>;
 	status = "okay";
 };
 
