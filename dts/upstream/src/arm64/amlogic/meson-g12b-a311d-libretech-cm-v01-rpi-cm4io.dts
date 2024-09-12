@@ -36,7 +36,7 @@
 		regulator-max-microvolt = <3300000>;
 		vin-supply = <&vddao_3v3>;
 
-		enable-gpios = <&gpio BOOT_9 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio BOOT_9 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 
 		regulator-boot-on;
