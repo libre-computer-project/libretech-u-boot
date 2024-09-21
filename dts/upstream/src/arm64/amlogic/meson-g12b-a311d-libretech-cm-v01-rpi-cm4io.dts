@@ -133,3 +133,7 @@
 
 	status = "okay";
 };
+
+&vddio_c {
+	vin-supply = <&vcc_card>;
+};
