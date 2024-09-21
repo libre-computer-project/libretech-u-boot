@@ -49,10 +49,7 @@
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <3300000>;
 
-		enable-gpios = <&gpio BOOT_9 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-
-		gpios = <&gpio BOOT_11 GPIO_ACTIVE_LOW>;
+		gpios = <&gpio BOOT_11 GPIO_ACTIVE_HIGH>;
 		gpios-states = <1>;
 
 		states = <1800000 0>,
@@ -114,7 +111,6 @@
 		pwm-dutycycle-range = <100 0>;
 
 		regulator-boot-on;
-		regulator-always-on;
 	};
 
 	vddcpu_b: regulator-vddcpu-b {
@@ -136,9 +132,7 @@
 		pwm-dutycycle-range = <100 0>;
 
 		regulator-boot-on;
-		regulator-always-on;
 	};
-
 };
 
 &arb {
@@ -210,10 +204,13 @@
 		reg = <0>;
 		max-speed = <1000>;
 
+		reset-assert-us = <10000>;
+		reset-deassert-us = <80000>;
+		reset-gpios = <&gpio GPIOZ_15 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
+
 		interrupt-parent = <&gpio_intc>;
 		/* MAC_INTR on GPIOZ_14 */
 		interrupts = <IRQID_GPIOZ_14 IRQ_TYPE_LEVEL_LOW>;
-		eee-broken-1000t;
 	};
 };
 
