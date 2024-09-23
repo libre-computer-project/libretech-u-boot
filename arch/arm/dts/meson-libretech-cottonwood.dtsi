@@ -389,7 +389,6 @@
 		compatible = "ethernet-phy-ieee802.3-c22";
 		reg = <0>;
 		max-speed = <1000>;
-		eee-broken-1000t;
 
 		reset-assert-us = <100000>;
 		reset-deassert-us = <100000>;
