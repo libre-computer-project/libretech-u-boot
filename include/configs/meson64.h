@@ -104,9 +104,7 @@
 	func(MMC, mmc, 2) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_NVME(func) \
-	BOOT_TARGET_SCSI(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_SCSI(func)
 #endif
 
 #define BOOTM_SIZE		__stringify(0x1700000)
