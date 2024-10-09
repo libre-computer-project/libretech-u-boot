@@ -20,7 +20,7 @@ struct efi_fw_image fw_images[] = {
 };
 
 struct efi_capsule_update_info update_info = {
-	.dfu_string = "sf 0:0=u-boot-bin raw 0 0x10000",
+	.dfu_string = "sf 0:0=aml-s905d3-cc-boot.bin raw 0 0x10000",
 	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
