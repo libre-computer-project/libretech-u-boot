@@ -274,8 +274,8 @@ static int meson_mmc_probe(struct udevice *dev)
 
 	cfg->voltages = MMC_VDD_33_34 | MMC_VDD_32_33 |
 			MMC_VDD_31_32 | MMC_VDD_165_195;
-	cfg->host_caps = MMC_MODE_8BIT | MMC_MODE_4BIT |
-			 SD_HS | MMC_MODE_HS_52MHz | MMC_MODE_HS;
+	cfg->host_caps = MMC_MODE_8BIT | MMC_MODE_4BIT;
+
 	cfg->f_min = DIV_ROUND_UP(SD_EMMC_CLKSRC_24M, CLK_MAX_DIV);
 	cfg->f_max = 100000000; /* 100 MHz */
 	cfg->b_max = 511; /* max 512 - 1 blocks */
