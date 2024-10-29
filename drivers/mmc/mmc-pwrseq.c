@@ -26,9 +26,9 @@ static int mmc_pwrseq_set_power(struct udevice *dev, bool enable)
 	if (ret)
 		return ret;
 	dm_gpio_set_value(&reset, 1);
-	udelay(1);
+	udelay(200000);
 	dm_gpio_set_value(&reset, 0);
-	udelay(200);
+	udelay(1000);
 
 	return 0;
 }
