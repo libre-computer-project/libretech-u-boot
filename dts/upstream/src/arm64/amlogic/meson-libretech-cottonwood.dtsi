@@ -51,6 +51,11 @@
 		reset-gpios = <&gpio BOOT_12 GPIO_ACTIVE_LOW>;
 	};
 
+	sd_pwrseq: sd-pwrseq {
+		compatible = "mmc-pwrseq-emmc";
+		reset-gpios = <&gpio GPIOX_2 GPIO_ACTIVE_LOW>;
+	};
+
 	hdmi-connector {
 		compatible = "hdmi-connector";
 		type = "a";
@@ -121,6 +126,8 @@
 		regulator-name = "VCC_CARD";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+		regulator-settling-time-up-us = <1000>;
+		regulator-settling-time-down-us = <200000>;
 		vin-supply = <&vddao_3v3>;
 		gpio = <&gpio GPIOX_2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		enable-active-high;
@@ -494,6 +501,7 @@
 	disable-wp;
 
 	cd-gpios = <&gpio GPIOC_6 GPIO_ACTIVE_LOW>;
+	mmc-pwrseq = <&sd_pwrseq>;
 	vmmc-supply = <&vcc_card>;
 	vqmmc-supply = <&vddio_c>;
 };
