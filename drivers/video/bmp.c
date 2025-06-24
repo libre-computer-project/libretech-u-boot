@@ -12,6 +12,7 @@
 #include <command.h>
 #include <dm.h>
 #include <gzip.h>
+#include <lzma/LzmaDec.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -20,7 +21,7 @@
 #include <asm/byteorder.h>
 
 /*
- * Allocate and decompress a BMP image using gunzip().
+ * Allocate and decompress a BMP image using gunzip() or lzma.
  *
  * Returns a pointer to the decompressed image data. This pointer is
  * aligned to 32-bit-aligned-address + 2.
@@ -33,14 +34,14 @@
  * didn't contain a valid BMP signature or decompression is not enabled in
  * Kconfig.
  */
-struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
-			     void **alloc_addr)
+struct bmp_image *decompress_bmp(unsigned long addr, unsigned long *lenp,
+				void **alloc_addr)
 {
 	void *dst;
 	unsigned long len;
 	struct bmp_image *bmp;
 
-	if (!CONFIG_IS_ENABLED(VIDEO_BMP_GZIP))
+	if (!CONFIG_IS_ENABLED(VIDEO_BMP_GZIP) && !CONFIG_IS_ENABLED(VIDEO_BMP_LZMA))
 		return NULL;
 
 	/*
@@ -50,18 +51,40 @@ struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
 	/* allocate extra 3 bytes for 32-bit-aligned-address + 2 alignment */
 	dst = malloc(CONFIG_VAL(VIDEO_LOGO_MAX_SIZE) + 3);
 	if (!dst) {
-		puts("Error: malloc in gunzip failed!\n");
+		puts("Error: malloc in decompress failed!\n");
 		return NULL;
 	}
 
 	/* align to 32-bit-aligned-address + 2 */
 	bmp = dst + 2;
 
-	if (gunzip(bmp, CONFIG_VAL(VIDEO_LOGO_MAX_SIZE), map_sysmem(addr, 0),
-		   &len)) {
-		free(dst);
-		return NULL;
+#ifdef CONFIG_VIDEO_BMP_GZIP
+	if (CONFIG_IS_ENABLED(VIDEO_BMP_GZIP)) {
+		if (gunzip(bmp, CONFIG_VAL(VIDEO_LOGO_MAX_SIZE), map_sysmem(addr, 0),
+			   &len) == 0) {
+			goto check_bmp;
+		}
 	}
+#endif
+
+#ifdef CONFIG_VIDEO_BMP_LZMA
+	if (CONFIG_IS_ENABLED(VIDEO_BMP_LZMA)) {
+		ELzmaStatus status;
+		const unsigned char *src = map_sysmem(addr, 0);
+		unsigned long in_len = *lenp; /* Use the provided length */
+		int ret = LzmaDecode((Byte *)bmp, &len, src, &in_len, src, LZMA_PROPS_SIZE,
+				     LZMA_FINISH_ANY, &status, NULL);
+		if (ret == SZ_OK && (status == LZMA_STATUS_FINISHED_WITH_MARK ||
+				     status == LZMA_STATUS_MAYBE_FINISHED_WITHOUT_MARK)) {
+			goto check_bmp;
+		}
+	}
+#endif
+
+	free(dst);
+	return NULL;
+
+check_bmp:
 	if (len == CONFIG_VAL(VIDEO_LOGO_MAX_SIZE))
 		puts("Image could be truncated (increase CONFIG_VIDEO_LOGO_MAX_SIZE)!\n");
 
@@ -74,7 +97,7 @@ struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
 		return NULL;
 	}
 
-	debug("Gzipped BMP image detected!\n");
+	debug("Decompressed BMP image detected!\n");
 
 	*alloc_addr = dst;
 	return bmp;
@@ -88,7 +111,7 @@ int bmp_info(ulong addr)
 
 	if (!((bmp->header.signature[0] == 'B') &&
 	      (bmp->header.signature[1] == 'M')))
-		bmp = gunzip_bmp(addr, &len, &bmp_alloc_addr);
+		bmp = decompress_bmp(addr, &len, &bmp_alloc_addr);
 
 	if (!bmp) {
 		printf("There is no valid bmp file at the given address\n");
@@ -116,7 +139,7 @@ int bmp_display(ulong addr, int x, int y)
 
 	if (!((bmp->header.signature[0] == 'B') &&
 	      (bmp->header.signature[1] == 'M')))
-		bmp = gunzip_bmp(addr, &len, &bmp_alloc_addr);
+		bmp = decompress_bmp(addr, &len, &bmp_alloc_addr);
 
 	if (!bmp) {
 		printf("There is no valid bmp file at the given address\n");
