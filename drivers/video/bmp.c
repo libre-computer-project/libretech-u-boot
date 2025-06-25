@@ -41,7 +41,7 @@ struct bmp_image *decompress_bmp(unsigned long addr, unsigned long *lenp,
 	unsigned long len;
 	struct bmp_image *bmp;
 
-	if (!CONFIG_IS_ENABLED(VIDEO_BMP_GZIP) && !CONFIG_IS_ENABLED(VIDEO_BMP_LZMA))
+	if (!CONFIG_IS_ENABLED(VIDEO_BMP_GZIP))
 		return NULL;
 
 	/*
@@ -62,20 +62,6 @@ struct bmp_image *decompress_bmp(unsigned long addr, unsigned long *lenp,
 	if (CONFIG_IS_ENABLED(VIDEO_BMP_GZIP)) {
 		if (gunzip(bmp, CONFIG_VAL(VIDEO_LOGO_MAX_SIZE), map_sysmem(addr, 0),
 			   &len) == 0) {
-			goto check_bmp;
-		}
-	}
-#endif
-
-#ifdef CONFIG_VIDEO_BMP_LZMA
-	if (CONFIG_IS_ENABLED(VIDEO_BMP_LZMA)) {
-		ELzmaStatus status;
-		const unsigned char *src = map_sysmem(addr, 0);
-		unsigned long in_len = *lenp; /* Use the provided length */
-		int ret = LzmaDecode((Byte *)bmp, &len, src, &in_len, src, LZMA_PROPS_SIZE,
-				     LZMA_FINISH_ANY, &status, NULL);
-		if (ret == SZ_OK && (status == LZMA_STATUS_FINISHED_WITH_MARK ||
-				     status == LZMA_STATUS_MAYBE_FINISHED_WITHOUT_MARK)) {
 			goto check_bmp;
 		}
 	}
