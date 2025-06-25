@@ -324,15 +324,15 @@ endif
 endif # !LOGO_BMP
 
 # Rules for compressed logo files
-ifdef CONFIG_VIDEO_BMP_LZMA
-COMPRESSED_LOGO = $(obj)/logo.bmp.lzma
-COMPRESSION_CMD = lzma -c
-else
+#ifdef CONFIG_VIDEO_BMP_LZMA
+#COMPRESSED_LOGO = $(obj)/logo.bmp.lzma
+#COMPRESSION_CMD = lzma -c
+#else
 ifdef CONFIG_VIDEO_BMP_GZIP
 COMPRESSED_LOGO = $(obj)/logo.bmp.gz
 COMPRESSION_CMD = gzip -c
 endif
-endif
+#endif
 
 $(obj)/logo.bmp.lzma: $(LOGO_BMP)
 	$(Q)mkdir -p $(obj)
@@ -361,7 +361,8 @@ $(LOGO_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-info $(LOGO_BMP) > $@
 
 ifeq ($(CONFIG_VIDEO),y)
-ifneq ($(CONFIG_VIDEO_BMP_LZMA)$(CONFIG_VIDEO_BMP_GZIP),)
+#ifneq ($(CONFIG_VIDEO_BMP_LZMA)$(CONFIG_VIDEO_BMP_GZIP),)
+ifneq ($(CONFIG_VIDEO_BMP_GZIP),)
 $(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP) $(COMPRESSED_LOGO)
 	$(obj)/bmp_logo --gen-bmp $(LOGO_BMP) $(COMPRESSED_LOGO) > $@
 else
