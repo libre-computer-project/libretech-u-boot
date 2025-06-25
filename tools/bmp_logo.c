@@ -17,8 +17,9 @@ typedef struct bitmap_s {		/* bitmap description */
 
 void usage(const char *prog)
 {
-	fprintf(stderr, "Usage: %s [--gen-info|--gen-data|--gen-bmp] file\n",
-		prog);
+	fprintf(stderr, "Usage: %s [--gen-info|--gen-data] file\n"
+		"       %s --gen-bmp file [compressed_file]\n",
+		prog, prog);
 }
 
 /*
@@ -35,20 +36,21 @@ uint16_t le_short(uint16_t x)
     return val;
 }
 
-void skip_bytes (FILE *fp, int n)
+void skip_bytes(FILE *fp, int n)
 {
 	while (n-- > 0)
-		fgetc (fp);
+		fgetc(fp);
 }
 
 __attribute__ ((__noreturn__))
-int error (char * msg, FILE *fp)
+int error(char *msg, FILE *fp, FILE *fp2)
 {
-	fprintf (stderr, "ERROR: %s\n", msg);
-
-	fclose (fp);
-
-	exit (EXIT_FAILURE);
+	fprintf(stderr, "ERROR: %s\n", msg);
+	if (fp)
+		fclose(fp);
+	if (fp2)
+		fclose(fp2);
+	exit(EXIT_FAILURE);
 }
 
 void gen_info(bitmap_t *b, uint16_t n_colors)
@@ -72,18 +74,18 @@ void gen_info(bitmap_t *b, uint16_t n_colors)
 		DEFAULT_CMAP_SIZE);
 }
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-	int	mode, i, x;
-	int	size;
-	FILE	*fp;
+	int mode, i, x;
+	int size;
+	FILE *fp = NULL, *fp_comp = NULL;
 	bitmap_t bmp;
 	bitmap_t *b = &bmp;
 	uint16_t data_offset, n_colors, hdr_size;
 
 	if (argc < 3) {
 		usage(argv[0]);
-		exit (EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	if (!strcmp(argv[1], "--gen-info"))
@@ -100,33 +102,33 @@ int main (int argc, char *argv[])
 	fp = fopen(argv[2], "rb");
 	if (!fp) {
 		perror(argv[2]);
-		exit (EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
-	if (fgetc (fp) != 'B' || fgetc (fp) != 'M')
-		error ("Input file is not a bitmap", fp);
+	if (fgetc(fp) != 'B' || fgetc(fp) != 'M')
+		error("Input file is not a bitmap", fp, NULL);
 
 	/*
 	 * read width and height of the image, and the number of colors used;
 	 * ignore the rest
 	 */
-	skip_bytes (fp, 8);
-	if (fread (&data_offset, sizeof (uint16_t), 1, fp) != 1)
-		error ("Couldn't read bitmap data offset", fp);
+	skip_bytes(fp, 8);
+	if (fread(&data_offset, sizeof(uint16_t), 1, fp) != 1)
+		error("Couldn't read bitmap data offset", fp, NULL);
 	skip_bytes(fp, 2);
-	if (fread(&hdr_size,   sizeof(uint16_t), 1, fp) != 1)
-		error("Couldn't read bitmap header size", fp);
+	if (fread(&hdr_size, sizeof(uint16_t), 1, fp) != 1)
+		error("Couldn't read bitmap header size", fp, NULL);
 	if (hdr_size < 40)
-		error("Invalid bitmap header", fp);
+		error("Invalid bitmap header", fp, NULL);
 	skip_bytes(fp, 2);
-	if (fread (&b->width,   sizeof (uint16_t), 1, fp) != 1)
-		error ("Couldn't read bitmap width", fp);
-	skip_bytes (fp, 2);
-	if (fread (&b->height,  sizeof (uint16_t), 1, fp) != 1)
-		error ("Couldn't read bitmap height", fp);
-	skip_bytes (fp, 22);
-	if (fread (&n_colors, sizeof (uint16_t), 1, fp) != 1)
-		error ("Couldn't read bitmap colors", fp);
+	if (fread(&b->width, sizeof(uint16_t), 1, fp) != 1)
+		error("Couldn't read bitmap width", fp, NULL);
+	skip_bytes(fp, 2);
+	if (fread(&b->height, sizeof(uint16_t), 1, fp) != 1)
+		error("Couldn't read bitmap height", fp, NULL);
+	skip_bytes(fp, 22);
+	if (fread(&n_colors, sizeof(uint16_t), 1, fp) != 1)
+		error("Couldn't read bitmap colors", fp, NULL);
 	skip_bytes(fp, hdr_size - 34);
 
 	/*
@@ -161,13 +163,13 @@ int main (int argc, char *argv[])
 	/* read and print the palette information */
 	printf("unsigned short bmp_logo_palette[] = {\n");
 
-	for (i=0; i<n_colors; ++i) {
+	for (i = 0; i < n_colors; ++i) {
 		b->palette[(int)(i*3+2)] = fgetc(fp);
 		b->palette[(int)(i*3+1)] = fgetc(fp);
 		b->palette[(int)(i*3+0)] = fgetc(fp);
-		x=fgetc(fp);
+		x = fgetc(fp);
 
-		printf ("%s0x0%X%X%X,%s",
+		printf("%s0x0%X%X%X,%s",
 			((i%8) == 0) ? "\t" : "  ",
 			(b->palette[(int)(i*3+0)] >> 4) & 0x0F,
 			(b->palette[(int)(i*3+1)] >> 4) & 0x0F,
@@ -177,8 +179,18 @@ int main (int argc, char *argv[])
 	}
 
 	/* seek to offset indicated by file header */
-	if (mode == MODE_GEN_BMP) {
-		/* copy full bmp file */
+	if (mode == MODE_GEN_BMP && argc > 3) {
+		/* open compressed file if provided */
+		fp_comp = fopen(argv[3], "rb");
+		if (!fp_comp) {
+			perror(argv[3]);
+			error("Couldn't open compressed file", fp, NULL);
+		}
+		fseek(fp_comp, 0L, SEEK_END);
+		size = ftell(fp_comp);
+		fseek(fp_comp, 0L, SEEK_SET);
+	} else if (mode == MODE_GEN_BMP) {
+		/* use uncompressed BMP for full file */
 		fseek(fp, 0L, SEEK_END);
 		size = ftell(fp);
 		fseek(fp, 0L, SEEK_SET);
@@ -189,40 +201,48 @@ int main (int argc, char *argv[])
 	/* allocate memory */
 	b->data = (uint8_t *)malloc(size);
 	if (!b->data)
-		error("Error allocating memory for file", fp);
+		error("Error allocating memory for file", fp, fp_comp);
 
 	/* read the bitmap; leave room for default color map */
-	printf ("\n");
-	printf ("};\n");
-	printf ("\n");
+	printf("\n");
+	printf("};\n");
+	printf("\n");
 	printf("unsigned char bmp_logo_bitmap[] = {\n");
-	if (mode == MODE_GEN_BMP) {
-		/* write full bmp */
+	if (mode == MODE_GEN_BMP && argc > 3) {
+		/* read from compressed file */
+		for (i = 0; i < size; i++)
+			b->data[i] = (uint8_t)fgetc(fp_comp);
+	} else if (mode == MODE_GEN_BMP) {
+		/* read full uncompressed BMP */
 		for (i = 0; i < size; i++)
 			b->data[i] = (uint8_t)fgetc(fp);
 	} else {
 		for (i = (b->height - 1) * b->width; i >= 0; i -= b->width) {
 			for (x = 0; x < b->width; x++) {
-				b->data[i + x] = (uint8_t)fgetc(fp)
-						+ DEFAULT_CMAP_SIZE;
+				b->data[i + x] = (uint8_t)fgetc(fp) + DEFAULT_CMAP_SIZE;
 			}
 		}
 	}
 
 	for (i = 0; i < size; ++i) {
 		if ((i%8) == 0)
-			putchar ('\t');
-		printf ("0x%02X,%c",
+			putchar('\t');
+		printf("0x%02X,%c",
 			b->data[i],
 			((i%8) == 7) ? '\n' : ' '
 		);
 	}
-	printf ("\n"
+	printf("\n"
 		"};\n\n"
 		"#endif /* __BMP_LOGO_DATA_H__ */\n"
 	);
 
 out:
-	fclose(fp);
+	if (fp)
+		fclose(fp);
+	if (fp_comp)
+		fclose(fp_comp);
+	if (b->data)
+		free(b->data);
 	return 0;
 }
