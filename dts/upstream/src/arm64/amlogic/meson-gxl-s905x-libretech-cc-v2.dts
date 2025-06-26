@@ -48,17 +48,17 @@
 
 		led-blue {
 			color = <LED_COLOR_ID_BLUE>;
-			function = LED_FUNCTION_STATUS;
+			function = LED_FUNCTION_ACTIVITY;
 			gpios = <&gpio GPIODV_24 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "heartbeat";
-			panic-indicator;
+			linux,default-trigger = "activity";
 		};
 
 		led-green {
 			color = <LED_COLOR_ID_GREEN>;
-			function = LED_FUNCTION_DISK_ACTIVITY;
+			function = LED_FUNCTION_STATUS;
 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "disk-activity";
+			default-state = "on";
+			panic-indicator;
 		};
 	};
 
