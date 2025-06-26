@@ -699,10 +699,10 @@ bool meson_venc_hdmi_supported_mode(const struct display_timing *mode)
 			    DISPLAY_FLAGS_VSYNC_LOW | DISPLAY_FLAGS_VSYNC_HIGH))
 		return false;
 
-	if (mode->hactive.typ < 240 || mode->hactive.typ > 1920)
+	if (mode->hactive.typ < 240 || mode->hactive.typ > 2560)
 		return false;
 
-	if (mode->vactive.typ < 240 || mode->vactive.typ > 1920)
+	if (mode->vactive.typ < 240 || mode->vactive.typ > 2560)
 		return false;
 
 	return true;
