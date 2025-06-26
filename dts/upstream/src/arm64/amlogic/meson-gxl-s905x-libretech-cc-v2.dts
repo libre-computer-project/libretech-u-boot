@@ -48,17 +48,17 @@
 
 		led-blue {
 			color = <LED_COLOR_ID_BLUE>;
-			function = LED_FUNCTION_STATUS;
+			function = LED_FUNCTION_ACTIVITY;
 			gpios = <&gpio GPIODV_24 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "heartbeat";
-			panic-indicator;
+			linux,default-trigger = "activity";
 		};
 
 		led-green {
 			color = <LED_COLOR_ID_GREEN>;
-			function = LED_FUNCTION_DISK_ACTIVITY;
+			function = LED_FUNCTION_STATUS;
 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "disk-activity";
+			default-state = "on";
+			panic-indicator;
 		};
 	};
 
@@ -248,11 +248,10 @@
 
 	bus-width = <4>;
 	cap-sd-highspeed;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
 	sd-uhs-sdr50;
 	sd-uhs-ddr50;
-	max-frequency = <100000000>;
+	sd-uhs-sdr104;
+	max-frequency = <200000000>;
 	disable-wp;
 
 	cd-gpios = <&gpio CARD_6 GPIO_ACTIVE_LOW>;
@@ -292,7 +291,7 @@
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
 		reg = <0>;
-		spi-max-frequency = <3000000>;
+		spi-max-frequency = <83333333>;
 	};
 };
 
