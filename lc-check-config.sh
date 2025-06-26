@@ -1,14 +1,22 @@
 #!/bin/bash
 
 function check_value(){
-	if [ -z "$3" ] || [ ! -z "${3##[0-9]*}" ] || [ ! -z ${3##0x[0-f]*} ]; then
+	#local DEBUG_KEY=BOOTDELAY
+	#if [ "$2" = "$DEBUG_KEY" ]; then
+	#	set -x
+	#fi
+	if [ ! -z "${3##[0-9]*}" ] && [ ! -z "${3##0x[0-f]*}" ] || [ -z "$3" ]; then
 		local val="\"$3\""
 	else
 		local val="$3"
 	fi
 	grep "^CONFIG_$2=$val$" "$1" > /dev/null
+	#if [ "$2" = "$DEBUG_KEY" ]; then
+	#	set +x
+	#fi
+	#echo "HUH"
 }
-function check_value_start(){
+function check_value_regex(){
 	:
 	#TODO:
 	#* CONFIG_IDENT_STRING  Libre Computer AML-S905X-CC-V2
@@ -39,6 +47,7 @@ yes=(
 	EFI_RUNTIME_UPDATE_CAPSULE
 	EFI_CAPSULE_ON_DISK
 	#CONFIG_EFI_CAPSULE_NAMESPACE_GUID dynamic generation
+	EFI_IGNORE_OSINDICATIONS
 	EFI_CAPSULE_FIRMWARE_MANAGEMENT
 	EFI_CAPSULE_FIRMWARE_RAW
 	EFI_RNG_PROTOCOL
@@ -146,6 +155,7 @@ no=(
 	ENV_IS_IN_SPI_FLASH
 	ENV_IS_IN_MTD
 	SYS_REDUNDAND_ENVIRONMENT
+	EFI_CAPSULE_ON_DISK_EARLY
 
 	FS_CBFS
 	FS_JFFS2
@@ -180,11 +190,11 @@ key_value["ENV_FAT_DEVICE_AND_PART"]=":auto"
 key_value["ENV_FAT_FILE"]="uboot.env"
 key_value["ENV_EXT4_INTERFACE"]="mmc"
 key_value["ENV_EXT4_DEVICE_AND_PART"]=":auto"
-key_value["ENV_EXT4_FILE"]="uboot.env"
+key_value["ENV_EXT4_FILE"]="/uboot.env"
 key_value["ENV_SIZE"]="0x2000"
 key_value["SYS_MMC_ENV_DEV"]="0"
 key_value["SYS_MMC_ENV_PART"]="0" #hardware partition?
-key_value[""]=""
+#key_value[""]=""
 
 if [ -z "$1" ]; then
 	echo "$0 config" >&2
@@ -193,26 +203,26 @@ fi
 file="$1"
 
 for key in ${yes[@]}; do
-	echo -n "$key:	"
-	if check_yes "$file" $key; then
-		echo "OK"
-	else
+	if ! check_yes "$file" $key; then
+		echo -n "$key:	"
+	#	echo "OK"
+	#else
 		echo "NOK"
 	fi
 done
 for key in ${no[@]}; do
-	echo -n "$key:	"
-	if check_no "$file" $key; then
-		echo "OK"
-	else
+	if ! check_no "$file" $key; then
+		echo -n "$key:	"
+	#	echo "OK"
+	#else
 		echo "NOK"
 	fi
 done
 for key in ${!key_value[@]}; do
-	echo -n "$key:	"
-	if check_value "$file" $key "${key_value[$key]}"; then
-		echo "OK"
-	else
-		echo "NOK"
+	if ! check_value "$file" $key "${key_value[$key]}"; then
+		echo -n "$key:	"
+	#	echo "OK"
+	#else
+		echo "NOK $key ${key_value[$key]}"
 	fi
 done
