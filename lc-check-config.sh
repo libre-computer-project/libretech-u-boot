@@ -1,0 +1,229 @@
+#!/bin/bash
+
+function check_value(){
+	#local DEBUG_KEY=BOOTDELAY
+	#if [ "$2" = "$DEBUG_KEY" ]; then
+	#	set -x
+	#fi
+	if [ ! -z "${3##[0-9]*}" ] && [ ! -z "${3##0x[0-f]*}" ] || [ -z "$3" ]; then
+		local val="\"$3\""
+	else
+		local val="$3"
+	fi
+	grep "^CONFIG_$2=$val$" "$1" > /dev/null
+	#if [ "$2" = "$DEBUG_KEY" ]; then
+	#	set +x
+	#fi
+	#echo "HUH"
+}
+function check_value_regex(){
+	:
+	#TODO:
+	#* CONFIG_IDENT_STRING  Libre Computer AML-S905X-CC-V2
+}
+function check_yes(){
+	grep "^CONFIG_$2=y\$" "$1" > /dev/null
+}
+function check_no(){
+	grep "^# CONFIG_$2 is not set$" "$1" > /dev/null
+}
+
+yes=(
+	ARM64_CRC32
+	SYS_ARCH_TIMER
+	ARM_SMCCC #PSCI
+	ARM64_SUPPORT_AARCH32
+	PSCI_RESET
+	ARMV8_UDELAY_EVENT_STREAM
+	ARMV8_CE_SHA1
+	ARMV8_CE_SHA256
+	SYS_MALLOC_CLEAR_ON_INIT
+	CC_OPTIMIZE_FOR_SIZE
+	LTO
+	EFI_LOADER
+	EFI_BINARY_EXEC
+	EFI_VARIABLE_FILE_STORE
+	#CONFIG_EFI_RT_VOLATILE_STORE in the future
+	EFI_RUNTIME_UPDATE_CAPSULE
+	EFI_CAPSULE_ON_DISK
+	#CONFIG_EFI_CAPSULE_NAMESPACE_GUID dynamic generation
+	EFI_IGNORE_OSINDICATIONS
+	EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	EFI_CAPSULE_FIRMWARE_RAW
+	EFI_RNG_PROTOCOL
+	EFI_LOAD_FILE2_INITRD
+	#EFI_IP4_CONFIG2_PROTOCOL
+	#CONFIG_EFI_HTTP_PROTOCOL
+	EFI_ESRT
+	EFI_ECPT
+	EFI_EBBR_2_1_CONFORMANCE
+	EFI_SCROLL_ON_CLEAR_SCREEN
+	EFI_BOOTMGR
+	EFI_HTTP_BOOT
+	BOOTSTD_FULL
+	BOOTSTD_DEFAULTS
+	BOOTSTD_BOOTCOMMAND
+	BOOTMETH_EXTLINUX
+	BOOTMETH_EXTLINUX_PXE
+	BOOTMETH_EFILOADER
+	BOOTMETH_EFI_BOOTMGR
+	BOOTMETH_SCRIPT
+	LEGACY_IMAGE_FORMAT
+	AUTOBOOT
+	USE_BOOTCOMMAND
+	USE_PREBOOT
+	SILENT_CONSOLE
+	SILENT_U_BOOT_ONLY
+	SILENT_CONSOLE_UPDATE_ON_SET
+	SILENT_CONSOLE_UNTIL_ENV
+	PRE_CONSOLE_BUFFER
+	CONSOLE_MUX
+	SYS_CONSOLE_IS_IN_ENV
+	SYS_CONSOLE_INFO_QUIET
+	SYS_STDIO_DEREGISTER
+	SYS_DEVICE_NULLDEV
+	#CONFIG_ID_EEPROM
+	MISC_INIT_R
+	HUSH_OLD_PARSER
+	SYS_XTRACE
+	# commands
+	CMD_BTRFS
+
+	CMD_MESON
+	DOS_PARTITION
+	ISO_PARTITION
+	EFI_PARTITION
+	PARTITION_UUIDS
+	PARTITION_TYPE_GUID
+	OF_CONTROL
+	OF_LIVE
+	OF_UPSTREAM
+	OF_SEPARATE
+	OF_TAG_MIGRATE
+	ENV_IS_IN_FAT
+	ENV_IS_IN_EXT4
+	SYS_RELOC_GD_ENV_ADDR
+	NET_LWIP
+	PROT_TCP_SACK_LWIP
+	BOOTDEV_ETH
+	NET_RANDOM_ETHADDR
+	WGET
+	# device drivers
+	FS_BTRFS
+
+	FS_BTRFS
+	FS_EXFAT
+	FS_EXT4
+	EXT4_WRITE
+	FS_FAT
+	FAT_WRITE
+	FAT_RENAME
+	FS_EROFS
+	FS_EROFS_ZIP
+	FS_EROFS_ZIP_DEFLATE
+	DYNAMIC_CRC_TABLE
+	LIB_RAND
+	AES
+	RSA
+	OF_LIBFDT_OVERLAY
+	SMBIOS
+	#OPTEE?
+	TOOLS_MKEFICAPSULE
+	);
+no=(
+	ARMV8_PSCI
+	LOCALVERSION_AUTO
+	DISPLAY_BOARDINFO
+	BOOTEFI_HELLO_COMPILE
+	BOOTEFI_TESTAPP_COMPILE
+	DISTRO_DEFAULTS
+	FDT_SIMPLEFB
+	SYS_CONSOLE_ENV_OVERWRITE
+	RESET_PHY_R
+	BOARD_RNG_SEED #should be done by kalsr
+	ANDROID_AB
+	BLOBLIST
+	MAC_PARTITION
+	TEGRA_PARTITION
+	AMIGA_PARTITION
+	ENV_IS_NOWHERE
+	ENV_IS_IN_EEPROM
+	ENV_IS_IN_FLASH
+	ENV_IS_IN_MMC
+	ENV_IS_IN_NAND
+	ENV_IS_IN_NVRAM
+	ENV_IS_IN_REMOTE
+	ENV_IS_IN_SPI_FLASH
+	ENV_IS_IN_MTD
+	SYS_REDUNDAND_ENVIRONMENT
+	EFI_CAPSULE_ON_DISK_EARLY
+
+	FS_CBFS
+	FS_JFFS2
+	FS_CRAMFS
+	FS_SQUASHFS
+
+	RANDOM_UUID
+	PANIC_HANG
+	LIB_HW_RAND
+	ACPI
+	BITREVERSE
+	TRACE
+	CMD_DHRYSTONE
+	SHA_HW_ACCEL
+	GENERATE_SMBIOS_TABLE_VERBOSE
+	);
+
+declare -A key_value;
+key_value["SYS_VENDOR"]="libre-computer"
+key_value["LOCALVERSION"]=""
+key_value["SYS_MALLOC_LEN"]="0x8000000"
+key_value["SYS_BOOTM_LEN"]="0x4000000"
+key_value["BOOTDELAY"]="1"
+key_value["BOOTCOMMAND"]="bootflow scan -lb"
+key_value["PREBOOT"]="usb start"
+key_value["PRE_CON_BUF_SZ"]="4096"
+key_value["PRE_CON_BUF_ADDR"]="0x08000000" #for now
+key_value["EFI_PARTITION_ENTRIES_NUMBERS"]="128"
+key_value["MULTI_DTB_FIT_UNCOMPRESS_SZ"]="0x8000"
+key_value["ENV_FAT_INTERFACE"]="mmc"
+key_value["ENV_FAT_DEVICE_AND_PART"]=":auto"
+key_value["ENV_FAT_FILE"]="uboot.env"
+key_value["ENV_EXT4_INTERFACE"]="mmc"
+key_value["ENV_EXT4_DEVICE_AND_PART"]=":auto"
+key_value["ENV_EXT4_FILE"]="/uboot.env"
+key_value["ENV_SIZE"]="0x2000"
+key_value["SYS_MMC_ENV_DEV"]="0"
+key_value["SYS_MMC_ENV_PART"]="0" #hardware partition?
+#key_value[""]=""
+
+if [ -z "$1" ]; then
+	echo "$0 config" >&2
+	exit 1
+fi
+file="$1"
+
+for key in ${yes[@]}; do
+	if ! check_yes "$file" $key; then
+		echo -n "$key:	"
+	#	echo "OK"
+	#else
+		echo "NOK"
+	fi
+done
+for key in ${no[@]}; do
+	if ! check_no "$file" $key; then
+		echo -n "$key:	"
+	#	echo "OK"
+	#else
+		echo "NOK"
+	fi
+done
+for key in ${!key_value[@]}; do
+	if ! check_value "$file" $key "${key_value[$key]}"; then
+		echo -n "$key:	"
+	#	echo "OK"
+	#else
+		echo "NOK $key ${key_value[$key]}"
+	fi
+done
