@@ -10,6 +10,8 @@
 #include <env.h>
 #include <linux/kernel.h>
 #include <vsprintf.h>
+#include <dm.h>
+#include <mmc.h>
 #include <event.h>
 #include <splash.h>
 #include "board.h"
@@ -17,6 +19,8 @@
 #ifdef CONFIG_SYS_MMC_ENV_DEV
 int mmc_get_env_dev(void)
 {
+	struct udevice *dev;
+	struct mmc *mmc;
 	int bootdevice_num = CONFIG_SYS_MMC_ENV_DEV;
 
 	switch (meson_get_boot_device()) {
@@ -24,6 +28,11 @@ int mmc_get_env_dev(void)
 			break;
 
 		case BOOT_DEVICE_SPI:
+			/* TODO: eMMC, NVME, SD, USB */
+			if (uclass_get_device_by_seq(UCLASS_MMC, 1, &dev)) break;
+			if (!(mmc = mmc_get_mmc_dev(dev))) break;
+			if (!IS_SD(mmc) && !mmc->has_init)
+				bootdevice_num = 1;
 			break;
 
 		case BOOT_DEVICE_SD:
@@ -74,6 +83,8 @@ void env_ini_load(char *bootsource, char *bootdevice){
 #endif
 
 static int settings_r(void){
+	struct udevice *dev;
+	struct mmc *mmc;
 	int bootdevice_num = CONFIG_SYS_MMC_ENV_DEV;
 	
 	char *bootsource;
@@ -85,8 +96,13 @@ static int settings_r(void){
 			break;
 
 		case BOOT_DEVICE_SPI:
-			/* TODO: add search function for mmc, usb, nvme */
+			/* TODO: eMMC, NVME, SD, USB */
 			bootsource = "mmc";
+			/* no longer HW order */
+			if (uclass_get_device_by_seq(UCLASS_MMC, 0, &dev)) break;
+			if (!(mmc = mmc_get_mmc_dev(dev))) break;
+			if (!IS_SD(mmc) && !mmc->has_init)
+				bootdevice_num = 1;
 			break;
 
 		case BOOT_DEVICE_SD:
@@ -101,6 +117,7 @@ static int settings_r(void){
 
 	bootdevice = simple_itoa(bootdevice_num);
 
+	env_set("bootdevice", bootdevice);
 #ifdef CONFIG_SPLASH_SOURCE
 	env_set("splashdevpart", bootdevice);
 #endif
