@@ -87,7 +87,6 @@ yes=(
 	HUSH_OLD_PARSER
 	SYS_XTRACE
 	# commands
-	CMD_BTRFS
 
 	CMD_MESON
 	DOS_PARTITION
@@ -109,18 +108,11 @@ yes=(
 	NET_RANDOM_ETHADDR
 	WGET
 	# device drivers
-	FS_BTRFS
-
-	FS_BTRFS
-	FS_EXFAT
 	FS_EXT4
 	EXT4_WRITE
 	FS_FAT
 	FAT_WRITE
 	FAT_RENAME
-	FS_EROFS
-	FS_EROFS_ZIP
-	FS_EROFS_ZIP_DEFLATE
 	DYNAMIC_CRC_TABLE
 	LIB_RAND
 	AES
@@ -157,7 +149,15 @@ no=(
 	ENV_IS_IN_MTD
 	SYS_REDUNDAND_ENVIRONMENT
 	EFI_CAPSULE_ON_DISK_EARLY
+	
+	CMD_MII
+	CMD_MDIO
+	CMD_BTRFS
+	CMD_EROFS
 
+	FS_EXFAT
+	FS_BTRFS
+	FS_EROFS
 	FS_CBFS
 	FS_JFFS2
 	FS_CRAMFS
@@ -189,9 +189,9 @@ key_value["MULTI_DTB_FIT_UNCOMPRESS_SZ"]="0x8000"
 key_value["ENV_FAT_INTERFACE"]="mmc"
 key_value["ENV_FAT_DEVICE_AND_PART"]=":auto"
 key_value["ENV_FAT_FILE"]="uboot.env"
-key_value["ENV_EXT4_INTERFACE"]="mmc"
-key_value["ENV_EXT4_DEVICE_AND_PART"]=":auto"
-key_value["ENV_EXT4_FILE"]="/uboot.env"
+#key_value["ENV_EXT4_INTERFACE"]="mmc"
+#key_value["ENV_EXT4_DEVICE_AND_PART"]=":auto"
+#key_value["ENV_EXT4_FILE"]="/uboot.env"
 key_value["ENV_SIZE"]="0x2000"
 key_value["SYS_MMC_ENV_DEV"]="0"
 key_value["SYS_MMC_ENV_PART"]="0" #hardware partition?
