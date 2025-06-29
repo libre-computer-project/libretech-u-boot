@@ -33,6 +33,7 @@ struct efi_capsule_update_info update_info = {
 	.images = fw_images,
 };
 
+
 #if IS_ENABLED(CONFIG_SET_DFU_ALT_INFO)
 void set_dfu_alt_info(char *interface, char *devstr)
 {
