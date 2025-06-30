@@ -127,14 +127,8 @@ static char *bootmenu_choice_entry(void *data)
 			for (i = 0; i < menu->active; ++i)
 				iter = iter->next;
 			return iter->key;
-		case BKEY_QUIT:
-			/* Quit by choosing the last entry */
-			iter = menu->first;
-			while (iter->next)
-				iter = iter->next;
-			return iter->key;
 		default:
-			break;
+			continue;
 		}
 	}
 
@@ -423,7 +417,7 @@ static struct bootmenu_data *bootmenu_create(int uefi, int delay)
 
 		/* Add Quit entry if exiting bootmenu is disabled */
 		if (!IS_ENABLED(CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE))
-			entry->title = strdup("0. Exit");
+			entry->title = strdup("0. Console");
 		else
 			entry->title = strdup("0. Quit");
 
@@ -482,7 +476,7 @@ static void menu_display_statusline(struct menu *m)
 	printf(ANSI_CURSOR_POSITION, 1, 1);
 	puts(ANSI_CLEAR_LINE);
 	printf(ANSI_CURSOR_POSITION, 2, 3);
-	puts("*** U-Boot Boot Menu ***");
+	puts("*** Boot Menu ***");
 	puts(ANSI_CLEAR_LINE_TO_END);
 	printf(ANSI_CURSOR_POSITION, 3, 1);
 	puts(ANSI_CLEAR_LINE);
