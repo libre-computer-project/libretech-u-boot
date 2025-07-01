@@ -2356,7 +2356,7 @@ static int do_eficonfig(struct cmd_tbl *cmdtp, int flag, int argc, char *const a
 			return CMD_RET_FAILURE;
 
 		ret = eficonfig_process_common(efi_menu,
-					       "  ** UEFI Maintenance Menu **",
+					       "  *** UEFI Menu ***",
 					       eficonfig_menu_desc,
 					       eficonfig_display_statusline,
 					       eficonfig_print_entry,
