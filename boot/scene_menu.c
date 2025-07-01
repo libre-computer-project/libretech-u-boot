@@ -16,6 +16,7 @@
 #include <video.h>
 #include <video_console.h>
 #include <linux/input.h>
+#include <ansi.h>
 #include "scene_internal.h"
 
 static void scene_menuitem_destroy(struct scene_menitem *item)
@@ -490,8 +491,8 @@ int scene_menu_display(struct scene_obj_menu *menu)
 	struct expo *exp = scn->expo;
 	struct scene_menitem *item;
 	const char *pstr;
-
-	printf("U-Boot    :    Boot Menu\n\n");
+	puts(ANSI_CLEAR_CONSOLE);
+	printf("\n  *** Boot Select Menu ***\n\n");
 	if (menu->title_id) {
 		struct scene_obj_txt *txt;
 		const char *str;
