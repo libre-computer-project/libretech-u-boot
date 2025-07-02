@@ -403,7 +403,7 @@ static void menu_display_statusline(struct menu *m)
 		ANSI_CURSOR_POSITION ANSI_CLEAR_LINE ANSI_CURSOR_POSITION
 		"%s"
 		ANSI_CLEAR_LINE_TO_END,
-		1, 1, "  *** Boot Menu ***", menu->count + 4, 1,
+		1, 1, "  *** Main Menu ***", menu->count + 4, 1,
 		menu->count + 5, 1, "Press UP/DOWN to move, ENTER to select, ESC to quit");
 }
 
