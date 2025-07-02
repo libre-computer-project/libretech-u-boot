@@ -119,14 +119,8 @@ static char *bootmenu_choice_entry(void *data)
 			for (i = 0; i < menu->active; ++i)
 				iter = iter->next;
 			return iter->key;
-		case BKEY_QUIT:
-			/* Quit by choosing the last entry */
-			iter = menu->first;
-			while (iter->next)
-				iter = iter->next;
-			return iter->key;
 		default:
-			break;
+			continue;
 		}
 	}
 
@@ -380,46 +374,6 @@ static struct bootmenu_data *bootmenu_create(int uefi, int delay)
 	}
 #endif
 
-	/* Add Exit entry at the end */
-	if (i <= MAX_COUNT - 1) {
-		entry = malloc(sizeof(struct bootmenu_entry));
-		if (!entry)
-			goto cleanup;
-
-		/* Add Quit entry if exiting bootmenu is disabled */
-		if (!IS_ENABLED(CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE))
-			entry->title = strdup("Exit");
-		else
-			entry->title = strdup("Quit");
-
-		if (!entry->title) {
-			free(entry);
-			goto cleanup;
-		}
-
-		entry->command = strdup("");
-		if (!entry->command) {
-			free(entry->title);
-			free(entry);
-			goto cleanup;
-		}
-
-		sprintf(entry->key, "%d", i);
-
-		entry->num = i;
-		entry->menu = menu;
-		entry->type = BOOTMENU_TYPE_NONE;
-		entry->next = NULL;
-
-		if (!iter)
-			menu->first = entry;
-		else
-			iter->next = entry;
-
-		iter = entry;
-		++i;
-	}
-
 	menu->count = i;
 
 	if ((menu->active >= menu->count)||(menu->active < 0)) { //ensure active menuitem is inside menu
@@ -444,22 +398,13 @@ static void menu_display_statusline(struct menu *m)
 
 	menu = entry->menu;
 
-	printf(ANSI_CURSOR_POSITION, 1, 1);
-	puts(ANSI_CLEAR_LINE);
-	printf(ANSI_CURSOR_POSITION, 2, 3);
-	puts("*** U-Boot Boot Menu ***");
-	puts(ANSI_CLEAR_LINE_TO_END);
-	printf(ANSI_CURSOR_POSITION, 3, 1);
-	puts(ANSI_CLEAR_LINE);
-
-	/* First 3 lines are bootmenu header + 2 empty lines between entries */
-	printf(ANSI_CURSOR_POSITION, menu->count + 5, 1);
-	puts(ANSI_CLEAR_LINE);
-	printf(ANSI_CURSOR_POSITION, menu->count + 6, 3);
-	puts("Press UP/DOWN to move, ENTER to select, ESC to quit");
-	puts(ANSI_CLEAR_LINE_TO_END);
-	printf(ANSI_CURSOR_POSITION, menu->count + 7, 1);
-	puts(ANSI_CLEAR_LINE);
+	printf(ANSI_CURSOR_POSITION
+		"\n%s\n"
+		ANSI_CURSOR_POSITION ANSI_CLEAR_LINE ANSI_CURSOR_POSITION
+		"%s"
+		ANSI_CLEAR_LINE_TO_END,
+		1, 1, "  *** Boot Menu ***", menu->count + 4, 1,
+		menu->count + 5, 1, "Press UP/DOWN to move, ENTER to select, ESC to quit");
 }
 
 static void handle_uefi_bootnext(void)
