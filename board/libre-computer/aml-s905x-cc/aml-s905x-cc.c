@@ -28,7 +28,7 @@ struct efi_fw_image fw_images[] = {
 };
 
 struct efi_capsule_update_info update_info = {
-	.dfu_string = "mmc 0:0=u-boot-bin raw 0 0x10000",
+	.dfu_string = NULL,
 	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
@@ -47,6 +47,7 @@ int misc_init_r(void)
 	u8 mac_addr[EFUSE_MAC_SIZE + 1];
 	char serial[EFUSE_SN_SIZE + 1];
 	ssize_t len;
+	static char dfu_string[32] = { 0 };
 
 	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
@@ -65,6 +66,9 @@ int misc_init_r(void)
 		if (len == EFUSE_SN_SIZE)
 			env_set("serial#", serial);
 	}
+
+	snprintf(dfu_string, 32, "mmc %s=u-boot-bin raw 0x1 0x7ff mmcpart 1", env_get("bootdevice"));
+	update_info.dfu_string = dfu_string;
 
 	return 0;
 }
