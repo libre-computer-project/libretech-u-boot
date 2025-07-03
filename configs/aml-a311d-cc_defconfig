@@ -42,6 +42,7 @@ CONFIG_BOOTDELAY=1
 CONFIG_AUTOBOOT_USE_MENUKEY=y
 CONFIG_AUTOBOOT_MENUKEY=27
 CONFIG_OF_BOARD_SETUP=y
+CONFIG_BOOTCOMMAND="bootflow scan -lb; pause \"No bootable device found. Press any key for menu...\"; run menucmd"
 CONFIG_USE_PREBOOT=y
 CONFIG_PREBOOT="run bootcmd_romusb; run bootcmd_usbdfu; usb start;"
 CONFIG_SILENT_CONSOLE=y
