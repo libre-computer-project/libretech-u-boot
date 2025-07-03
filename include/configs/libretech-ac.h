@@ -13,9 +13,7 @@
 	func(ROMUSB, romusb, na)  \
 	func(USB_DFU, usbdfu, na)  \
 	func(MMC, mmc, 0) \
-	BOOT_TARGET_DEVICES_USB(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_DEVICES_USB(func)
 
 #include <configs/meson64.h>
 

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
-# (C) Copyright 2016 BayLibre, SASAdd commentMore actions
+# (C) Copyright 2016 BayLibre, SAS
 # Author: Neil Armstrong <narmstrong@baylibre.com>
 
-obj-y	:= aml-s805x-ac.o
+obj-y	:= aml-s905x-cc-v2.o

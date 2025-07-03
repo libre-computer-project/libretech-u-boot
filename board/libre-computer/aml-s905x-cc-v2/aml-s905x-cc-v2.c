@@ -22,7 +22,7 @@
 
 struct efi_fw_image fw_images[] = {
 	{
-		.fw_name = u"AML_S805X_AC_BOOT",
+		.fw_name = u"AML_S905X_CC_V2_BOOT",
 		.image_index = 1,
 	},
 };
