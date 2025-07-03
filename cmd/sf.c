@@ -221,7 +221,7 @@ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
  * @param buf		buffer to write from
  * Return: 0 if ok, 1 on error
  */
-static int spi_flash_update(struct spi_flash *flash, u32 offset,
+int spi_flash_update(struct spi_flash *flash, u32 offset,
 		size_t len, const char *buf)
 {
 	const char *err_oper = NULL;
