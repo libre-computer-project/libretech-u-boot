@@ -51,7 +51,7 @@
 		"fi\0"
 
 #define BOOTENV_DEV_NAME_ROMUSB(devtypeu, devtypel, instance)	\
-		"romusb "
+		"" /* add to preboot, remove for bootstd */
 
 /*
  * Fallback to "USB DFU" boot if script is not at scriptaddr
@@ -71,7 +71,7 @@
 			"fi\0"
 
 	#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance) \
-		"usbdfu "
+		"" /* add to preboot, remove for bootstd */
 #else
 	#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance)
 	#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance)
@@ -122,9 +122,7 @@
 	BOOT_TARGET_MMC(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_NVME(func) \
-	BOOT_TARGET_SCSI(func) \
-	BOOT_TARGET_PXE(func) \
-	BOOT_TARGET_DHCP(func)
+	BOOT_TARGET_SCSI(func)
 #endif
 
 #define BOOTM_SIZE		__stringify(0x1700000)

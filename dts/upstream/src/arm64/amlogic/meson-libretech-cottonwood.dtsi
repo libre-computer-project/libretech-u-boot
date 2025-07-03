@@ -68,7 +68,7 @@
 		led {
 			color = <LED_COLOR_ID_BLUE>;
 			function = LED_FUNCTION_ACTIVITY;
-			linux,default-trigger = "heartbeat";
+			linux,default-trigger = "activity";
 			max-brightness = <255>;
 			pwms = <&pwm_ab 1 1250 0>;
 			active-low;
@@ -390,6 +390,7 @@
 &ext_mdio {
 	external_phy: ethernet-phy@0 {
 		/* Realtek RTL8211F (0x001cc916) */
+		compatible = "ethernet-phy-ieee802.3-c22";
 		reg = <0>;
 		max-speed = <1000>;
 
@@ -492,8 +493,6 @@
 
 	bus-width = <4>;
 	cap-sd-highspeed;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
 	sd-uhs-sdr50;
 	sd-uhs-sdr104;
 	max-frequency = <200000000>;

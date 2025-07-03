@@ -134,6 +134,8 @@
 		 <&clkc CLKID_MPLL2>,
 		 <&clkc CLKID_FCLK_DIV2>;
 	clock-names = "stmmaceth", "clkin0", "clkin1", "timing-adjustment";
+	resets = <&reset RESET_ETHERNET>;
+	reset-names = "stmmaceth";
 
 	mdio0: mdio {
 		#address-cells = <1>;
@@ -214,7 +216,7 @@
 				groups = "i2c_sck_ao",
 				       "i2c_sda_ao";
 				function = "i2c_ao";
-				bias-disable;
+				bias-pull-up;
 			};
 		};
 
@@ -286,7 +288,7 @@
 			mux {
 				groups = "ao_cec";
 				function = "cec_ao";
-				bias-disable;
+				bias-pull-up;
 			};
 		};
 
@@ -585,7 +587,7 @@
 				groups = "i2c_sck_b",
 				      "i2c_sda_b";
 				function = "i2c_b";
-				bias-disable;
+				bias-pull-up;
 			};
 		};
 
