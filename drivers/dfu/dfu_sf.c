@@ -48,13 +48,7 @@ static int dfu_write_medium_sf(struct dfu_entity *dfu,
 {
 	int ret;
 
-	ret = spi_flash_erase(dfu->data.sf.dev,
-			      find_sector(dfu, dfu->data.sf.start, offset),
-			      dfu->data.sf.dev->sector_size);
-	if (ret)
-		return ret;
-
-	ret = spi_flash_write(dfu->data.sf.dev, dfu->data.sf.start + offset,
+	ret = spi_flash_update(dfu->data.sf.dev, dfu->data.sf.start + offset,
 			      *len, buf);
 	if (ret)
 		return ret;
