@@ -62,13 +62,13 @@ int mmc_get_env_dev(void)
 	"fdt ram " FDT_ADDR_R " 0x78000;" \
 	"kernel ram " KERNEL_ADDR_R " 0x7f80000;" \
 	"ramdisk ram " RAMDISK_ADDR_R " 0x4000000"
-#define MESON_DFU_RAM "ram 0=" MESON_DFU_RAM_ALTS "&"
+#define MESON_DFU_RAM "ram 0=" MESON_DFU_RAM_ALTS
 #else
 #define MESON_DFU_RAM
 #endif
 #ifdef CONFIG_DFU_SF
 #define MESON_DFU_SF_ALTS \
-	"u-boot-bin raw 0 " __stringify(CONFIG_SYS_LOAD_ADDR)
+	"u-boot-bin raw 0 0x10000"
 #define MESON_DFU_SF "sf 0:0=" MESON_DFU_SF_ALTS "&"
 #else
 #define MESON_DFU_SF
@@ -93,7 +93,7 @@ int mmc_get_env_dev(void)
 #define MESON_DFU_MMC_SD "mmc 1=" MESON_DFU_MMC_SD_ALTS "&"
 #endif
 #define MESON_DFU_MMC_CMD_ALTS "script 0 0"
-#define MESON_DFU_CMD "mmc 0=cmd script 0 0"
+#define MESON_DFU_CMD "mmc 0=cmd script 0 0&"
 #else
 #define MESON_DFU_MMC_EMMC
 #define MESON_DFU_MMC_SD
@@ -102,6 +102,7 @@ int mmc_get_env_dev(void)
 
 void meson_set_dfu_alt_info(char *interface, char *devstr)
 {
+	printf("%s: interface %s devstr %s\n", __func__, interface, devstr);
 	char *dfu_alt_info;
 	struct udevice *dev;
 	if (interface){
@@ -125,8 +126,19 @@ void meson_set_dfu_alt_info(char *interface, char *devstr)
 #endif
 		}
 #endif
-	} else
-		dfu_alt_info = MESON_DFU_RAM MESON_DFU_SF MESON_DFU_MMC_EMMC MESON_DFU_MMC_SD MESON_DFU_CMD;
+	} else {
+		dfu_alt_info = malloc(1024);
+		strcpy(dfu_alt_info, MESON_DFU_SF);
+		strcat(dfu_alt_info, MESON_DFU_CMD);
+
+		if (uclass_get_device(UCLASS_MMC, 0, &dev) == 0 && mmc_get_mmc_dev(dev)){
+			strcat(dfu_alt_info, MESON_DFU_MMC_EMMC);
+		}
+		if (uclass_get_device(UCLASS_MMC, 1, &dev) == 0 && mmc_get_mmc_dev(dev)){
+			strcat(dfu_alt_info, MESON_DFU_MMC_SD);
+		}
+		strcat(dfu_alt_info, MESON_DFU_RAM);
+	}
 	
 	if (dfu_alt_info)
 		env_set("dfu_alt_info", dfu_alt_info);
