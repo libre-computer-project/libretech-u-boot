@@ -11,6 +11,7 @@
 #include <efi_loader.h>
 #include <asm/io.h>
 #include <asm/arch/eth.h>
+#include "../common/board-meson.h"
 
 struct efi_fw_image fw_images[] = {
 	{
