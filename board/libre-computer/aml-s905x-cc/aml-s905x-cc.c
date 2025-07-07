@@ -14,11 +14,7 @@
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/mem.h>
-
-#define EFUSE_SN_OFFSET		20
-#define EFUSE_SN_SIZE		16
-#define EFUSE_MAC_OFFSET	52
-#define EFUSE_MAC_SIZE		6
+#include "../common/board-meson.h"
 
 struct efi_fw_image fw_images[] = {
 	{
@@ -35,40 +31,19 @@ struct efi_capsule_update_info update_info = {
 
 
 #if IS_ENABLED(CONFIG_SET_DFU_ALT_INFO)
-void set_dfu_alt_info(char *interface, char *devstr)
-{
-	if (interface && strcmp(interface, "ram") == 0)
-		env_set("dfu_alt_info", "fitimage ram 0x08080000 0x4000000");
+void set_dfu_alt_info(char *interface, char *devstr){
+	meson_set_dfu_alt_info(interface, devstr);
 }
 #endif
 
 int misc_init_r(void)
 {
-	u8 mac_addr[EFUSE_MAC_SIZE + 1];
-	char serial[EFUSE_SN_SIZE + 1];
-	ssize_t len;
 	static char dfu_string[32] = { 0 };
-
-	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
-		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
-					  mac_addr, EFUSE_MAC_SIZE);
-		mac_addr[len] = '\0';
-		if (len == EFUSE_MAC_SIZE && is_valid_ethaddr(mac_addr))
-			eth_env_set_enetaddr("ethaddr", mac_addr);
-		else
-			meson_generate_serial_ethaddr();
-	}
-
-	if (!env_get("serial#")) {
-		len = meson_sm_read_efuse(EFUSE_SN_OFFSET, serial,
-			EFUSE_SN_SIZE);
-		serial[len] = '\0';
-		if (len == EFUSE_SN_SIZE)
-			env_set("serial#", serial);
-	}
 
 	snprintf(dfu_string, 32, "mmc %s=u-boot-bin raw 0x1 0x7ff mmcpart 1", env_get("bootdevice"));
 	update_info.dfu_string = dfu_string;
+
+	meson_gxl_misc_init_r();
 
 	return 0;
 }
