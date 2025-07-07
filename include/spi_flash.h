@@ -131,6 +131,9 @@ static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
 	return spi_flash_erase_dm(flash->dev, offset, len);
 }
 
+int spi_flash_update(struct spi_flash *flash, u32 offset,
+		size_t len, const char *buf);
+
 struct sandbox_state;
 
 int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
