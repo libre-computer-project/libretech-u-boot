@@ -69,14 +69,14 @@ int mmc_get_env_dev(void)
 	"emmc raw 0 0 mmcpart 0;" \
 	"emmc-boot0 raw 0 0 mmcpart 1;" \
 	"emmc-boot1 raw 0 0 mmcpart 2;" \
-	"u-boot-bin-emmc raw 0x200 0xffe00 mmcpart 0;" \
-	"u-boot-bin-emmc-boot0 raw 0x200 0xffe00 mmcpart 1;" \
-	"u-boot-bin-emmc-boot1 raw 0x200 0xffe00 mmcpart 2"
+	"u-boot-bin-emmc raw 1 0x7ff mmcpart 0;" \
+	"u-boot-bin-emmc-boot0 raw 0x1 0x7ff mmcpart 1;" \
+	"u-boot-bin-emmc-boot1 raw 0x1 0x7ff mmcpart 2"
 #define MESON_DFU_MMC_EMMC "mmc 0=" MESON_DFU_MMC_EMMC_ALTS "&"
 
 #define MESON_DFU_MMC_SD_ALTS \
 	"sd raw 0 0 mmcpart 0;" \
-	"u-boot-bin-sd raw 0x200 0xffe00 mmcpart 0"
+	"u-boot-bin-sd raw 1 0x7ff mmcpart 0"
 #define MESON_DFU_MMC_SD "mmc 1=" MESON_DFU_MMC_SD_ALTS "&"
 
 #define MESON_DFU_MMC_CMD_ALTS "script 0 0"
