@@ -13,40 +13,8 @@
 #include <mmc.h>
 #include <event.h>
 #include <splash.h>
+#include <linux/stringify.h>
 #include "board.h"
-
-#ifdef CONFIG_SYS_MMC_ENV_DEV
-int mmc_get_env_dev(void)
-{
-	struct udevice *dev;
-	struct mmc *mmc;
-	int bootdevice_num = CONFIG_SYS_MMC_ENV_DEV;
-
-	switch (meson_get_boot_device()) {
-		case BOOT_DEVICE_EMMC:
-			break;
-
-		case BOOT_DEVICE_SPI:
-			/* TODO: eMMC, NVME, SD, USB */
-			if (uclass_get_device_by_seq(UCLASS_MMC, 1, &dev)) break;
-			if (!(mmc = mmc_get_mmc_dev(dev))) break;
-			if (!IS_SD(mmc) && !mmc->has_init)
-				bootdevice_num = 1;
-			break;
-
-		case BOOT_DEVICE_SD:
-			bootdevice_num = 1;
-			break;
-
-		case BOOT_DEVICE_USB:
-			break;
-	}
-
-	env_set_ulong("bootdevice", bootdevice_num);
-
-	return bootdevice_num;
-}
-#endif
 
 #ifdef CONFIG_SPLASH_SCREEN
 static struct splash_location splash_locations[] = {
@@ -80,53 +48,6 @@ void env_ini_load(char *bootsource, char *bootdevice){
 	ini_parse((char *)load_addr, size, ini_handler, "");
 }
 #endif
-
-static int settings_r(void){
-	struct udevice *dev;
-	struct mmc *mmc;
-	int bootdevice_num = CONFIG_SYS_MMC_ENV_DEV;
-	
-	char *bootsource;
-	char *bootdevice;
-
-	switch (meson_get_boot_device()) {
-		case BOOT_DEVICE_EMMC:
-			bootsource = "mmc";
-			break;
-
-		case BOOT_DEVICE_SPI:
-			/* TODO: eMMC, NVME, SD, USB */
-			bootsource = "mmc";
-			/* no longer HW order */
-			if (uclass_get_device_by_seq(UCLASS_MMC, 0, &dev)) break;
-			if (!(mmc = mmc_get_mmc_dev(dev))) break;
-			if (!IS_SD(mmc) && !mmc->has_init)
-				bootdevice_num = 1;
-			break;
-
-		case BOOT_DEVICE_SD:
-			bootsource = "mmc";
-			bootdevice_num = 1;
-			break;
-
-		case BOOT_DEVICE_USB:
-			bootsource = "usb";
-			break;
-	}
-
-	bootdevice = simple_itoa(bootdevice_num);
-
-	env_set("bootdevice", bootdevice);
-#ifdef CONFIG_SPLASH_SOURCE
-	env_set("splashdevpart", bootdevice);
-#endif
-#ifdef CONFIG_CMD_INI
-	if (strcmp(bootsource, "mmc") == 0)
-		env_ini_load(bootsource, bootdevice);
-#endif
-	return 0;
-}
-EVENT_SPY_SIMPLE(EVT_SETTINGS_R, settings_r);
 
 /*
 int meson_board_late_init(void){
