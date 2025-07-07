@@ -62,12 +62,11 @@
  * $ dfu-util -a 0 -D fitImage
  * $ dfu-util -a 0 -e
  */
-#if CONFIG_IS_ENABLED(USB_GADGET) && CONFIG_IS_ENABLED(DFU_RAM)
+#if CONFIG_IS_ENABLED(USB_GADGET) && CONFIG_IS_ENABLED(DFU_OVER_USB)
 	#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance) \
 		"bootcmd_usbdfu=" \
 			"if test \"${boot_source}\" = \"usb\"; then " \
-				"dfu 0 ram 0 60;" \
-				"bootm ${kernel_addr_r};" \
+				"dfu 0 60;" \
 			"fi\0"
 
 	#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance) \
