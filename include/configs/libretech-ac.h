@@ -9,6 +9,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define MESON_DFU_MMC_SD_HIDE
+
 #define BOOT_TARGET_DEVICES(func) \
 	func(ROMUSB, romusb, na)  \
 	func(USB_DFU, usbdfu, na)  \
