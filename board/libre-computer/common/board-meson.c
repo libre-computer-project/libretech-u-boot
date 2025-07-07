@@ -4,11 +4,15 @@
  */
 
 #include <asm/arch/boot.h>
+#include <asm/arch/gx.h>
+#include <asm/arch/sm.h>
+#include <asm/arch/eth.h>
 #include <dm.h>
 #include <env.h>
 #include <ini.h>
 #include <linux/stringify.h>
 #include <mmc.h>
+#include <net.h>
 #include "board.h"
 #include "board-meson.h"
 
@@ -17,7 +21,7 @@
 #define EFUSE_MAC_OFFSET	52
 #define EFUSE_MAC_SIZE		6
 
-#ifdef CONFIG_ENV_MMC_DEVICE_INDEX
+#ifdef CONFIG_SYS_MMC_ENV_DEV
 int mmc_get_env_dev(void)
 {
 	debug("%s\n", __func__);
@@ -77,11 +81,15 @@ int mmc_get_env_dev(void)
 	"u-boot-bin-emmc-boot1 raw 0x1 0x7ff mmcpart 2"
 #define MESON_DFU_MMC_EMMC "mmc 0=" MESON_DFU_MMC_EMMC_ALTS "&"
 
+#ifdef MESON_DFU_MMC_SD_HIDE
+#define MESON_DFU_MMC_SD_ALTS
+#define MESON_DFU_MMC_SD
+#else
 #define MESON_DFU_MMC_SD_ALTS \
 	"sd raw 0 0 mmcpart 0;" \
 	"u-boot-bin-sd raw 1 0x7ff mmcpart 0"
 #define MESON_DFU_MMC_SD "mmc 1=" MESON_DFU_MMC_SD_ALTS "&"
-
+#endif
 #define MESON_DFU_MMC_CMD_ALTS "script 0 0"
 #define MESON_DFU_CMD "mmc 0=cmd script 0 0"
 #else
@@ -93,6 +101,7 @@ int mmc_get_env_dev(void)
 void meson_set_dfu_alt_info(char *interface, char *devstr)
 {
 	char *dfu_alt_info;
+	struct udevice *dev;
 	if (interface){
 #ifdef CONFIG_DFU_RAM
 		if (strcmp(interface, "ram") == 0)
@@ -108,8 +117,10 @@ void meson_set_dfu_alt_info(char *interface, char *devstr)
 				dfu_alt_info = MESON_DFU_MMC_EMMC MESON_DFU_MMC_SD;
 			else if (strcmp(devstr, "0") == 0)
 				dfu_alt_info = MESON_DFU_MMC_EMMC_ALTS;
+#ifndef MESON_DFU_MMC_SD_HIDE
 			else if (strcmp(devstr, "1") == 0)
 				dfu_alt_info = MESON_DFU_MMC_SD_ALTS;
+#endif
 		}
 #endif
 	} else
