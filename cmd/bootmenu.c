@@ -336,7 +336,6 @@ static struct bootmenu_data *bootmenu_create(int uefi, int delay)
 	unsigned short int i = 0;
 	struct bootmenu_data *menu;
 	struct bootmenu_entry *iter = NULL;
-	struct bootmenu_entry *entry;
 	char *default_str;
 
 	menu = malloc(sizeof(struct bootmenu_data));
