@@ -44,7 +44,7 @@ CONFIG_AUTOBOOT_MENUKEY=27
 CONFIG_OF_BOARD_SETUP=y
 CONFIG_BOOTCOMMAND="bootflow scan -lb; pause \"No bootable device found. Press any key for menu...\"; run menucmd"
 CONFIG_USE_PREBOOT=y
-CONFIG_PREBOOT="run bootcmd_romusb; run bootcmd_usbdfu; usb start;"
+CONFIG_PREBOOT="run bootcmd_usbdfu; usb start;"
 CONFIG_SILENT_CONSOLE=y
 # CONFIG_SPL_SILENT_CONSOLE is not set
 # CONFIG_TPL_SILENT_CONSOLE is not set
@@ -113,6 +113,8 @@ CONFIG_LBA48=y
 CONFIG_SYS_64BIT_LBA=y
 CONFIG_BUTTON=y
 CONFIG_BUTTON_ADC=y
+CONFIG_DFU_TIMEOUT=y
+CONFIG_DFU_MMC=y
 CONFIG_DFU_RAM=y
 CONFIG_DFU_SF=y
 CONFIG_SET_DFU_ALT_INFO=y
