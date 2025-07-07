@@ -1,0 +1,1 @@
+meson_set_dfu_alt_info
