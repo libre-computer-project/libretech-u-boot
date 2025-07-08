@@ -49,6 +49,13 @@ void env_ini_load(char *bootsource, char *bootdevice){
 }
 #endif
 
+bool mmc_is_present(int seq){
+	struct udevice *dev;
+	struct mmc *mmc;
+	uclass_get_device_by_seq(UCLASS_MMC, seq, &dev);
+	return dev && (mmc = mmc_get_mmc_dev(dev)) && !mmc_init(mmc);
+}
+
 /*
 int meson_board_late_init(void){
 	return 0;
