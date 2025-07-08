@@ -1103,11 +1103,19 @@ config BMP
 
 config VIDEO_BMP_GZIP
 	bool "Gzip compressed BMP image support"
-	depends on BMP || SPLASH_SCREEN
+	depends on GZIP && (BMP || SPLASH_SCREEN)
 	help
 	  If this option is set, additionally to standard BMP
 	  images, gzipped BMP images can be displayed via the
 	  splashscreen support or the bmp command.
+
+#config VIDEO_BMP_LZMA
+#	bool "LZMA compressed BMP image support"
+#	depends on LZMA && (BMP || SPLASH_SCREEN)
+#	help
+#	  If this option is set, additionally to standard BMP
+#	  images, lzma compressed BMP images can be displayed
+#	  via the splashscreen support or the bmp command.
 
 config VIDEO_LOGO_MAX_SIZE
 	hex "Maximum size of the bitmap logo in bytes"

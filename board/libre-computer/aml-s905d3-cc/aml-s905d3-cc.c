@@ -11,6 +11,7 @@
 #include <efi_loader.h>
 #include <asm/io.h>
 #include <asm/arch/eth.h>
+#include "../common/board-meson.h"
 
 struct efi_fw_image fw_images[] = {
 	{
@@ -25,12 +26,9 @@ struct efi_capsule_update_info update_info = {
 	.images = fw_images,
 };
 
-
 #if IS_ENABLED(CONFIG_SET_DFU_ALT_INFO)
-void set_dfu_alt_info(char *interface, char *devstr)
-{
-	if (interface && strcmp(interface, "ram") == 0)
-		env_set("dfu_alt_info", "fitimage ram 0x08080000 0x4000000");
+void set_dfu_alt_info(char *interface, char *devstr){
+	meson_set_dfu_alt_info(interface, devstr);
 }
 #endif
 

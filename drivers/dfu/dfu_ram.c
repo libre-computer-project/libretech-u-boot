@@ -12,27 +12,35 @@
 #include <mapmem.h>
 #include <errno.h>
 #include <dfu.h>
+#include <command.h>
 #include <linux/printk.h>
 
 static int dfu_transfer_medium_ram(enum dfu_op op, struct dfu_entity *dfu,
 				   u64 offset, void *buf, long *len)
 {
-	if (dfu->layout != DFU_RAM_ADDR) {
-		pr_err("unsupported layout: %s\n", dfu_get_layout(dfu->layout));
-		return  -EINVAL;
+	int ret = 1;
+	switch (dfu->layout){
+		case DFU_RAM_ADDR:
+			if (offset > dfu->data.ram.size) {
+				pr_err("request exceeds allowed area\n");
+				return -EINVAL;
+			}
+
+			if (op == DFU_OP_WRITE)
+				memcpy(map_sysmem(dfu->data.ram.start + offset, 0), buf, *len);
+			else
+				memcpy(buf, map_sysmem(dfu->data.ram.start + offset, 0), *len);
+			ret = 0;
+			break;
+		case DFU_SCRIPT:
+			ret = run_command_list(buf, *len, 0);
+			ret = 0;
+			break;
+		default:
+			pr_err("unsupported layout: %s\n", dfu_get_layout(dfu->layout));
+			return  -EINVAL;
 	}
-
-	if (offset > dfu->data.ram.size) {
-		pr_err("request exceeds allowed area\n");
-		return -EINVAL;
-	}
-
-	if (op == DFU_OP_WRITE)
-		memcpy(map_sysmem(dfu->data.ram.start + offset, 0), buf, *len);
-	else
-		memcpy(buf, map_sysmem(dfu->data.ram.start + offset, 0), *len);
-
-	return 0;
+	return ret;
 }
 
 static int dfu_write_medium_ram(struct dfu_entity *dfu, u64 offset,
@@ -64,12 +72,15 @@ int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char **argv, int a
 	}
 
 	dfu->dev_type = DFU_DEV_RAM;
-	if (strcmp(argv[0], "ram")) {
+	if (strcmp(argv[0], "ram") && strcmp(argv[0], "script")) {
 		pr_err("unsupported device: %s\n", argv[0]);
 		return -ENODEV;
 	}
 
-	dfu->layout = DFU_RAM_ADDR;
+	if (!strcmp(argv[0], "script"))
+		dfu->layout = DFU_SCRIPT;
+	else
+		dfu->layout = DFU_RAM_ADDR;
 	dfu->data.ram.start = hextoul(argv[1], &s);
 	if (*s)
 		return -EINVAL;

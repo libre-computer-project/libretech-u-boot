@@ -79,6 +79,7 @@ fit-dtb.blob*
 /test/overlay/test-fdt-overlay.dtbo.S
 /test/overlay/test-fdt-overlay-stacked.dtbo.S
 capsule_esl_file
+/tools/logo.bmp.gz
 
 #
 # Generated include files
