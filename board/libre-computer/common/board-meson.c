@@ -138,7 +138,7 @@ void meson_set_dfu_alt_info(char *interface, char *devstr)
 			strcat(dfu_alt_info, MESON_DFU_MMC_EMMC);
 #ifndef MESON_DFU_MMC_SD_HIDE
 		if (mmc_is_present(1))
-					strcat(dfu_alt_info, MESON_DFU_MMC_SD);
+			strcat(dfu_alt_info, MESON_DFU_MMC_SD);
 #endif
 		strcat(dfu_alt_info, MESON_DFU_RAM);
 	}
