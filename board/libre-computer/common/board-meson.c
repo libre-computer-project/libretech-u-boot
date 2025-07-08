@@ -3,8 +3,6 @@
  * (C) Copyright 2025 Da Xue <da@libre.computer>
  */
 
-#define DEBUG
-
 #include <asm/arch/boot.h>
 #include <asm/arch/gx.h>
 #include <asm/arch/sm.h>
