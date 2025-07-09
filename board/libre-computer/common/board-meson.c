@@ -109,7 +109,7 @@ void meson_set_dfu_alt_info(char *interface, char *devstr)
 #ifdef CONFIG_DFU_MMC
 		if (strcmp(interface, "mmc") == 0){
 			if (!devstr){
-				dfu_alt_info = malloc(DFU_ALT_INFO_ENV_LENGTH);
+				dfu_alt_info = calloc(1, DFU_ALT_INFO_ENV_LENGTH);
 				free_dfu_alt_info = true;
 				if (mmc_is_present(0))
 					strcat(dfu_alt_info, MESON_DFU_MMC_EMMC);
@@ -127,7 +127,7 @@ void meson_set_dfu_alt_info(char *interface, char *devstr)
 		}
 #endif
 	} else {
-		dfu_alt_info = malloc(DFU_ALT_INFO_ENV_LENGTH);
+		dfu_alt_info = calloc(1, DFU_ALT_INFO_ENV_LENGTH);
 		free_dfu_alt_info = true;
 #ifdef CONFIG_DFU_SF
 		strcpy(dfu_alt_info, MESON_DFU_SF);
