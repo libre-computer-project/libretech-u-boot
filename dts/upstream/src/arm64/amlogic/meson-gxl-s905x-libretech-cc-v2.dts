@@ -251,7 +251,7 @@
 	sd-uhs-sdr50;
 	sd-uhs-ddr50;
 	sd-uhs-sdr104;
-	max-frequency = <200000000>;
+	max-frequency = <166666667>;
 	disable-wp;
 
 	cd-gpios = <&gpio CARD_6 GPIO_ACTIVE_LOW>;
