@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 BayLibre, SAS.
+ * Author: Neil Armstrong <narmstrong@baylibre.com>
+ */
+
+#include "meson-gxl-u-boot.dtsi"
+
+/ {
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "libre-computer";
+				product = "aml-aml-s805x-ac-v2";
+			};
+
+			baseboard {
+				manufacturer = "libre-computer";
+				product = "aml-aml-s805x-ac-v2";
+			};
+
+			chassis {
+				manufacturer = "libre-computer";
+				product = "aml-aml-s805x-ac-v2";
+			};
+		};
+	};
+};
