@@ -1693,6 +1693,7 @@ tcp_recv_null(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 
   if (p != NULL) {
     tcp_recved(pcb, p->tot_len);
+    tcp_ack_now(pcb);
     pbuf_free(p);
   } else if (err == ERR_OK) {
     return tcp_close(pcb);
