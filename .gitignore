@@ -135,3 +135,6 @@ __pycache__
 
 # Clang's compilation database file
 /compile_commands.json
+
+#lwip cacerts
+/net/lwip/builtin_cacert.c
