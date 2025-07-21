@@ -523,13 +523,15 @@ int wget_do_request(ulong dst_addr, char *uri)
 	}
 
 	errno = 0;
-
 	uint64_t rx_time = 0;
 	uint64_t rx_start;
 	uint64_t to_time = 0;
 	uint64_t to_start;
 	uint64_t cc_time = 0;
 	uint64_t cc_start;
+
+	ulong to_last, to_now, cc_last, cc_now;
+	to_last = cc_last = get_timer(0);
 
 	while (!ctx.done) {
 		rx_start = get_ticks();
@@ -538,11 +540,19 @@ int wget_do_request(ulong dst_addr, char *uri)
 		net_lwip_rx(udev, netif);
 		to_start = get_ticks();
 		rx_time += to_start - rx_start;
-		sys_check_timeouts();
+		to_now = get_timer(0);
+		if (((cc_now - cc_last) >> 4) > 0){
+			to_last = to_now;
+			sys_check_timeouts();
+		}
 		cc_start = get_ticks();
 		to_time += cc_start - to_start;
-		if (ctrlc())
-			break;
+		cc_now = get_timer(0);
+		if (((cc_now - cc_last) >> 9) > 0){
+			cc_last = cc_now;
+			if (ctrlc())
+				break;
+		}
 	}
 	printf("rx %llu to %llu cc %llu\n", rx_time, to_time, cc_time);
 
