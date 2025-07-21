@@ -13,6 +13,7 @@
 #include <lwip/timeouts.h>
 #include <rng.h>
 #include <mapmem.h>
+#include <timer.h>
 #include <net.h>
 #include <time.h>
 #include <dm/uclass.h>
@@ -523,12 +524,27 @@ int wget_do_request(ulong dst_addr, char *uri)
 
 	errno = 0;
 
+	uint64_t rx_time = 0;
+	uint64_t rx_start;
+	uint64_t to_time = 0;
+	uint64_t to_start;
+	uint64_t cc_time = 0;
+	uint64_t cc_start;
+
 	while (!ctx.done) {
+		rx_start = get_ticks();
+		if (rx_time != 0)
+			cc_time += rx_start - cc_start;
 		net_lwip_rx(udev, netif);
+		to_start = get_ticks();
+		rx_time += to_start - rx_start;
 		sys_check_timeouts();
+		cc_start = get_ticks();
+		to_time += cc_start - to_start;
 		if (ctrlc())
 			break;
 	}
+	printf("rx %llu to %llu cc %llu\n", rx_time, to_time, cc_time);
 
 	net_lwip_remove_netif(netif);
 
