@@ -6,6 +6,7 @@
 #include <display_options.h>
 #include <efi_loader.h>
 #include <env.h>
+#include <image.h>
 #include <linux/kconfig.h>
 #include <lwip/apps/http_client.h>
 #include "lwip/altcp_tls.h"
@@ -13,6 +14,7 @@
 #include <lwip/timeouts.h>
 #include <rng.h>
 #include <mapmem.h>
+#include <timer.h>
 #include <net.h>
 #include <time.h>
 #include <dm/uclass.h>
@@ -271,10 +273,6 @@ static err_t httpc_headers_done_cb(httpc_state_t *connection, void *arg, struct 
 	return ERR_OK;
 }
 
-
-#if CONFIG_IS_ENABLED(WGET_CACERT)
-#endif
-
 int wget_do_request(ulong dst_addr, char *uri)
 {
 #if CONFIG_IS_ENABLED(WGET_HTTPS)
@@ -310,17 +308,12 @@ int wget_do_request(ulong dst_addr, char *uri)
 	if (!netif)
 		return -1;
 
-	/* if URL with hostname init dns */
-	if (!ipaddr_aton(ctx.server_name, NULL) && net_lwip_dns_init())
-		return CMD_RET_FAILURE;
-
 	memset(&conn, 0, sizeof(conn));
 #if CONFIG_IS_ENABLED(WGET_HTTPS)
 	if (is_https) {
 		char *ca;
 		size_t ca_sz;
 
-#if CONFIG_IS_ENABLED(WGET_CACERT) || CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
 #if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
 		if (!cacert_initialized)
 			set_cacert_builtin();
@@ -347,7 +340,7 @@ int wget_do_request(ulong dst_addr, char *uri)
 			 * with no verification if not.
 			 */
 		}
-#endif
+
 		if (!ca && !wget_info->silent) {
 			printf("WARNING: no CA certificates, ");
 			printf("HTTPS connections not authenticated\n");
@@ -378,11 +371,27 @@ int wget_do_request(ulong dst_addr, char *uri)
 
 	errno = 0;
 
+	uint64_t rx_time = 0;
+	uint64_t rx_start;
+	uint64_t to_time = 0;
+	uint64_t to_start;
+	uint64_t cc_time = 0;
+	uint64_t cc_start;
+
 	while (!ctx.done) {
+		rx_start = get_ticks();
+		if (rx_time != 0)
+			cc_time += rx_start - cc_start;
 		net_lwip_rx(udev, netif);
+		to_start = get_ticks();
+		rx_time += to_start - rx_start;
+		sys_check_timeouts();
+		cc_start = get_ticks();
+		to_time += cc_start - to_start;
 		if (ctrlc())
 			break;
 	}
+	printf("rx %llu to %llu cc %llu\n", rx_time, to_time, cc_time);
 
 	net_lwip_remove_netif(netif);
 
