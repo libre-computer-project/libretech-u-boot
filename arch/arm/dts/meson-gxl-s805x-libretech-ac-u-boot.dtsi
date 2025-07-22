@@ -13,17 +13,17 @@
 		smbios {
 			system {
 				manufacturer = "libre-computer";
-				product = "aml-aml-s805x-ac";
+				product = "aml-s805x-ac";
 			};
 
 			baseboard {
 				manufacturer = "libre-computer";
-				product = "aml-aml-s805x-ac";
+				product = "aml-s805x-ac";
 			};
 
 			chassis {
 				manufacturer = "libre-computer";
-				product = "aml-aml-s805x-ac";
+				product = "aml-s805x-ac";
 			};
 		};
 	};
