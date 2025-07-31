@@ -24,6 +24,7 @@
 		mmc0 = &sd_emmc_c; /* SD card */
 		mmc1 = &sd_emmc_b; /* eMMC */
 		mmc2 = &sd_emmc_a; /* SDIO */
+		rtc1 = &vrtc;
 	};
 
 	reserved-memory {
