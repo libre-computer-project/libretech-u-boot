@@ -17,6 +17,7 @@
 		serial0 = &uart_AO;
 		ethernet0 = &ethmac;
 		spi0 = &spifc;
+		rtc1 = &vrtc;
 	};
 
 	memory@0 {
@@ -400,7 +401,7 @@
 
 		interrupt-parent = <&gpio_intc>;
 		/* MAC_INTR on GPIOZ_14 */
-		interrupts = <26 IRQ_TYPE_LEVEL_LOW>;
+		interrupts = <IRQID_GPIOZ_14 IRQ_TYPE_LEVEL_LOW>;
 	};
 };
 
