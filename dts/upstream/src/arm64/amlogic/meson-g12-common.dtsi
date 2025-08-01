@@ -502,7 +502,7 @@
 						mux {
 							groups = "i2c2_sda_x";
 							function = "i2c2";
-							bias-disable;
+							bias-pull-up;
 							drive-strength-microamp = <3000>;
 						};
 					};
@@ -511,7 +511,7 @@
 						mux {
 							groups = "i2c2_sck_x";
 							function = "i2c2";
-							bias-disable;
+							bias-pull-up;
 							drive-strength-microamp = <3000>;
 						};
 					};
@@ -1786,7 +1786,7 @@
 					mux {
 						groups = "i2c_ao_sck";
 						function = "i2c_ao";
-						bias-disable;
+						bias-pull-up;
 						drive-strength-microamp = <3000>;
 					};
 				};
@@ -1795,7 +1795,7 @@
 					mux {
 						groups = "i2c_ao_sda";
 						function = "i2c_ao";
-						bias-disable;
+						bias-pull-up;
 						drive-strength-microamp = <3000>;
 					};
 				};
