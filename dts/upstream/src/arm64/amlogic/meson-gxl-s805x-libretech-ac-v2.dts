@@ -118,7 +118,7 @@
 
 	sound {
 		compatible = "amlogic,gx-sound-card";
-		model = "LIBRETECH-AC";
+		model = "LIBRETECH-AC-V2";
 		audio-widgets = "Speaker", "9J5-3 LEFT",
 				"Speaker", "9J5-2 RIGHT";
 		audio-routing = "9J5-3 LEFT", "ACODEC LOLN",
