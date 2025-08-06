@@ -28,11 +28,6 @@
 	};
 
 	cvbs-connector {
-		/*
-		 * The pads are present but no connector is soldered on
-		 * 2J2, so keep this off by default.
-		 */
-		status = "disabled";
 		compatible = "composite-video-connector";
 
 		port {
