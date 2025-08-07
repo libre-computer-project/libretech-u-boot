@@ -152,8 +152,8 @@
 		regulator-settling-time-down-us = <50000>;
 		vin-supply = <&vddao_3v3>;
 		gpios = <&gpio BOOT_11 GPIO_ACTIVE_HIGH>;
-		states = <3300000 0>,
-			 <1800000 1>;
+		states = <3300000 1>,
+			 <1800000 0>;
 	};
 
 	sound {
