@@ -328,11 +328,6 @@
 	};
 };
 
-&dwc3 {
-	#address-cells = <1>;
-	#size-cells = <0>;
-};
-
 &ethmac {
 	pinctrl-0 = <&eth_pins>, <&eth_rgmii_pins>, <&eth_phy_irq_pins>;
 	pinctrl-names = "default";
@@ -383,6 +378,7 @@
 		remote-endpoint = <&hdmi_connector_in>;
 	};
 };
+
 &periphs_pinctrl {
 	spi_cs_disable_pins: spi-cs-disable {
 		mux {
@@ -535,6 +531,11 @@
 	status = "okay";
 };
 
+&pcie {
+	reset-gpios = <&gpio BOOT_15 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
 &tohdmitx {
 	status = "okay";
 };
@@ -554,5 +555,7 @@
 };
 
 &usb {
+	phys = <&usb2_phy0>, <&usb2_phy1>;
+	phy-names = "usb2-phy0", "usb2-phy1";
 	status = "okay";
 };
