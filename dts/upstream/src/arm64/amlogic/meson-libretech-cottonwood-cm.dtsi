@@ -407,9 +407,10 @@
 	clock-names = "clkin1";
 };
 
+/* A311D CPU_A */
 &pwm_ab {
 	status = "okay";
-	pinctrl-0 = <&pwm_b_x7_pins>;
+	pinctrl-0 = <&pwm_a_e_pins>;
 	pinctrl-names = "default";
 	clocks = <&xtal>;
 	clock-names = "clkin1";
