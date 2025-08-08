@@ -164,6 +164,7 @@ static const unsigned int eth_act_led_pins[]		= { PIN(GPIOZ_15, EE_OFF) };
 
 /* pwm_a */
 static const unsigned int pwm_a_pins[]			= { PIN(GPIOX_6, EE_OFF) };
+static const unsigned int pwm_a_e_pins[]		= { PIN(GPIOE_2, EE_OFF) };
 
 /* pwm_b */
 static const unsigned int pwm_b_x7_pins[]		= { PIN(GPIOX_7, EE_OFF) };
@@ -542,6 +543,7 @@ static struct meson_pmx_group meson_g12a_periphs_groups[] = {
 	GROUP(iso7816_clk_x,		6),
 	GROUP(iso7816_data_x,		6),
 	GROUP(pwm_a,			1),
+	GROUP(pwm_a_e,			3),
 	GROUP(pwm_b_x7,			4),
 	GROUP(pwm_b_x19,		1),
 	GROUP(pwm_c_x5,			4),
@@ -944,7 +946,7 @@ static const char * const eth_groups[] = {
 };
 
 static const char * const pwm_a_groups[] = {
-	"pwm_a",
+	"pwm_a", "pwm_a_e",
 };
 
 static const char * const pwm_b_groups[] = {
