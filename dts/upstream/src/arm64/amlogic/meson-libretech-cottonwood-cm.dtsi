@@ -341,6 +341,9 @@
 	external_phy: ethernet-phy@0 {
 		/* Realtek RTL8211F (0x001cc916) */
 		compatible = "ethernet-phy-ieee802.3-c22";
+		eee-broken-1000t;
+		realtek,aldps-enable;
+		realtek,clkout-disable;
 		reg = <0>;
 		max-speed = <1000>;
 
