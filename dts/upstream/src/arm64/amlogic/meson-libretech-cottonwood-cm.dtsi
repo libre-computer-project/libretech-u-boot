@@ -397,6 +397,13 @@
 			output-disable;
 		};
 	};
+	pcie_clkreqn: pcie-clkreqn {
+		mux {
+			groups = "pcie_clkreqn";
+			function = "pcie_clkreqn";
+			bias-disable;
+		};
+	};
 };
 
 &pwm_AO_cd {
@@ -533,6 +540,10 @@
 };
 
 &pcie {
+	supports-clkreq;
+	pinctrl-0 = <&pcie_clkreqn>;
+	pinctrl-names = "default";
+	max-link-speed = <2>;
 	reset-gpios = <&gpio BOOT_15 GPIO_ACTIVE_LOW>;
 	status = "okay";
 };
@@ -559,4 +570,8 @@
 	phys = <&usb2_phy0>, <&usb2_phy1>;
 	phy-names = "usb2-phy0", "usb2-phy1";
 	status = "okay";
+};
+
+&dwc3 {
+	status = "disabled";
 };
