@@ -397,11 +397,12 @@
 			output-disable;
 		};
 	};
+
 	pcie_clkreqn: pcie-clkreqn {
 		mux {
-			groups = "pcie_clkreqn";
-			function = "pcie_clkreqn";
-			bias-disable;
+			groups = "GPIOC_7"; /* pcie_clkreqn */
+			function = "gpio_periphs"; /* pcie_clkreqn */
+			bias-pull-up;
 		};
 	};
 };
@@ -540,12 +541,13 @@
 };
 
 &pcie {
+	status = "okay";
 	supports-clkreq;
 	pinctrl-0 = <&pcie_clkreqn>;
 	pinctrl-names = "default";
 	max-link-speed = <2>;
+	clkreq-gpios = <&gpio GPIOC_7 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
 	reset-gpios = <&gpio BOOT_15 GPIO_ACTIVE_LOW>;
-	status = "okay";
 };
 
 &tohdmitx {
