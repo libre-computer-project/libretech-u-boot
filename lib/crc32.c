@@ -29,7 +29,7 @@
 
 #define tole(x) cpu_to_le32(x)
 
-#ifdef CONFIG_DYNAMIC_CRC_TABLE
+#if defined(CONFIG_DYNAMIC_CRC_TABLE) && !defined(CONFIG_ARM64_CRC32)
 
 static int __efi_runtime_data crc_table_empty = 1;
 static uint32_t __efi_runtime_data crc_table[256];
