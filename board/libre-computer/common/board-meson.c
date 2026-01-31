@@ -21,11 +21,11 @@
 #define EFUSE_MAC_OFFSET	52
 #define EFUSE_MAC_SIZE		6
 
-#ifdef CONFIG_SYS_MMC_ENV_DEV
+#ifdef CONFIG_ENV_MMC_DEVICE_INDEX
 int mmc_get_env_dev(void)
 {
 	debug("%s\n", __func__);
-	int bootdevice_num = CONFIG_SYS_MMC_ENV_DEV;
+	int bootdevice_num = CONFIG_ENV_MMC_DEVICE_INDEX;
 	switch (meson_get_boot_device()) {
 		case BOOT_DEVICE_EMMC:
 			break;
@@ -149,7 +149,7 @@ void meson_set_dfu_alt_info(char *interface, char *devstr)
 #endif
 
 static int settings_r(void){
-	int bootdevice_num = CONFIG_SYS_MMC_ENV_DEV;
+	int bootdevice_num = CONFIG_ENV_MMC_DEVICE_INDEX;
 	
 	char *bootsource;
 	char *bootdevice;
