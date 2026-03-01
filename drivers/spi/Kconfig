@@ -291,6 +291,15 @@ config MESON_SPIFC_A1
 	  with STR mode frequency up to 98MHz. Dual and quad modes are
 	  supported by controller.
 
+config MESON_SPICC
+	bool "Amlogic Meson SPICC controller driver"
+	depends on ARCH_MESON
+	help
+	  Enable the Amlogic Meson SPICC (SPI Communication Controller)
+	  driver. This is the general-purpose SPI controller found on
+	  Amlogic SoCs (GX, AXG, G12A/SM1). Supports SPI master mode
+	  with speeds up to 166MHz on G12A/SM1.
+
 config MPC8XX_SPI
 	bool "MPC8XX SPI Driver"
 	depends on MPC8xx && DM_GPIO
