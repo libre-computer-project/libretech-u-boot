@@ -184,25 +184,64 @@ out:
 }
 
 /*
- * Scan a U-Boot env data block for "key=..." and return pointer to the value.
- * env_data points to the raw data bytes (after CRC), env_size is their length.
- * Returns NULL if key not found.
+ * Scan env data for "overlays=" and copy the value to out_buf.
+ * start is the first byte of env entries (after any header).
+ * Entries are separated by \0 (binary/fw_setenv) or \n (text).
+ * Returns length of value, or 0 if not found.
  */
-static const char *nor_env_find(const char *env_data, u32 env_size,
-				const char *key)
+static int env_scan_overlays(const char *start, u32 size,
+			     char *out_buf, int out_size)
 {
-	int keylen = strlen(key);
-	const char *p = env_data;
-	const char *end = env_data + env_size;
+	const char *prefix = "overlays=";
+	int pfxlen = 9;
+	const char *p, *end, *val;
+	int i;
 
-	while (p < end && *p != '\0') {
-		if (strncmp(p, key, keylen) == 0 && p[keylen] == '=')
-			return p + keylen + 1;
-		/* skip to next entry */
-		p += strnlen(p, end - p) + 1;
+	end = start + size;
+
+	for (p = start; p + pfxlen < end; p++) {
+		if (p != start && *(p - 1) != '\0' && *(p - 1) != '\n')
+			continue;
+		if (strncmp(p, prefix, pfxlen) != 0)
+			continue;
+
+		val = p + pfxlen;
+		for (i = 0; i < out_size - 1 && val + i < end; i++) {
+			if (val[i] == '\0' || val[i] == '\n' ||
+			    (unsigned char)val[i] == 0xff)
+				break;
+			out_buf[i] = val[i];
+		}
+		out_buf[i] = '\0';
+		return i;
 	}
 
-	return NULL;
+	return 0;
+}
+
+/*
+ * Find "overlays=" in NOR env block.
+ * Tries binary env format first (4-byte CRC32 + null-separated entries),
+ * then falls back to raw text format (no header, newline-separated).
+ */
+static int nor_env_get_overlays(const char *data, u32 size,
+				char *out_buf, int out_size)
+{
+	u32 env_crc, calc_crc;
+	int ret;
+
+	/* Try binary env: first 4 bytes are CRC32 over the rest */
+	env_crc = le32_to_cpu(*(const u32 *)data);
+	calc_crc = crc32(0, (const unsigned char *)data + 4, size - 4);
+	if (env_crc == calc_crc) {
+		ret = env_scan_overlays(data + 4, size - 4,
+					out_buf, out_size);
+		if (ret)
+			return ret;
+	}
+
+	/* Fall back to raw text format (no CRC header) */
+	return env_scan_overlays(data, size, out_buf, out_size);
 }
 
 /*
@@ -213,9 +252,7 @@ static const char *nor_env_find(const char *env_data, u32 env_size,
 static int nor_apply_overlays(void *fdt)
 {
 	void *scratch = (void *)(uintptr_t)SCRATCH_ADDR;
-	u32 *env32 = scratch;
-	const char *env_data;
-	u32 env_crc, calc_crc;
+	char overlay_buf[256];
 	const char *overlays;
 	void *fit;
 	u32 fit_size;
@@ -236,20 +273,12 @@ static int nor_apply_overlays(void *fdt)
 		return 0;
 	}
 
-	/* Step 2: validate CRC32 */
-	env_crc = le32_to_cpu(env32[0]);
-	env_data = (const char *)&env32[1];
-	calc_crc = crc32(0, (const unsigned char *)env_data,
-			 NOR_ENV_SIZE - sizeof(u32));
-	if (env_crc != calc_crc)
-		return 0;	/* no valid env — silent */
-
-	/* Step 3: find overlays= key */
-	overlays = nor_env_find(env_data, NOR_ENV_SIZE - sizeof(u32),
-				"overlays");
-	if (!overlays || *overlays == '\0')
+	/* Step 2: find overlays= key (handles both binary and text env) */
+	if (!nor_env_get_overlays(scratch, NOR_ENV_SIZE,
+				  overlay_buf, sizeof(overlay_buf)))
 		return 0;
 
+	overlays = overlay_buf;
 	printf("nor-overlay: overlays=%s\n", overlays);
 
 	/* Step 4: read FIT header (64 bytes) to get total size */
