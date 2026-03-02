@@ -18,10 +18,15 @@ struct efi_fw_image fw_images[] = {
 		.fw_name = u"AML_S905D3_CC_BOOT",
 		.image_index = 1,
 	},
+	{
+		.fw_name = u"AML_S905D3_CC_FIT",
+		.image_index = 2,
+	},
 };
 
 struct efi_capsule_update_info update_info = {
-	.dfu_string = "sf 0:0=u-boot-bin raw 0 0x10000",
+	.dfu_string = "sf 0:0=u-boot-bin raw 0 0x1F0000;"
+		      "sf 0:0=fit raw 0x200000 0xE00000",
 	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
