@@ -202,36 +202,56 @@ static int ili9486_sync(struct udevice *vid)
 	struct ili9486_priv *priv = dev_get_priv(vid);
 	struct udevice *dev = priv->dev;
 	u16 *fb = (u16 *)uc_priv->fb;
-	size_t npixels = (size_t)uc_priv->xsize * uc_priv->ysize;
-	size_t fb_size = npixels * 2;
 	u8 cmd_buf[2] = { 0x00, ILI9486_RAMWR };
 	u16 *tx = (u16 *)priv->tx_buf;
-	size_t i;
+	int x0, y0, x1, y1, w, y;
+	size_t tx_size;
 	int ret;
+
+	if (IS_ENABLED(CONFIG_VIDEO_DAMAGE)) {
+		x0 = uc_priv->damage.xstart;
+		y0 = uc_priv->damage.ystart;
+		x1 = uc_priv->damage.xend;
+		y1 = uc_priv->damage.yend;
+
+		if (x0 >= x1 || y0 >= y1)
+			return 0;
+	} else {
+		x0 = 0;
+		y0 = 0;
+		x1 = uc_priv->xsize;
+		y1 = uc_priv->ysize;
+	}
+
+	w = x1 - x0;
+	tx_size = (size_t)w * (y1 - y0) * 2;
+
+	for (y = y0; y < y1; y++) {
+		u16 *src = &fb[y * uc_priv->xsize + x0];
+		u16 *dst = &tx[(y - y0) * w];
+		int x;
+
+		for (x = 0; x < w; x++)
+			dst[x] = __swab16(src[x]);
+	}
 
 	ret = dm_spi_claim_bus(dev);
 	if (ret)
 		return 0;
 
-	ret = ili9486_set_window(dev, 0, 0,
-				 uc_priv->xsize - 1, uc_priv->ysize - 1);
+	ret = ili9486_set_window(dev, x0, y0, x1 - 1, y1 - 1);
 	if (ret)
 		goto out;
 
-	/* RAMWR command (16-bit padded), DC=0 */
 	dm_gpio_set_value(&priv->dc_gpio, 0);
 	ret = dm_spi_xfer(dev, 16, cmd_buf, NULL, SPI_XFER_BEGIN);
 	if (ret)
 		goto out;
 
-	/* Byte-swap pixels: LE framebuffer → BE SPI byte order */
-	for (i = 0; i < npixels; i++)
-		tx[i] = __swab16(fb[i]);
-
 	dm_gpio_set_value(&priv->dc_gpio, 1);
 	flush_dcache_range((ulong)priv->tx_buf,
-			   (ulong)priv->tx_buf + fb_size);
-	ret = dm_spi_xfer(dev, fb_size * 8, priv->tx_buf, NULL, SPI_XFER_END);
+			   (ulong)priv->tx_buf + tx_size);
+	ret = dm_spi_xfer(dev, tx_size * 8, priv->tx_buf, NULL, SPI_XFER_END);
 
 out:
 	dm_spi_release_bus(dev);

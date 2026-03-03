@@ -25,6 +25,5 @@
 		spi-max-frequency = <166666664>;
 		dc-gpios = <&gpio GPIOA_5 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&gpio GPIOA_6 GPIO_ACTIVE_HIGH>;
-		buswidth = <8>;
 	};
 };

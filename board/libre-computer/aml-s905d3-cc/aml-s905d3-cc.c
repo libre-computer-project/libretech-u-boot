@@ -5,9 +5,11 @@
  */
 
 #include <dm.h>
+#include <dm/uclass.h>
 #include <env.h>
 #include <init.h>
 #include <net.h>
+#include <video.h>
 #include <efi_loader.h>
 #include <asm/io.h>
 #include <asm/arch/eth.h>
@@ -39,7 +41,13 @@ void set_dfu_alt_info(char *interface, char *devstr){
 
 int misc_init_r(void)
 {
+	struct udevice *dev;
+
 	meson_generate_serial_ethaddr();
+
+	/* Probe all video devices — overlay-added displays don't auto-probe */
+	uclass_foreach_dev_probe(UCLASS_VIDEO, dev)
+		;
 
 	return 0;
 }
