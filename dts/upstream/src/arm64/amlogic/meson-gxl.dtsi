@@ -21,7 +21,6 @@
 			clocks = <&clkc CLKID_VAPB>;
 			resets = <&reset RESET_GE2D>;
 			amlogic,canvas = <&canvas>;
-			power-domains = <&pwrc PWRC_GXBB_VPU_ID>;
 		};
 
 		usb: usb@d0078080 {
