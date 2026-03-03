@@ -547,6 +547,11 @@
 	compatible = "amlogic,sm1-vdec";
 };
 
+&ge2d {
+	compatible = "amlogic,sm1-ge2d";
+	power-domains = <&pwrc PWRC_SM1_GE2D_ID>;
+};
+
 &vpu {
 	power-domains = <&pwrc PWRC_SM1_VPU_ID>;
 };
