@@ -164,3 +164,35 @@
 		};
 	};
 };
+
+&apb {
+	csi_dphy: phy@50000 {
+		compatible = "amlogic,g12a-mipi-csi-dphy";
+		reg = <0x0 0x50000 0x0 0x2000>;
+		clocks = <&clkc CLKID_MIPI_ISP_CSI_PHY0>;
+		clock-names = "pclk";
+		phys = <&csi_analog_dphy>;
+		phy-names = "analog";
+		#phy-cells = <0>;
+		status = "disabled";
+	};
+
+	csi: csi@54000 {
+		compatible = "amlogic,g12a-csi2";
+		reg = <0x0 0x54000 0x0 0x100>;
+		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
+		phys = <&csi_dphy>;
+		phy-names = "dphy";
+		status = "disabled";
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				/* Sensor endpoint connected in board .dts */
+			};
+		};
+	};
+};

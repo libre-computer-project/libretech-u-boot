@@ -1676,6 +1676,12 @@
 						#phy-cells = <0>;
 						status = "disabled";
 					};
+
+					csi_analog_dphy: phy-csi {
+						compatible = "amlogic,g12a-mipi-csi-dphy-analog";
+						#phy-cells = <0>;
+						status = "disabled";
+					};
 				};
 			};
 
