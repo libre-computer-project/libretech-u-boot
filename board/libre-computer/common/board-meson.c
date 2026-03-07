@@ -48,7 +48,7 @@ int mmc_get_env_dev(void)
 #endif
 
 #if IS_ENABLED(CONFIG_SET_DFU_ALT_INFO)
-#define DFU_ALT_INFO_ENV_LENGTH 512
+#define DFU_ALT_INFO_ENV_LENGTH 1024
 #define DFU_INTERFACE_SEPARATOR "&"
 #ifdef CONFIG_DFU_RAM
 #define MESON_DFU_RAM_ALTS \
@@ -63,7 +63,9 @@ int mmc_get_env_dev(void)
 #endif
 #ifdef CONFIG_DFU_SF
 #define MESON_DFU_SF_ALTS \
-	"u-boot-bin raw 0 0x10000"
+	"u-boot-bin raw 0 0x1F0000;" \
+	"config raw 0x1F0000 0x10000;" \
+	"fit raw 0x200000 0x200000"
 #define MESON_DFU_SF "sf 0:0=" MESON_DFU_SF_ALTS "&"
 #else
 #define MESON_DFU_SF
