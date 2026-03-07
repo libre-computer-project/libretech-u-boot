@@ -14,6 +14,16 @@
 	compatible = "amlogic,meson-gxl";
 
 	soc {
+		ge2d: ge2d@d0160000 {
+			compatible = "amlogic,gxl-ge2d";
+			reg = <0x0 0xd0160000 0x0 0x10000>;
+			interrupts = <GIC_SPI 150 IRQ_TYPE_EDGE_RISING>;
+			clocks = <&clkc CLKID_VAPB>;
+			resets = <&reset RESET_GE2D>;
+			amlogic,canvas = <&canvas>;
+			power-domains = <&pwrc PWRC_GXBB_VPU_ID>;
+		};
+
 		usb: usb@d0078080 {
 			compatible = "amlogic,meson-gxl-usb-ctrl";
 			reg = <0x0 0xd0078080 0x0 0x20>;
