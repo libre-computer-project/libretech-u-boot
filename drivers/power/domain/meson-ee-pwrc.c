@@ -156,8 +156,8 @@ static struct meson_ee_pwrc_mem_domain sm1_pwrc_mem_vpu[] = {
 };
 
 static struct meson_ee_pwrc_mem_domain sm1_pwrc_mem_nna[] = {
-	{ HHI_NANOQ_MEM_PD_REG0, 0xff },
-	{ HHI_NANOQ_MEM_PD_REG1, 0xff },
+	{ HHI_NANOQ_MEM_PD_REG0, GENMASK(31, 0) },
+	{ HHI_NANOQ_MEM_PD_REG1, GENMASK(31, 0) },
 };
 
 static struct meson_ee_pwrc_mem_domain sm1_pwrc_mem_usb[] = {
