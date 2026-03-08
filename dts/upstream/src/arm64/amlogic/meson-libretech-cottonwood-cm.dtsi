@@ -2,11 +2,23 @@
 /*
  * Copyright (c) 2023 BayLibre, SAS.
  * Author: Jerome Brunet <jbrunet@baylibre.com>
+ *
+ * Libre Computer Cottonwood Compute Module - on-module hardware
+ * Shared between S905D3-CM (SM1) and A311D-CM (G12B).
+ *
+ * This dtsi describes hardware physically on the compute module PCB:
+ * - Power regulators (VDDAO, VCC, VDDCPU_B, VDDIO)
+ * - eMMC (BOOT bank, 8-bit HS200)
+ * - SPI NOR flash (BOOT_14, shared with eMMC D4-D7)
+ * - Ethernet PHY (RTL8211F on GPIOZ, RGMII)
+ * - Console UART (GPIOAO_0/1)
+ * - Audio engine (SoC-internal TDM/FRDDR/TODDR)
+ *
+ * Connector interfaces (HDMI, SD card, PCIe, USB) are configured here
+ * but enabled by the carrier board dtsi (cottonwood-cm-io.dtsi).
  */
 
 #include <dt-bindings/clock/g12a-clkc.h>
-#include <dt-bindings/input/input.h>
-#include <dt-bindings/leds/common.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/gpio/meson-g12a-gpio.h>
 #include <dt-bindings/sound/meson-g12a-toacodec.h>
@@ -15,9 +27,8 @@
 / {
 	aliases {
 		serial0 = &uart_AO;
-		ethernet0 = &ethmac;
-		spi0 = &spifc;
 		rtc1 = &vrtc;
+		spi0 = &spifc;
 	};
 
 	memory@0 {
@@ -29,31 +40,9 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	/* TOFIX: handle CVBS_DET on SARADC channel 0 */
-	cvbs-connector {
-		compatible = "composite-video-connector";
-
-		port {
-			cvbs_connector_in: endpoint {
-				remote-endpoint = <&cvbs_vdac_out>;
-			};
-		};
-	};
-
 	emmc_pwrseq: emmc-pwrseq {
 		compatible = "mmc-pwrseq-emmc";
 		reset-gpios = <&gpio BOOT_12 GPIO_ACTIVE_LOW>;
-	};
-
-	hdmi-connector {
-		compatible = "hdmi-connector";
-		type = "a";
-
-		port {
-			hdmi_connector_in: endpoint {
-				remote-endpoint = <&hdmi_tx_tmds_out>;
-			};
-		};
 	};
 
 	dc_in: regulator-dc-in {
@@ -64,24 +53,31 @@
 		regulator-always-on;
 	};
 
-	vddio_boot: regulator-vddio-boot {
+	vddao_3v3: regulator-vddao-3v3 {
 		compatible = "regulator-fixed";
-		regulator-name = "VDDIO_BOOT";
+		regulator-name = "VDDAO_3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+		vin-supply = <&dc_in>;
+	};
+
+	vddao_1v8: regulator-vddao-1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "VDDAO_1V8";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 		regulator-always-on;
-		vin-supply = <&vddao_1v8>;
+		vin-supply = <&vddao_3v3>;
 	};
 
-	vcc_card: regulator-vcc-card {
+	vddio_ao18: regulator-vddio-ao18 {
 		compatible = "regulator-fixed";
-		regulator-name = "VCC_CARD";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
+		regulator-name = "VDDIO_AO18";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
 		vin-supply = <&vddao_3v3>;
-		gpio = <&gpio BOOT_9 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-		enable-active-high;
-		gpio-open-drain;
 	};
 
 	vcc_3v3: regulator-vcc-3v3 {
@@ -104,22 +100,13 @@
 		vin-supply = <&vcc_3v3>;
 	};
 
-	vddao_1v8: regulator-vddao-1v8 {
+	vddio_boot: regulator-vddio-boot {
 		compatible = "regulator-fixed";
-		regulator-name = "VDDAO_1V8";
+		regulator-name = "VDDIO_BOOT";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 		regulator-always-on;
-		vin-supply = <&vddao_3v3>;
-	};
-
-	vddao_3v3: regulator-vddao-3v3 {
-		compatible = "regulator-fixed";
-		regulator-name = "VDDAO_3V3";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-always-on;
-		vin-supply = <&dc_in>;
+		vin-supply = <&vddao_1v8>;
 	};
 
 	vddcpu_b: regulator-vddcpu-b {
@@ -134,15 +121,19 @@
 		pwm-dutycycle-range = <100 0>;
 	};
 
-	vddio_ao18: regulator-vddio-ao18 {
+	/* SD card power - BOOT_9 is a module GPIO via connector */
+	vcc_card: regulator-vcc-card {
 		compatible = "regulator-fixed";
-		regulator-name = "VDDIO_AO18";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		regulator-always-on;
+		regulator-name = "VCC_CARD";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 		vin-supply = <&vddao_3v3>;
+		gpio = <&gpio BOOT_9 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		enable-active-high;
+		gpio-open-drain;
 	};
 
+	/* SD card IO voltage switching - BOOT_11 is a module GPIO */
 	vddio_c: regulator-vddio-c {
 		compatible = "regulator-gpio";
 		regulator-name = "VDDIO_C";
@@ -311,8 +302,8 @@
 	status = "okay";
 };
 
+/* CEC pinctrl configured here, enabled by carrier */
 &cecb_AO {
-	status = "okay";
 	pinctrl-0 = <&cec_ao_b_h_pins>;
 	pinctrl-names = "default";
 	hdmi-phandle = <&hdmi_tx>;
@@ -322,21 +313,16 @@
 	status = "okay";
 };
 
-&cvbs_vdac_port {
-	cvbs_vdac_out: endpoint {
-		remote-endpoint = <&cvbs_connector_in>;
-	};
-};
-
+/* Ethernet configured here, enabled by carrier */
 &ethmac {
 	pinctrl-0 = <&eth_pins>, <&eth_rgmii_pins>, <&eth_phy_irq_pins>;
 	pinctrl-names = "default";
-	status = "okay";
 	phy-mode = "rgmii";
 	phy-handle = <&external_phy>;
 	amlogic,tx-delay-ns = <2>;
 };
 
+/* On-module Ethernet PHY */
 &ext_mdio {
 	external_phy: ethernet-phy@0 {
 		/* Realtek RTL8211F (0x001cc916) */
@@ -366,17 +352,17 @@
 	status = "okay";
 };
 
+/* HDMI configured here, enabled by carrier */
 &hdmi_tx {
-	status = "okay";
 	pinctrl-0 = <&hdmitx_hpd_pins>, <&hdmitx_ddc_pins>;
 	pinctrl-names = "default";
 	hdmi-supply = <&dc_in>;
 };
 
-&hdmi_tx_tmds_port {
-	hdmi_tx_tmds_out: endpoint {
-		remote-endpoint = <&hdmi_connector_in>;
-	};
+/* PCIe configured here, enabled by carrier */
+&pcie {
+	max-link-speed = <2>;
+	reset-gpios = <&gpio BOOT_15 GPIO_ACTIVE_LOW>;
 };
 
 &periphs_pinctrl {
@@ -400,8 +386,8 @@
 
 	pcie_clkreqn: pcie-clkreqn {
 		mux {
-			groups = "GPIOC_7"; /* pcie_clkreqn */
-			function = "gpio_periphs"; /* pcie_clkreqn */
+			groups = "GPIOC_7";
+			function = "gpio_periphs";
 			bias-pull-up;
 		};
 	};
@@ -415,23 +401,13 @@
 	clock-names = "clkin1";
 };
 
-/* A311D CPU_A */
-&pwm_ab {
-	status = "okay";
-	pinctrl-0 = <&pwm_a_e_pins>;
-	pinctrl-names = "default";
-	clocks = <&xtal>;
-	clock-names = "clkin1";
-};
-
 &saradc {
 	status = "okay";
 	vref-supply = <&vddio_ao18>;
 };
 
-/* SD card */
+/* SD card configured here, enabled by carrier */
 &sd_emmc_b {
-	status = "okay";
 	pinctrl-0 = <&sdcard_c_pins>;
 	pinctrl-1 = <&sdcard_clk_gate_c_pins>;
 	pinctrl-names = "default", "clk-gate";
@@ -449,6 +425,7 @@
 };
 
 /*
+ * On-module eMMC.
  * EMMC_D4, EMMC_D5, EMMC_D6 and EMMC_D7 pins are shared between SPI NOR CS
  * and eMMC Data 4 to 7 pins.
  * Replace emmc_data_8b_pins to emmc_data_4b_pins from sd_emmc_c pinctrl-0,
@@ -473,6 +450,7 @@
 	vqmmc-supply = <&vddio_boot>;
 };
 
+/* On-module SPI NOR flash (disabled by default, conflicts with eMMC 8-bit) */
 &spifc {
 	status = "disabled";
 	pinctrl-0 = <&nor_pins>;
@@ -540,16 +518,6 @@
 	status = "okay";
 };
 
-&pcie {
-	status = "okay";
-	supports-clkreq;
-	pinctrl-0 = <&pcie_clkreqn>;
-	pinctrl-names = "default";
-	max-link-speed = <2>;
-	clkreq-gpios = <&gpio GPIOC_7 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
-	reset-gpios = <&gpio BOOT_15 GPIO_ACTIVE_LOW>;
-};
-
 &tohdmitx {
 	status = "okay";
 };
@@ -568,12 +536,8 @@
 	phy-supply = <&dc_in>;
 };
 
+/* USB configured here, enabled by carrier */
 &usb {
 	phys = <&usb2_phy0>, <&usb2_phy1>;
 	phy-names = "usb2-phy0", "usb2-phy1";
-	status = "okay";
-};
-
-&dwc3 {
-	status = "disabled";
 };
