@@ -107,6 +107,8 @@ static const unsigned int i2c2_sda_x_pins[]		= { PIN(GPIOX_17, EE_OFF) };
 static const unsigned int i2c2_sck_x_pins[]		= { PIN(GPIOX_18, EE_OFF) };
 static const unsigned int i2c2_sda_z_pins[]		= { PIN(GPIOZ_14, EE_OFF) };
 static const unsigned int i2c2_sck_z_pins[]		= { PIN(GPIOZ_15, EE_OFF) };
+static const unsigned int i2c2_sda_z10_pins[]		= { PIN(GPIOZ_10, EE_OFF) };
+static const unsigned int i2c2_sck_z11_pins[]		= { PIN(GPIOZ_11, EE_OFF) };
 
 /* i2c3 */
 static const unsigned int i2c3_sda_h_pins[]		= { PIN(GPIOH_0, EE_OFF) };
@@ -333,6 +335,17 @@ static const unsigned int tdm_c_dout1_z_pins[]		= { PIN(GPIOZ_3, EE_OFF) };
 static const unsigned int tdm_c_dout2_z_pins[]		= { PIN(GPIOZ_4, EE_OFF) };
 static const unsigned int tdm_c_dout3_z_pins[]		= { PIN(GPIOZ_5, EE_OFF) };
 
+/* clk12_24 */
+static const unsigned int clk12_24_z_pins[]		= { PIN(GPIOZ_13, EE_OFF) };
+
+/* gen_clk_ee */
+static const unsigned int gen_clk_ee_x_pins[]		= { PIN(GPIOX_19, EE_OFF) };
+static const unsigned int gen_clk_ee_z_pins[]		= { PIN(GPIOZ_13, EE_OFF) };
+
+/* world_sync */
+static const unsigned int world_sync_c_pins[]		= { PIN(GPIOC_7, EE_OFF) };
+static const unsigned int world_sync_a_pins[]		= { PIN(GPIOA_14, EE_OFF) };
+
 static struct meson_pmx_group meson_g12a_periphs_groups[] = {
 	GPIO_GROUP(GPIOZ_0, EE_OFF),
 	GPIO_GROUP(GPIOZ_1, EE_OFF),
@@ -459,6 +472,8 @@ static struct meson_pmx_group meson_g12a_periphs_groups[] = {
 	GROUP(i2c0_sck_z8,		7),
 	GROUP(i2c2_sda_z,		3),
 	GROUP(i2c2_sck_z,		3),
+	GROUP(i2c2_sda_z10,		4),
+	GROUP(i2c2_sck_z11,		4),
 	GROUP(iso7816_clk_z,		3),
 	GROUP(iso7816_data_z,		3),
 	GROUP(eth_mdio,			1),
@@ -518,6 +533,8 @@ static struct meson_pmx_group meson_g12a_periphs_groups[] = {
 	GROUP(tdm_c_dout2_z,		4),
 	GROUP(tdm_c_dout3_z,		4),
 	GROUP(mclk1_z,			4),
+	GROUP(clk12_24_z,		2),
+	GROUP(gen_clk_ee_z,		7),
 
 	/* bank GPIOX */
 	GROUP(sdio_d0,			1),
@@ -574,6 +591,7 @@ static struct meson_pmx_group meson_g12a_periphs_groups[] = {
 	GROUP(tdm_a_dout0,		1),
 	GROUP(tdm_a_dout1,		1),
 	GROUP(mclk1_x,			2),
+	GROUP(gen_clk_ee_x,		7),
 
 	/* bank GPIOC */
 	GROUP(sdcard_d0_c,		1),
@@ -602,6 +620,7 @@ static struct meson_pmx_group meson_g12a_periphs_groups[] = {
 	GROUP(pdm_din2_c,		4),
 	GROUP(pdm_din3_c,		4),
 	GROUP(pdm_dclk_c,		4),
+	GROUP(world_sync_c,		2),
 
 	/* bank GPIOH */
 	GROUP(spi1_mosi,		3),
@@ -669,6 +688,7 @@ static struct meson_pmx_group meson_g12a_periphs_groups[] = {
 	GROUP(tdm_c_dout3_a,		2),
 	GROUP(mclk0_a,			1),
 	GROUP(mclk1_a,			2),
+	GROUP(world_sync_a,		1),
 };
 
 /* uart_ao_a */
@@ -753,6 +773,19 @@ static const unsigned int tdm_ao_b_dout2_pins[]		= { GPIOAO_6 };
 /* mclk0_ao */
 static const unsigned int mclk0_ao_pins[]		= { GPIOAO_9 };
 
+/* clk12_24_ao */
+static const unsigned int clk12_24_ao_pins[]		= { GPIOAO_10 };
+static const unsigned int clk12_24_e_pins[]		= { GPIOE_2 };
+
+/* gen_clk_ee_ao */
+static const unsigned int gen_clk_ee_ao_pins[]		= { GPIOAO_11 };
+
+/* gen_clk_ao */
+static const unsigned int gen_clk_ao_pins[]		= { GPIOAO_11 };
+
+/* clk_32k */
+static const unsigned int clk_32k_pins[]		= { GPIOAO_4 };
+
 static struct meson_pmx_group meson_g12a_aobus_groups[] = {
 	GPIO_GROUP(GPIOAO_0, 0),
 	GPIO_GROUP(GPIOAO_1, 0),
@@ -820,6 +853,11 @@ static struct meson_pmx_group meson_g12a_aobus_groups[] = {
 	GROUP(tdm_ao_b_slv_fs,		6),
 	GROUP(tdm_ao_b_slv_sclk,	6),
 	GROUP(mclk0_ao,			5),
+	GROUP(clk12_24_ao,		7),
+	GROUP(clk12_24_e,		2),
+	GROUP(gen_clk_ee_ao,		4),
+	GROUP(gen_clk_ao,		5),
+	GROUP(clk_32k,			2),
 };
 
 static const char * const gpio_periphs_groups[] = {
@@ -907,6 +945,7 @@ static const char * const i2c1_groups[] = {
 static const char * const i2c2_groups[] = {
 	"i2c2_sda_x", "i2c2_sck_x",
 	"i2c2_sda_z", "i2c2_sck_z",
+	"i2c2_sda_z10", "i2c2_sck_z11",
 };
 
 static const char * const i2c3_groups[] = {
@@ -1059,6 +1098,18 @@ static const char * const tdm_c_groups[] = {
 	"tdm_c_dout2_z", "tdm_c_dout3_z",
 };
 
+static const char * const clk12_24_ee_groups[] = {
+	"clk12_24_z",
+};
+
+static const char * const gen_clk_ee_groups[] = {
+	"gen_clk_ee_x", "gen_clk_ee_z",
+};
+
+static const char * const world_sync_groups[] = {
+	"world_sync_c", "world_sync_a",
+};
+
 static const char * const gpio_aobus_groups[] = {
 	"GPIOAO_0", "GPIOAO_1", "GPIOAO_2", "GPIOAO_3", "GPIOAO_4",
 	"GPIOAO_5", "GPIOAO_6", "GPIOAO_7", "GPIOAO_8", "GPIOAO_9",
@@ -1141,6 +1192,22 @@ static const char * const mclk0_ao_groups[] = {
 	"mclk0_ao",
 };
 
+static const char * const clk12_24_ao_groups[] = {
+	"clk12_24_ao", "clk12_24_e",
+};
+
+static const char * const gen_clk_ee_ao_groups[] = {
+	"gen_clk_ee_ao",
+};
+
+static const char * const gen_clk_ao_groups[] = {
+	"gen_clk_ao",
+};
+
+static const char * const clk_32k_groups[] = {
+	"clk_32k",
+};
+
 static struct meson_pmx_func meson_g12a_periphs_functions[] = {
 	FUNCTION(gpio_periphs),
 	FUNCTION(emmc),
@@ -1181,6 +1248,9 @@ static struct meson_pmx_func meson_g12a_periphs_functions[] = {
 	FUNCTION(tdm_a),
 	FUNCTION(tdm_b),
 	FUNCTION(tdm_c),
+	FUNCTION(clk12_24_ee),
+	FUNCTION(gen_clk_ee),
+	FUNCTION(world_sync),
 };
 
 static struct meson_pmx_func meson_g12a_aobus_functions[] = {
@@ -1202,6 +1272,10 @@ static struct meson_pmx_func meson_g12a_aobus_functions[] = {
 	FUNCTION(spdif_ao_out),
 	FUNCTION(tdm_ao_b),
 	FUNCTION(mclk0_ao),
+	FUNCTION(clk12_24_ao),
+	FUNCTION(gen_clk_ee_ao),
+	FUNCTION(gen_clk_ao),
+	FUNCTION(clk_32k),
 };
 
 static struct meson_bank meson_g12a_periphs_banks[] = {
