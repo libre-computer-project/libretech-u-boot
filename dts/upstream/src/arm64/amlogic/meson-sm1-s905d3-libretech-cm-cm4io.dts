@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Libre Computer AML-S905D3-CM on RPi CM4IO carrier board
+ */
+
+/dts-v1/;
+
+#include "meson-sm1.dtsi"
+#include "meson-libretech-cottonwood-cm.dtsi"
+#include "meson-sm1-libretech-cottonwood-cm.dtsi"
+#include "meson-libretech-cottonwood-cm-io.dtsi"
+#include "meson-libretech-cottonwood-cm4io.dtsi"
+
+/ {
+	compatible = "libretech,aml-s905d3-cm", "amlogic,sm1";
+	model = "Libre Computer AML-S905D3-CM on CM4IO";
+};

@@ -2,18 +2,17 @@
 /*
  * Copyright (c) 2023 BayLibre, SAS.
  * Author: Jerome Brunet <jbrunet@baylibre.com>
+ *
+ * SM1 (S905D3) SoC-specific configuration for Cottonwood CM.
+ * CPU OPP assignments and audio routing (SM1 loopback indices).
+ *
+ * Requires: meson-sm1.dtsi and meson-libretech-cottonwood-cm.dtsi
+ * included before this file.
  */
 
-/dts-v1/;
-
 #include <dt-bindings/clock/g12a-clkc.h>
-#include "meson-sm1.dtsi"
-#include "meson-libretech-cottonwood-cm.dtsi"
 
 / {
-	compatible = "libretech,aml-s905d3-cm", "amlogic,sm1";
-	model = "Libre Computer AML-S905D3-CM Solitude Compute Module";
-
 	sound {
 		model = "LC-SOLITUDE-CM";
 		audio-routing = "TDMOUT_A IN 0", "FRDDR_A OUT 0",
@@ -60,6 +59,7 @@
 	};
 };
 
+/* SM1: 4x A55 with per-core clocks, single CPU voltage domain */
 &cpu0 {
 	cpu-supply = <&vddcpu_b>;
 	operating-points-v2 = <&cpu_opp_table>;
