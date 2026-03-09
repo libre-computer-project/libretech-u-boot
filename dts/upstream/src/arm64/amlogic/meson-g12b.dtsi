@@ -149,3 +149,18 @@
 &npu {
 	power-domains = <&pwrc PWRC_G12A_NNA_ID>;
 };
+
+/ {
+	soc {
+		wave420l: hevc-encoder@ff610000 {
+			compatible = "amlogic,meson-g12b-wave420l";
+			reg = <0x0 0xff610000 0x0 0x4000>;
+			interrupts = <GIC_SPI 187 IRQ_TYPE_EDGE_RISING>;
+			clocks = <&clkc CLKID_DOS>;
+			clock-names = "dos";
+			amlogic,hhi-sysctrl = <&hhi>;
+			amlogic,ao-sysctrl = <&rti>;
+			status = "disabled";
+		};
+	};
+};

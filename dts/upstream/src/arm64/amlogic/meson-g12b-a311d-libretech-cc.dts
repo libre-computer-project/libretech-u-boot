@@ -115,3 +115,7 @@
 &npu {
 	status = "okay";
 };
+
+&wave420l {
+	status = "okay";
+};
