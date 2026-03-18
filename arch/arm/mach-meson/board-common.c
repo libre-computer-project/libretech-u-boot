@@ -55,9 +55,33 @@ __weak int meson_ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 
+static void meson_fixup_cma_size(void *blob)
+{
+	int node;
+	u64 cma_size;
+	fdt32_t cma_val[2];
+
+	/* Set CMA to 25% of RAM */
+	cma_size = (gd->ram_size / 4) & ~(4ULL * 1024 * 1024 - 1);
+
+	node = fdt_path_offset(blob, "/reserved-memory/linux,cma");
+	if (node < 0)
+		return;
+
+	cma_val[0] = cpu_to_fdt32(0);
+	cma_val[1] = cpu_to_fdt32((u32)cma_size);
+
+	if (fdt_setprop(blob, node, "size", cma_val, sizeof(cma_val)))
+		printf("meson: failed to set CMA size\n");
+	else
+		printf("meson: CMA %lluMB (%lluMB RAM)\n",
+		       cma_size >> 20, gd->ram_size >> 20);
+}
+
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	meson_init_reserved_memory(blob);
+	meson_fixup_cma_size(blob);
 
 	return meson_ft_board_setup(blob, bd);
 }
