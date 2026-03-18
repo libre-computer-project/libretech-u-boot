@@ -6,7 +6,9 @@
 #include <linux/types.h>
 #include <fs.h>
 #include <ini.h>
+#ifdef CONFIG_ARCH_MESON
 #include <asm/arch/boot.h>
+#endif
 #include <env.h>
 #include <linux/kernel.h>
 #include <vsprintf.h>
