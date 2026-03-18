@@ -470,7 +470,7 @@ static void sunxi_mmc_reset(void *regs)
 {
 	/* Reset controller */
 	writel(SUNXI_MMC_GCTRL_RESET, regs + SUNXI_MMC_GCTRL);
-	udelay(1000);
+	udelay(20000);
 
 	if (IS_ENABLED(CONFIG_SUN50I_GEN_H6) || IS_ENABLED(CONFIG_SUNXI_GEN_NCAT2)) {
 		/* Reset card */
