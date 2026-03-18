@@ -1,12 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2025 Da Xue <da@libre.computer>
+ *
+ * Sunxi-specific Libre Computer board support.
+ * Provides EVT_SETTINGS_R handler for boot device detection,
+ * splash partition setup, and boot.ini loading.
+ *
+ * Note: mmc_get_env_dev() is handled by modifying board/sunxi/board.c
+ * directly since sunxi board code is monolithic and cannot be replaced
+ * by a vendor board directory without losing essential platform functions.
  */
 
 #include <dm.h>
 #include <env.h>
 #include <ini.h>
-#include <linux/stringify.h>
 #include <mmc.h>
 #include <event.h>
 #include <vsprintf.h>
@@ -14,22 +21,9 @@
 
 extern uint32_t sunxi_get_boot_device(void);
 
-#ifdef CONFIG_ENV_MMC_DEVICE_INDEX
-int mmc_get_env_dev(void)
-{
-	debug("%s\n", __func__);
-	switch (sunxi_get_boot_device()) {
-	case BOOT_DEVICE_MMC1:
-		return 1;
-	default:
-		return CONFIG_ENV_MMC_DEVICE_INDEX;
-	}
-}
-#endif
-
 static int settings_r(void)
 {
-	int bootdevice_num = CONFIG_ENV_MMC_DEVICE_INDEX;
+	int bootdevice_num = 0;
 	char *bootdevice;
 
 	switch (sunxi_get_boot_device()) {
