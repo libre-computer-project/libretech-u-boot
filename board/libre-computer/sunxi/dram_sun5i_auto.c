@@ -1,0 +1,1 @@
+../../sunxi/dram_sun5i_auto.c

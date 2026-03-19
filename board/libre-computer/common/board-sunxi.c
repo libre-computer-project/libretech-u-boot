@@ -5,6 +5,7 @@
  * Sunxi-specific Libre Computer board support.
  * Provides EVT_SETTINGS_R handler for boot device detection,
  * splash partition setup, and boot.ini loading.
+ * Provides EFI capsule update_info for on-disk firmware update.
  *
  * Note: mmc_get_env_dev() is handled by modifying board/sunxi/board.c
  * directly since sunxi board code is monolithic and cannot be replaced
@@ -16,8 +17,26 @@
 #include <ini.h>
 #include <mmc.h>
 #include <event.h>
+#include <spl.h>
 #include <vsprintf.h>
 #include "board.h"
+
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
+#include <efi_loader.h>
+
+struct efi_fw_image fw_images[] = {
+	{
+		.fw_name = u"SUNXI_LIBRETECH_BOOT",
+		.image_index = 1,
+	},
+};
+
+struct efi_capsule_update_info update_info = {
+	.dfu_string = "mmc 0=u-boot-bin raw 0x10 0x7f0 mmcpart 0",
+	.num_images = ARRAY_SIZE(fw_images),
+	.images = fw_images,
+};
+#endif
 
 extern uint32_t sunxi_get_boot_device(void);
 

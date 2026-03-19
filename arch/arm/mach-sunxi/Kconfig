@@ -871,6 +871,10 @@ config SYS_CONFIG_NAME
 	default "sun50i" if MACH_SUN50I_A133
 	default "sun55i" if MACH_SUN55I_A523
 
+config SYS_VENDOR
+	string "Board vendor name"
+	default ""
+
 config SYS_BOARD
 	default "sunxi"
 
