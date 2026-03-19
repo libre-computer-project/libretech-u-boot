@@ -20,6 +20,10 @@
 #include <fdt_support.h>
 #include <string.h>
 
+/* HHI clock gate register -- SPIFC clock is bit 30 of GCLK_MPEG0 */
+#define HHI_BASE		0xc883c000
+#define HHI_GCLK_MPEG0		(HHI_BASE + 0x050)
+
 /* NOR layout */
 #define NOR_ENV_OFFSET		0x1F0000
 #define NOR_ENV_SIZE		0x10000		/* 64KB — one erase block */
@@ -56,8 +60,9 @@
 /* SPI NOR READ command */
 #define USER_CMP_MODE		BIT(2)
 
-/* SPI NOR READ command */
+/* SPI NOR commands */
 #define SPI_NOR_CMD_READ	0x03
+#define SPI_NOR_CMD_RDID	0x9f
 
 static inline u32 spifc_read(u32 reg)
 {
@@ -146,14 +151,61 @@ static int spifc_chunk(const u8 *dout, u8 *din, int len, bool keep_cs)
  * Reset and initialize SPIFC for user-mode transfers.
  * Mirrors meson_spifc_hw_init() from drivers/spi/meson_spifc.c.
  */
-static void spifc_init(void)
+static bool spifc_init(void)
 {
+	int timeout = 10000;
+
 	/* software reset */
 	spifc_set(REG_SLAVE, SLAVE_SW_RST);
+
+	/* wait for reset to clear -- if SPIFC clock is gated this spins */
+	while (spifc_read(REG_SLAVE) & SLAVE_SW_RST) {
+		if (--timeout <= 0)
+			return false;
+	}
+
 	/* disable compatible mode */
 	spifc_clr(REG_USER, USER_CMP_MODE);
 	/* set master mode */
 	spifc_clr(REG_SLAVE, SLAVE_OP_MODE);
+
+	return true;
+}
+
+/*
+ * Probe SPI NOR by reading JEDEC ID (command 0x9F).
+ * Returns true if a valid flash is detected, false otherwise.
+ */
+static bool spifc_probe_jedec(void)
+{
+	u8 cmd = SPI_NOR_CMD_RDID;
+	u8 id[3] = {0, 0, 0};
+	int ret;
+
+	/* disable AHB for user-mode access */
+	spifc_clr(REG_CTRL, CTRL_ENABLE_AHB);
+
+	/* send RDID command, keep CS asserted */
+	ret = spifc_chunk(&cmd, NULL, 1, true);
+	if (ret)
+		goto out;
+
+	/* read 3-byte JEDEC ID, release CS */
+	ret = spifc_chunk(NULL, id, 3, false);
+
+out:
+	/* re-enable AHB */
+	spifc_set(REG_CTRL, CTRL_ENABLE_AHB);
+
+	if (ret)
+		return false;
+
+	/* 00,00,00 or FF,FF,FF means no flash responding */
+	if ((id[0] == 0x00 && id[1] == 0x00 && id[2] == 0x00) ||
+	    (id[0] == 0xff && id[1] == 0xff && id[2] == 0xff))
+		return false;
+
+	return true;
 }
 
 /*
@@ -283,8 +335,16 @@ static int nor_apply_overlays(void *fdt)
 	int fdt_size;
 	int ret;
 
-	/* Step 0: initialize SPIFC for user-mode transfers */
-	spifc_init();
+	/* Step 0: check SPIFC clock is enabled (BL2 skips this on USB boot) */
+	if (!(readl(HHI_GCLK_MPEG0) & BIT(30)))
+		return 0;
+
+	/* Step 0a: initialize SPIFC and probe flash */
+	if (!spifc_init())
+		return 0;
+
+	if (!spifc_probe_jedec())
+		return 0;
 
 	/* Step 1: read env block from NOR */
 	ret = spifc_raw_read(NOR_ENV_OFFSET, scratch, NOR_ENV_SIZE);
