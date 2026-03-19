@@ -961,8 +961,7 @@ static int meson_spicc_xfer(struct udevice *dev, unsigned int bitlen,
 	 * are available. DMA requires minimum 2 FIFO-fulls of data.
 	 */
 	if (bpw == 8 && words >= priv->data->fifo_size * SPICC_DMA_MIN_FIFOS &&
-	    priv->dma_tx_buf && (flags & (SPI_XFER_BEGIN | SPI_XFER_END)) ==
-	    (SPI_XFER_BEGIN | SPI_XFER_END)) {
+	    priv->dma_tx_buf) {
 		ret = meson_spicc_xfer_dma(dev, dout, din, words);
 		if (ret < 0) {
 			dev_err(bus, "DMA failed (%d), fallback to PIO\n", ret);
