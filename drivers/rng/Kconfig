@@ -23,6 +23,15 @@ config RNG_MESON
 	  Enable support for hardware random number generator
 	  of Amlogic Meson SoCs.
 
+config RNG_SUNXI
+	bool "Allwinner sunxi Crypto Engine PRNG support"
+	depends on ARCH_SUNXI
+	default y
+	help
+	  Enable support for the PRNG in the Allwinner Crypto Engine
+	  found on H3/H5 and other sun8i/sun50i SoCs. Uses DMA task
+	  descriptors to generate random numbers via hardware PRNG.
+
 config RNG_SANDBOX
 	bool "Sandbox random number generator"
 	depends on SANDBOX
