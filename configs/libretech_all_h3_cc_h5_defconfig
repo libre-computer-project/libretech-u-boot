@@ -147,6 +147,5 @@ CONFIG_FS_EROFS=y
 CONFIG_FS_EROFS_ZIP_DEFLATE=y
 CONFIG_DYNAMIC_CRC_TABLE=y
 CONFIG_MBEDTLS_LIB=y
-# LZ4 SPL decompression: overflows SRAM by 544 bytes on H5 (32KB limit).
-# Enable when SPL text is optimized or SRAM_A2 mapping is implemented.
-# CONFIG_SPL_LZ4 is not set
+CONFIG_LTO=y
+CONFIG_SPL_LZ4=y
