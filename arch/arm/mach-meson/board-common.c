@@ -57,25 +57,51 @@ __weak int meson_ft_board_setup(void *blob, struct bd_info *bd)
 
 static void meson_fixup_cma_size(void *blob)
 {
-	int node;
-	u64 cma_size;
+	int rsv_node, node, cma_node;
+	u64 cma_size, reserved = 0, available;
 	fdt32_t cma_val[2];
+	const fdt32_t *sizep;
+	int len;
 
-	/* Set CMA to 25% of RAM, aligned to 4MB */
-	cma_size = (gd->ram_size / 4) & ~(4ULL * 1024 * 1024 - 1);
-
-	node = fdt_path_offset(blob, "/reserved-memory/linux,cma");
-	if (node < 0)
+	cma_node = fdt_path_offset(blob, "/reserved-memory/linux,cma");
+	if (cma_node < 0)
 		return;
+
+	/*
+	 * Calculate available memory: total RAM minus all non-CMA
+	 * reserved-memory regions. This gives 25% of what the kernel
+	 * actually sees, avoiding CMA allocation failures on boards
+	 * where secmon/hwrom reservations consume significant RAM.
+	 *
+	 * On 512MB boards, secmon takes ~53MB leaving ~460MB visible.
+	 * 25% of 512MB = 128MB (fails due to fragmentation), but
+	 * 25% of 460MB = 115MB (fits in available contiguous blocks).
+	 */
+	rsv_node = fdt_path_offset(blob, "/reserved-memory");
+	if (rsv_node >= 0) {
+		fdt_for_each_subnode(node, blob, rsv_node) {
+			/* Skip the CMA node itself */
+			if (node == cma_node)
+				continue;
+			sizep = fdt_getprop(blob, node, "size", &len);
+			if (sizep && len >= 8)
+				reserved += (u64)fdt32_to_cpu(sizep[0]) << 32 |
+					    fdt32_to_cpu(sizep[1]);
+		}
+	}
+
+	available = gd->ram_size > reserved ? gd->ram_size - reserved : 0;
+	cma_size = (available / 4) & ~(4ULL * 1024 * 1024 - 1);
 
 	cma_val[0] = cpu_to_fdt32(0);
 	cma_val[1] = cpu_to_fdt32((u32)cma_size);
 
-	if (fdt_setprop(blob, node, "size", cma_val, sizeof(cma_val)))
+	if (fdt_setprop(blob, cma_node, "size", cma_val, sizeof(cma_val)))
 		printf("meson: failed to set CMA size\n");
 	else
-		printf("meson: CMA %lluMB (%lluMB RAM)\n",
-		       cma_size >> 20, gd->ram_size >> 20);
+		printf("meson: CMA %lluMB (avail %lluMB, rsv %lluMB, RAM %lluMB)\n",
+		       cma_size >> 20, available >> 20,
+		       reserved >> 20, gd->ram_size >> 20);
 }
 
 int ft_board_setup(void *blob, struct bd_info *bd)
