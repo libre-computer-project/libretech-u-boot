@@ -12,18 +12,18 @@
 
 		smbios {
 			system {
-				manufacturer = "firefly";
-				product = "roc-rk3328-cc";
+				manufacturer = "Libre Computer";
+				product = "ROC-RK3328-CC";
 			};
 
 			baseboard {
-				manufacturer = "firefly";
-				product = "roc-rk3328-cc";
+				manufacturer = "Libre Computer";
+				product = "ROC-RK3328-CC";
 			};
 
 			chassis {
-				manufacturer = "firefly";
-				product = "roc-rk3328-cc";
+				manufacturer = "Libre Computer";
+				product = "ROC-RK3328-CC";
 			};
 		};
 	};

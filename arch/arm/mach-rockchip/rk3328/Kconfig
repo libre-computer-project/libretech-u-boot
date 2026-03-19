@@ -10,6 +10,13 @@ config TARGET_EVB_RK3328
 	  with full function and phisical connectors support like
 	  usb2.0 host ports, LVDS, JTAG, MAC, SDcard, HDMI, USB-2-serial...
 
+config TARGET_ROC_RK3328_CC
+	bool "Libre Computer ROC-RK3328-CC"
+	help
+	  ROC-RK3328-CC is a Libre Computer single board computer
+	  based on Rockchip RK3328 SoC with DDR4, eMMC, Gigabit
+	  Ethernet, HDMI, USB 3.0, and 40-pin GPIO header.
+
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
@@ -34,5 +41,6 @@ config TPL_SYS_MALLOC_F_LEN
 	default 0x800
 
 source "board/rockchip/evb_rk3328/Kconfig"
+source "board/libre-computer/roc-rk3328-cc/Kconfig"
 
 endif

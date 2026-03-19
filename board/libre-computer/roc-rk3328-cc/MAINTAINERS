@@ -1,0 +1,6 @@
+LIBRE-COMPUTER ROC-RK3328-CC
+M:	Da Xue <da@libre.computer>
+S:	Maintained
+F:	board/libre-computer/roc-rk3328-cc/
+F:	configs/roc-cc-rk3328_defconfig
+F:	include/configs/roc-rk3328-cc.h
