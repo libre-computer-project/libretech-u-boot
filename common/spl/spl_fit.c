@@ -294,9 +294,22 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 
 		if (spl_decompression_enabled() &&
 		    (image_comp == IH_COMP_GZIP || image_comp == IH_COMP_LZMA ||
-		     image_comp == IH_COMP_LZ4))
-			src_ptr = map_sysmem(ALIGN(CONFIG_SYS_LOAD_ADDR, ARCH_DMA_MINALIGN), len);
-		else
+		     image_comp == IH_COMP_LZ4)) {
+			/*
+			 * Use SYS_LOAD_ADDR as staging buffer for compressed
+			 * data. If it overlaps with the decompression
+			 * destination, place the staging buffer right after
+			 * the destination to avoid corruption.
+			 */
+			ulong staging = CONFIG_SYS_LOAD_ADDR;
+
+			if (staging < load_addr + len &&
+			    load_addr < staging + len)
+				staging = ALIGN(load_addr + len,
+						ARCH_DMA_MINALIGN);
+			src_ptr = map_sysmem(ALIGN(staging,
+						   ARCH_DMA_MINALIGN), len);
+		} else
 			src_ptr = map_sysmem(ALIGN(load_addr, ARCH_DMA_MINALIGN), len);
 		length = len;
 
