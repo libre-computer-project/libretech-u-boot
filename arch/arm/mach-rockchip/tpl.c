@@ -9,6 +9,7 @@
 #include <hang.h>
 #include <init.h>
 #include <log.h>
+#include <time.h>
 #include <ram.h>
 #include <spl.h>
 #include <version.h>
