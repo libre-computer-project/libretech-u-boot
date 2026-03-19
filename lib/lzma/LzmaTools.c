@@ -48,7 +48,7 @@ int lzmaBuffToBuffDecompress(unsigned char *outStream, SizeT *uncompressedSize,
     SizeT outSize;
     SizeT outSizeHigh;
     ELzmaStatus state;
-    SizeT compressedSize = (SizeT)(length - LZMA_PROPS_SIZE);
+    SizeT compressedSize = (SizeT)(length - (LZMA_PROPS_SIZE + sizeof(uint64_t)));
 
     debug ("LZMA: Image address............... 0x%p\n", inStream);
     debug ("LZMA: Properties address.......... 0x%p\n", inStream + LZMA_PROPERTIES_OFFSET);
