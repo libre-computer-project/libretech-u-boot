@@ -934,6 +934,13 @@ config VIDEO_SEPS525
 	  Enable support for the Syncoam PM-OLED display driver (RGB 160x128).
 	  Currently driver is supporting only SPI interface.
 
+config VIDEO_ILI9486
+	bool "ILI9486 SPI display driver"
+	depends on DM_SPI && VIDEO && DM_GPIO
+	help
+	  Enable support for ILI9486 SPI TFT display (320x480 RGB565).
+	  Uses CYCLIC for periodic frame refresh when CONFIG_CYCLIC is enabled.
+
 source "drivers/video/zynqmp/Kconfig"
 source "drivers/video/nexell/Kconfig"
 
