@@ -1,0 +1,81 @@
+echo "=== Libre Computer U-Boot Console Test ==="
+echo "Paste these commands into the u-boot console via serial."
+echo "Each test prints PASS, FAIL, or SKIP."
+env set pass 0
+env set fail 0
+env set skip 0
+
+echo "--- Section 1: Board Identification ---"
+if version; then echo "PASS: T01 version"; setexpr pass $pass + 1; else echo "FAIL: T01 version"; setexpr fail $fail + 1; fi
+if smbios; then echo "PASS: T02 smbios"; setexpr pass $pass + 1; else echo "FAIL: T02 smbios"; setexpr fail $fail + 1; fi
+if test -n "$board"; then echo "PASS: T03 board=$board"; setexpr pass $pass + 1; else echo "FAIL: T03 board not set"; setexpr fail $fail + 1; fi
+if test -n "$fdtfile"; then echo "PASS: T04 fdtfile=$fdtfile"; setexpr pass $pass + 1; else echo "FAIL: T04 fdtfile not set"; setexpr fail $fail + 1; fi
+
+echo "--- Section 2: MMC Detection ---"
+if mmc list; then echo "PASS: T10 mmc-list"; setexpr pass $pass + 1; else echo "FAIL: T10 mmc-list"; setexpr fail $fail + 1; fi
+if mmc dev 0; then echo "PASS: T11 mmc0-present"; setexpr pass $pass + 1; else echo "SKIP: T11 mmc0-not-present"; setexpr skip $skip + 1; fi
+if mmc dev 1; then echo "PASS: T12 mmc1-present"; setexpr pass $pass + 1; else echo "SKIP: T12 mmc1-not-present"; setexpr skip $skip + 1; fi
+if test -n "$bootdevice"; then echo "PASS: T13 bootdevice=$bootdevice"; setexpr pass $pass + 1; else echo "FAIL: T13 bootdevice not set"; setexpr fail $fail + 1; fi
+
+echo "--- Section 3: USB Subsystem ---"
+if usb start; then echo "PASS: T20 usb-start"; setexpr pass $pass + 1; else echo "FAIL: T20 usb-start"; setexpr fail $fail + 1; fi
+
+echo "--- Section 4: Environment Variables ---"
+if test -n "$bootcmd"; then echo "PASS: T30 bootcmd"; setexpr pass $pass + 1; else echo "FAIL: T30 bootcmd not set"; setexpr fail $fail + 1; fi
+if test -n "$bootdelay"; then echo "PASS: T31 bootdelay=$bootdelay"; setexpr pass $pass + 1; else echo "FAIL: T31 bootdelay not set"; setexpr fail $fail + 1; fi
+if test -n "$preboot"; then echo "PASS: T32 preboot"; setexpr pass $pass + 1; else echo "FAIL: T32 preboot not set"; setexpr fail $fail + 1; fi
+if test -n "$boot_targets"; then echo "PASS: T33 boot_targets=$boot_targets"; setexpr pass $pass + 1; else echo "FAIL: T33 boot_targets not set"; setexpr fail $fail + 1; fi
+
+echo "--- Section 5: Boot Menu ---"
+if test -n "$menucmd"; then echo "PASS: T40 menucmd"; setexpr pass $pass + 1; else echo "FAIL: T40 menucmd not set"; setexpr fail $fail + 1; fi
+if test -n "$bootmenu_0"; then echo "PASS: T41 bootmenu_0"; setexpr pass $pass + 1; else echo "FAIL: T41 bootmenu_0 not set"; setexpr fail $fail + 1; fi
+if test -n "$bootmenu_4"; then echo "PASS: T42 bootmenu_4-ums"; setexpr pass $pass + 1; else echo "FAIL: T42 bootmenu_4 not set"; setexpr fail $fail + 1; fi
+if test -n "$bootmenu_7"; then echo "PASS: T43 bootmenu_7-console"; setexpr pass $pass + 1; else echo "FAIL: T43 bootmenu_7 not set"; setexpr fail $fail + 1; fi
+if test -n "$bootmenu_9"; then echo "PASS: T44 bootmenu_9-shutdown"; setexpr pass $pass + 1; else echo "FAIL: T44 bootmenu_9 not set"; setexpr fail $fail + 1; fi
+
+echo "--- Section 6: Splash Screen ---"
+if test -n "$splashimage"; then echo "PASS: T50 splashimage"; setexpr pass $pass + 1; else echo "FAIL: T50 splashimage not set"; setexpr fail $fail + 1; fi
+if test "$splashpos" = "m,m"; then echo "PASS: T51 splashpos=m,m"; setexpr pass $pass + 1; else echo "FAIL: T51 splashpos=$splashpos"; setexpr fail $fail + 1; fi
+if test "$splashfile" = "boot.bmp"; then echo "PASS: T52 splashfile=boot.bmp"; setexpr pass $pass + 1; else echo "FAIL: T52 splashfile=$splashfile"; setexpr fail $fail + 1; fi
+if test "$splashsource" = "mmc_fs"; then echo "PASS: T53 splashsource=mmc_fs"; setexpr pass $pass + 1; else echo "FAIL: T53 splashsource=$splashsource"; setexpr fail $fail + 1; fi
+
+echo "--- Section 7: Hardware ---"
+if led list; then echo "PASS: T60 led-list"; setexpr pass $pass + 1; else echo "FAIL: T60 led-list"; setexpr fail $fail + 1; fi
+if wdt list; then echo "PASS: T70 wdt-list"; setexpr pass $pass + 1; else echo "FAIL: T70 wdt-list"; setexpr fail $fail + 1; fi
+
+echo "--- Section 8: Command Existence ---"
+if help dfu; then echo "PASS: T90 cmd-dfu"; setexpr pass $pass + 1; else echo "FAIL: T90 cmd-dfu"; setexpr fail $fail + 1; fi
+if help ums; then echo "PASS: T91 cmd-ums"; setexpr pass $pass + 1; else echo "FAIL: T91 cmd-ums"; setexpr fail $fail + 1; fi
+if help bootmenu; then echo "PASS: T92 cmd-bootmenu"; setexpr pass $pass + 1; else echo "FAIL: T92 cmd-bootmenu"; setexpr fail $fail + 1; fi
+if help efidebug; then echo "PASS: T93 cmd-efidebug"; setexpr pass $pass + 1; else echo "FAIL: T93 cmd-efidebug"; setexpr fail $fail + 1; fi
+if help hash; then echo "PASS: T94 cmd-hash"; setexpr pass $pass + 1; else echo "FAIL: T94 cmd-hash"; setexpr fail $fail + 1; fi
+if help ini; then echo "PASS: T95 cmd-ini"; setexpr pass $pass + 1; else echo "FAIL: T95 cmd-ini"; setexpr fail $fail + 1; fi
+if help bmp; then echo "PASS: T96 cmd-bmp"; setexpr pass $pass + 1; else echo "FAIL: T96 cmd-bmp"; setexpr fail $fail + 1; fi
+if help lsblk; then echo "PASS: T97 cmd-lsblk"; setexpr pass $pass + 1; else echo "FAIL: T97 cmd-lsblk"; setexpr fail $fail + 1; fi
+if help cat; then echo "PASS: T98 cmd-cat"; setexpr pass $pass + 1; else echo "FAIL: T98 cmd-cat"; setexpr fail $fail + 1; fi
+if help pause; then echo "PASS: T99 cmd-pause"; setexpr pass $pass + 1; else echo "FAIL: T99 cmd-pause"; setexpr fail $fail + 1; fi
+
+echo "--- Section 9: Filesystem Support ---"
+if help ext4ls; then echo "PASS: T100 fs-ext4"; setexpr pass $pass + 1; else echo "FAIL: T100 fs-ext4"; setexpr fail $fail + 1; fi
+if help fatls; then echo "PASS: T101 fs-fat"; setexpr pass $pass + 1; else echo "FAIL: T101 fs-fat"; setexpr fail $fail + 1; fi
+
+echo "--- Section 10: EFI ---"
+if help eficonfig; then echo "PASS: T110 cmd-eficonfig"; setexpr pass $pass + 1; else echo "FAIL: T110 cmd-eficonfig"; setexpr fail $fail + 1; fi
+
+echo "--- Section 11: Video ---"
+if test -n "$stdout"; then echo "PASS: T120 stdout=$stdout"; setexpr pass $pass + 1; else echo "FAIL: T120 stdout not set"; setexpr fail $fail + 1; fi
+
+echo "--- Section 12: Platform-Specific ---"
+if test "$board" = "sunxi"; then echo "INFO: Platform=sunxi"; else echo "INFO: Platform=amlogic board=$board"; fi
+
+if sf probe; then echo "PASS: T200 spi-nor"; setexpr pass $pass + 1; else echo "SKIP: T200 no-spi-nor"; setexpr skip $skip + 1; fi
+if help adc; then echo "PASS: T201 cmd-adc"; setexpr pass $pass + 1; else echo "SKIP: T201 no-adc"; setexpr skip $skip + 1; fi
+if help rng; then echo "PASS: T202 cmd-rng"; setexpr pass $pass + 1; else echo "SKIP: T202 no-rng"; setexpr skip $skip + 1; fi
+if help md5sum; then echo "PASS: T203 cmd-md5sum"; setexpr pass $pass + 1; else echo "SKIP: T203 no-md5sum"; setexpr skip $skip + 1; fi
+if help gpt; then echo "PASS: T204 cmd-gpt"; setexpr pass $pass + 1; else echo "SKIP: T204 no-gpt"; setexpr skip $skip + 1; fi
+
+echo "=== Test Summary ==="
+echo "PASS: $pass"
+echo "FAIL: $fail"
+echo "SKIP: $skip"
+echo "=== End ==="
