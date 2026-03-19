@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (c) 2023 BayLibre, SAS.
- * Author: Jerome Brunet <jbrunet@baylibre.com>
+ * Copyright (c) 2024 Libre Computer
  */
 
 /dts-v1/;
 
 #include <dt-bindings/clock/g12a-clkc.h>
 #include "meson-g12b-a311d.dtsi"
-#include "meson-libretech-cottonwood.dtsi"
+#include "meson-libretech-cottonwood-v01.dtsi"
 
 / {
-	compatible = "libretech,aml-a311d-cc", "amlogic,a311d", "amlogic,g12b";
-	model = "Libre Computer AML-A311D-CC Alta";
+	compatible = "libretech,aml-a311d-cc-v01", "amlogic,a311d", "amlogic,g12b";
+	model = "Libre Computer AML-A311D-CC-V01 Alta";
 
 	vddcpu_a: regulator-vddcpu-a {
 		compatible = "pwm-regulator";
