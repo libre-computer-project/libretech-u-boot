@@ -87,6 +87,14 @@
 #define LWIP_ICMP                       0
 #endif
 
+/*
+ * Callback when ICMP destination unreachable is received.
+ * Used to abort TFTP transfers to unreachable hosts instead of
+ * spinning until timeout with corrupted pbuf state.
+ */
+void lwip_icmp_dest_unreach(int code, void *p);
+#define ICMP_DEST_UNREACH_CB(code, p)   lwip_icmp_dest_unreach(code, p)
+
 #if defined(CONFIG_PROT_RAW_LWIP)
 #define LWIP_RAW                        1
 #else
