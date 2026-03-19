@@ -61,7 +61,7 @@ static void meson_fixup_cma_size(void *blob)
 	u64 cma_size;
 	fdt32_t cma_val[2];
 
-	/* Set CMA to 25% of RAM */
+	/* Set CMA to 25% of RAM, aligned to 4MB */
 	cma_size = (gd->ram_size / 4) & ~(4ULL * 1024 * 1024 - 1);
 
 	node = fdt_path_offset(blob, "/reserved-memory/linux,cma");
