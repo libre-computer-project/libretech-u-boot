@@ -1174,7 +1174,8 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
  */
 static inline bool spl_decompression_enabled(void)
 {
-	return IS_ENABLED(CONFIG_SPL_GZIP) || IS_ENABLED(CONFIG_SPL_LZMA);
+	return IS_ENABLED(CONFIG_SPL_GZIP) || IS_ENABLED(CONFIG_SPL_LZMA) ||
+	       IS_ENABLED(CONFIG_SPL_LZ4);
 }
 
 /**

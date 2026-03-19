@@ -8,6 +8,7 @@
 #include <fpga.h>
 #include <gzip.h>
 #include <image.h>
+#include <u-boot/lz4.h>
 #include <log.h>
 #include <memalign.h>
 #include <mapmem.h>
@@ -292,7 +293,8 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 		}
 
 		if (spl_decompression_enabled() &&
-		    (image_comp == IH_COMP_GZIP || image_comp == IH_COMP_LZMA))
+		    (image_comp == IH_COMP_GZIP || image_comp == IH_COMP_LZMA ||
+		     image_comp == IH_COMP_LZ4))
 			src_ptr = map_sysmem(ALIGN(CONFIG_SYS_LOAD_ADDR, ARCH_DMA_MINALIGN), len);
 		else
 			src_ptr = map_sysmem(ALIGN(load_addr, ARCH_DMA_MINALIGN), len);
@@ -352,6 +354,14 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 			return -EIO;
 		}
 		length = loadEnd - CONFIG_SYS_LOAD_ADDR;
+	} else if (IS_ENABLED(CONFIG_SPL_LZ4) && image_comp == IH_COMP_LZ4) {
+		size = CONFIG_SYS_BOOTM_LEN;
+
+		if (ulz4fn(src, length, load_ptr, &size)) {
+			puts("Uncompressing error\n");
+			return -EIO;
+		}
+		length = size;
 	} else {
 		memmove(load_ptr, src, length);
 	}
