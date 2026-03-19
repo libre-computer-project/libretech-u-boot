@@ -39,8 +39,13 @@
 #define SPIFC_BUF_SIZE		64
 #define SPIFC_TIMEOUT_US	100000	/* 100ms per chunk */
 
-/* SPI NOR READ command */
+/* HHI clock gate register -- SPIFC clock is bit 30 of GCLK_MPEG0 */
+#define HHI_BASE		0xc883c000
+#define HHI_GCLK_MPEG0		(HHI_BASE + 0x050)
+
+/* SPI NOR commands */
 #define SPI_NOR_CMD_READ	0x03
+#define SPI_NOR_CMD_RDID	0x9f
 
 static inline u32 spifc_read(u32 reg)
 {
@@ -126,17 +131,74 @@ static int spifc_chunk(const u8 *dout, u8 *din, int len, bool keep_cs)
 }
 
 /*
+ * Check if SPIFC clock gate is enabled.
+ * BL2 enables this when booting from SPI NOR but skips it on USB boot.
+ */
+bool board_nor_clk_enabled(void)
+{
+	return !!(readl(HHI_GCLK_MPEG0) & BIT(30));
+}
+
+/*
  * Initialize SPIFC for user-mode transfers.
  * Mirrors meson_spifc_hw_init() from drivers/spi/meson_spifc.c.
+ * Returns false if SPIFC fails to initialize (clock gated, reset stuck).
  */
-void board_nor_init(void)
+bool board_nor_init(void)
 {
+	int timeout = 10000;
+
 	/* software reset */
 	spifc_set(REG_SLAVE, SLAVE_SW_RST);
+
+	/* wait for reset to clear -- spins forever if clock is gated */
+	while (spifc_read(REG_SLAVE) & SLAVE_SW_RST) {
+		if (--timeout <= 0)
+			return false;
+	}
+
 	/* disable compatible mode */
 	spifc_clr(REG_USER, USER_CMP_MODE);
 	/* set master mode */
 	spifc_clr(REG_SLAVE, SLAVE_OP_MODE);
+
+	return true;
+}
+
+/*
+ * Probe SPI NOR by reading JEDEC ID (command 0x9F).
+ * Returns true if a valid flash is detected, false otherwise.
+ */
+bool board_nor_probe(void)
+{
+	u8 cmd = SPI_NOR_CMD_RDID;
+	u8 id[3] = {0, 0, 0};
+	int ret;
+
+	/* disable AHB for user-mode access */
+	spifc_clr(REG_CTRL, CTRL_ENABLE_AHB);
+
+	/* send RDID command, keep CS asserted */
+	ret = spifc_chunk(&cmd, NULL, 1, true);
+	if (ret)
+		goto out;
+
+	/* read 3-byte JEDEC ID, release CS */
+	ret = spifc_chunk(NULL, id, 3, false);
+
+out:
+	/* re-enable AHB */
+	spifc_set(REG_CTRL, CTRL_ENABLE_AHB);
+
+	if (ret)
+		return false;
+
+	/* 00,00,00 or FF,FF,FF means no flash responding */
+	if ((id[0] == 0x00 && id[1] == 0x00 && id[2] == 0x00) ||
+	    (id[0] == 0xff && id[1] == 0xff && id[2] == 0xff))
+		return false;
+
+	return true;
 }
 
 /*

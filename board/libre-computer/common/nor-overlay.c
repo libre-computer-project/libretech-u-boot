@@ -32,11 +32,15 @@
 #define FIT_HDR_SIZE		64
 
 /*
- * Vendor backends must implement these two functions:
+ * Vendor backends must implement these functions:
+ *   board_nor_clk_enabled() -- check if NOR controller clock is active
  *   board_nor_init() -- initialize NOR controller for raw reads
+ *   board_nor_probe() -- probe for NOR flash presence (JEDEC ID)
  *   board_nor_read(offset, buf, len) -- read len bytes from NOR at offset
  */
-extern void board_nor_init(void);
+extern bool board_nor_clk_enabled(void);
+extern bool board_nor_init(void);
+extern bool board_nor_probe(void);
 extern int board_nor_read(u32 offset, void *buf, u32 len);
 
 /*
@@ -122,8 +126,15 @@ static int nor_apply_overlays(void *fdt)
 	int fdt_size;
 	int ret;
 
-	/* Step 0: initialize NOR controller */
-	board_nor_init();
+	/* Step 0: check NOR controller is clocked, init, and probe flash */
+	if (!board_nor_clk_enabled())
+		return 0;
+
+	if (!board_nor_init())
+		return 0;
+
+	if (!board_nor_probe())
+		return 0;
 
 	/* Step 1: read env block from NOR */
 	ret = board_nor_read(NOR_ENV_OFFSET, scratch, NOR_ENV_SIZE);
