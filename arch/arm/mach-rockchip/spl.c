@@ -77,6 +77,10 @@ u32 spl_boot_device(void)
 	if (CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM))
 		return BOOT_DEVICE_BOOTROM;
 
+	if (CONFIG_IS_ENABLED(RAM_DEVICE) &&
+	    readl(BROM_BOOTSOURCE_ID_ADDR) == BROM_BOOTSOURCE_USB)
+		return BOOT_DEVICE_RAM;
+
 	return boot_device;
 }
 
