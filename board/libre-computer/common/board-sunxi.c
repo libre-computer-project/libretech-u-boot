@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <env.h>
 #include <ini.h>
+#include <linux/ctype.h>
 #include <mmc.h>
 #include <event.h>
 #include <spl.h>
@@ -23,10 +24,13 @@
 
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 #include <efi_loader.h>
+#include <malloc.h>
+#include <dm/ofnode.h>
+
+static u16 *sunxi_fw_name;
 
 struct efi_fw_image fw_images[] = {
 	{
-		.fw_name = u"SUNXI_LIBRETECH_BOOT",
 		.image_index = 1,
 	},
 };
@@ -36,6 +40,43 @@ struct efi_capsule_update_info update_info = {
 	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
+
+/*
+ * Build fw_name from DT compatible: strip vendor prefix, uppercase,
+ * replace hyphens/commas with underscores, append _BOOT.
+ * e.g. "libretech,all-h3-cc-h5" -> "ALL_H3_CC_H5_BOOT"
+ */
+static void sunxi_capsule_init(void)
+{
+	const char *compat, *name;
+	char buf[64];
+	int i, len;
+
+	compat = ofnode_read_string(ofnode_root(), "compatible");
+	if (!compat)
+		return;
+
+	/* skip vendor prefix (everything up to and including comma) */
+	name = strchr(compat, ',');
+	name = name ? name + 1 : compat;
+
+	len = strlen(name);
+	if (len + 6 > sizeof(buf)) /* _BOOT\0 */
+		return;
+
+	for (i = 0; i < len; i++)
+		buf[i] = (name[i] == '-') ? '_' : toupper(name[i]);
+	memcpy(buf + len, "_BOOT", 6);
+
+	sunxi_fw_name = calloc(strlen(buf) + 1, sizeof(u16));
+	if (!sunxi_fw_name)
+		return;
+
+	for (i = 0; buf[i]; i++)
+		sunxi_fw_name[i] = buf[i];
+
+	fw_images[0].fw_name = sunxi_fw_name;
+}
 #endif
 
 extern uint32_t sunxi_get_boot_device(void);
@@ -44,6 +85,10 @@ static int settings_r(void)
 {
 	int bootdevice_num = 0;
 	char *bootdevice;
+
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
+	sunxi_capsule_init();
+#endif
 
 	switch (sunxi_get_boot_device()) {
 	case BOOT_DEVICE_MMC1:
