@@ -73,8 +73,8 @@
 
 #define IP_FORWARD                      0
 #define IP_OPTIONS_ALLOWED              1
-#define IP_REASSEMBLY                   1
-#define IP_FRAG                         1
+#define IP_REASSEMBLY                   0
+#define IP_FRAG                         0
 #define IP_REASS_MAXAGE                 3
 #define IP_REASS_MAX_PBUFS              4
 #define IP_FRAG_USES_STATIC_BUF         0
@@ -86,14 +86,6 @@
 #else
 #define LWIP_ICMP                       0
 #endif
-
-/*
- * Callback when ICMP destination unreachable is received.
- * Used to abort TFTP transfers to unreachable hosts instead of
- * spinning until timeout with corrupted pbuf state.
- */
-void lwip_icmp_dest_unreach(int code, void *p);
-#define ICMP_DEST_UNREACH_CB(code, p)   lwip_icmp_dest_unreach(code, p)
 
 #if defined(CONFIG_PROT_RAW_LWIP)
 #define LWIP_RAW                        1

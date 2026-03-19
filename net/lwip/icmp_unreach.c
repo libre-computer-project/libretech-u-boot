@@ -27,6 +27,8 @@ static const char *code_to_str(int code)
 	return "unknown cause";
 }
 
+volatile bool net_lwip_icmp_dest_unreach_flag;
+
 void net_lwip_icmp_dest_unreach(int code, struct pbuf *p)
 {
 	struct ip_hdr *iphdr = (struct ip_hdr *)p->payload;
@@ -35,4 +37,5 @@ void net_lwip_icmp_dest_unreach(int code, struct pbuf *p)
 	ip4_addr_copy(src, iphdr->src);
 	printf("ICMP destination unreachable (%s) from %s\n",
 	       code_to_str(code), ip4addr_ntoa(&src));
+	net_lwip_icmp_dest_unreach_flag = true;
 }

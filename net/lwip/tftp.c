@@ -20,16 +20,8 @@
 /* Max time to wait for first data packet from server */
 #define NO_RSP_TIMEOUT_MS 10000
 
-/*
- * ICMP destination unreachable flag -- set by the callback in lwipopts.h
- * when the TFTP server responds with ICMP port/host unreachable.
- */
-static volatile bool icmp_dest_unreach;
-
-void lwip_icmp_dest_unreach(int code, void *p)
-{
-	icmp_dest_unreach = true;
-}
+/* Set by net_lwip_icmp_dest_unreach() in icmp_unreach.c */
+extern volatile bool net_lwip_icmp_dest_unreach_flag;
 
 enum done_state {
 	NOT_DONE = 0,
@@ -214,12 +206,11 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 		return -1;
 	}
 
-	icmp_dest_unreach = false;
+	net_lwip_icmp_dest_unreach_flag = false;
 	sys_timeout(NO_RSP_TIMEOUT_MS, no_response, &ctx);
 	while (!ctx.done) {
 		net_lwip_rx(udev, netif);
-		if (icmp_dest_unreach) {
-			printf("\nICMP destination unreachable\n");
+		if (net_lwip_icmp_dest_unreach_flag) {
 			ctx.done = FAILURE;
 			break;
 		}
