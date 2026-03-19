@@ -54,6 +54,9 @@
 #define SPIFC_TIMEOUT_US	100000	/* 100ms per chunk */
 
 /* SPI NOR READ command */
+#define USER_CMP_MODE		BIT(2)
+
+/* SPI NOR READ command */
 #define SPI_NOR_CMD_READ	0x03
 
 static inline u32 spifc_read(u32 reg)
@@ -137,6 +140,20 @@ static int spifc_chunk(const u8 *dout, u8 *din, int len, bool keep_cs)
 	}
 
 	return 0;
+}
+
+/*
+ * Reset and initialize SPIFC for user-mode transfers.
+ * Mirrors meson_spifc_hw_init() from drivers/spi/meson_spifc.c.
+ */
+static void spifc_init(void)
+{
+	/* software reset */
+	spifc_set(REG_SLAVE, SLAVE_SW_RST);
+	/* disable compatible mode */
+	spifc_clr(REG_USER, USER_CMP_MODE);
+	/* set master mode */
+	spifc_clr(REG_SLAVE, SLAVE_OP_MODE);
 }
 
 /*
@@ -266,6 +283,9 @@ static int nor_apply_overlays(void *fdt)
 	int fdt_size;
 	int ret;
 
+	/* Step 0: initialize SPIFC for user-mode transfers */
+	spifc_init();
+
 	/* Step 1: read env block from NOR */
 	ret = spifc_raw_read(NOR_ENV_OFFSET, scratch, NOR_ENV_SIZE);
 	if (ret) {
@@ -275,13 +295,15 @@ static int nor_apply_overlays(void *fdt)
 
 	/* Step 2: find overlays= key (handles both binary and text env) */
 	if (!nor_env_get_overlays(scratch, NOR_ENV_SIZE,
-				  overlay_buf, sizeof(overlay_buf)))
+				  overlay_buf, sizeof(overlay_buf))) {
+		printf("nor-overlay: no overlays= found\n");
 		return 0;
+	}
 
 	overlays = overlay_buf;
 	printf("nor-overlay: overlays=%s\n", overlays);
 
-	/* Step 4: read FIT header (64 bytes) to get total size */
+	/* Step 3: read FIT header (64 bytes) to get total size */
 	fit = scratch;
 	ret = spifc_raw_read(NOR_FIT_OFFSET, fit, SPIFC_BUF_SIZE);
 	if (ret) {
@@ -300,14 +322,14 @@ static int nor_apply_overlays(void *fdt)
 		return 0;
 	}
 
-	/* Step 5: read full FIT into scratch */
+	/* Step 4: read full FIT into scratch */
 	ret = spifc_raw_read(NOR_FIT_OFFSET, fit, fit_size);
 	if (ret) {
 		printf("nor-overlay: SPIFC read FIT failed\n");
 		return 0;
 	}
 
-	/* Step 6: iterate overlay names (space-separated) */
+	/* Step 5: iterate overlay names (space-separated) */
 	name = overlays;
 	while (*name) {
 		/* skip leading spaces */
