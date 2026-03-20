@@ -51,9 +51,3 @@
 		};
 	};
 };
-
-&spifc {
-	flash@0 {
-		spi-max-frequency = <55555555>; /* 55MHz for V01 prototypes */
-	};
-};
