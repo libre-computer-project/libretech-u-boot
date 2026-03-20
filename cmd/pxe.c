@@ -241,7 +241,7 @@ do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	ret = pxe_get(pxefile_addr_r, &fname, &size, use_ipv6);
 	switch (ret) {
 	case 0:
-		printf("Config file '%s' found\n", fname);
+		printf("Config file '%s' found\n", fname ? fname : "(default)");
 		break;
 	case -ENOMEM:
 		printf("Out of memory\n");
