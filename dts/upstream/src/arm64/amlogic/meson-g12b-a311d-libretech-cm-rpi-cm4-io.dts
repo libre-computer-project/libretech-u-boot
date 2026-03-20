@@ -8,10 +8,10 @@
 #include "meson-g12b-a311d.dtsi"
 #include "meson-libretech-cottonwood-cm.dtsi"
 #include "meson-g12b-libretech-cottonwood-cm.dtsi"
-#include "meson-libretech-cottonwood-cm-io.dtsi"
-#include "meson-libretech-cottonwood-cm4io.dtsi"
+#include "meson-libretech-cottonwood-cm-rpi-cm-io.dtsi"
+#include "meson-libretech-cottonwood-cm-rpi-cm4-io.dtsi"
 
 / {
 	compatible = "libretech,aml-a311d-cm", "amlogic,a311d", "amlogic,g12b";
-	model = "Libre Computer AML-A311D-CM on CM4IO";
+	model = "Libre Computer AML-A311D-CM on RPi CM4-IO";
 };

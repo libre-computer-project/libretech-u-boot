@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Libre Computer AML-A311D-CM on RPi CM5IO carrier board
+ * Libre Computer AML-S905D3-CM on RPi CM5IO carrier board
  *
  * CM5IO differences from CM4IO:
  * - No CVBS (pin 111 repurposed for VBUS_EN)
@@ -10,12 +10,12 @@
 
 /dts-v1/;
 
-#include "meson-g12b-a311d.dtsi"
+#include "meson-sm1.dtsi"
 #include "meson-libretech-cottonwood-cm.dtsi"
-#include "meson-g12b-libretech-cottonwood-cm.dtsi"
-#include "meson-libretech-cottonwood-cm-io.dtsi"
+#include "meson-sm1-libretech-cottonwood-cm.dtsi"
+#include "meson-libretech-cottonwood-cm-rpi-cm-io.dtsi"
 
 / {
-	compatible = "libretech,aml-a311d-cm", "amlogic,a311d", "amlogic,g12b";
-	model = "Libre Computer AML-A311D-CM on CM5IO";
+	compatible = "libretech,aml-s905d3-cm", "amlogic,sm1";
+	model = "Libre Computer AML-S905D3-CM on RPi CM5-IO";
 };
