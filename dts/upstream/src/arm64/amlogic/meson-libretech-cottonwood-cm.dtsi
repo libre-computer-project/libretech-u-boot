@@ -462,7 +462,7 @@
 		reg = <0>;
 		#address-cells = <1>;
 		#size-cells = <1>;
-		spi-max-frequency = <80000000>;
+		spi-max-frequency = <83333333>;
 	};
 };
 
