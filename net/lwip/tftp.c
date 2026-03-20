@@ -54,15 +54,13 @@ static int store_block(struct tftp_ctx *ctx, void *src, u16_t len)
 	ulong store_addr = ctx->daddr;
 	void *ptr;
 
-	if (CONFIG_IS_ENABLED(LMB)) {
-		if (store_addr + len < store_addr ||
-		    lmb_read_check(store_addr, len)) {
-			puts("\nTFTP error: ");
-			puts("trying to overwrite reserved memory...\n");
-			return -1;
-		}
-	}
-
+	/*
+	 * Note: lmb_read_check() is NOT called per-block. It calls
+	 * lmb_alloc_addr() which reserves memory and triggers
+	 * efi_map_update_notify() -> efi_mem_sort() on every call.
+	 * For a 40MB transfer at 1468-byte blocks, that's ~27K
+	 * calloc + list_sort operations, causing heap exhaustion.
+	 */
 	ptr = map_sysmem(store_addr, len);
 	memcpy(ptr, src, len);
 	unmap_sysmem(ptr);
