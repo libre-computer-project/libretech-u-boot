@@ -141,43 +141,43 @@ static int nor_apply_overlays(void *fdt)
 	/* Step 1: read env block from NOR */
 	ret = board_nor_read(NOR_ENV_OFFSET, scratch, NOR_ENV_SIZE);
 	if (ret) {
-		printf("nor-overlay: NOR read env failed\n");
+		printf("nor-config: NOR read env failed\n");
 		return 0;
 	}
 
 	/* Step 2: find overlays= key (handles both binary and text env) */
 	if (!nor_env_get_overlays(scratch, NOR_ENV_SIZE,
 				  overlay_buf, sizeof(overlay_buf))) {
-		printf("nor-overlay: no overlays= found\n");
+		printf("nor-config: no overlays set\n");
 		return 0;
 	}
 
 	overlays = overlay_buf;
-	printf("nor-overlay: overlays=%s\n", overlays);
+	printf("nor-config: overlays=%s\n", overlays);
 
 	/* Step 3: read FIT header to get total size */
 	fit = scratch;
 	ret = board_nor_read(NOR_FIT_OFFSET, fit, FIT_HDR_SIZE);
 	if (ret) {
-		printf("nor-overlay: NOR read FIT header failed\n");
+		printf("nor-config: NOR read FIT header failed\n");
 		return 0;
 	}
 
 	if (fdt_magic(fit) != FDT_MAGIC) {
-		printf("nor-overlay: invalid FIT magic\n");
+		printf("nor-config: invalid FIT magic\n");
 		return 0;
 	}
 
 	fit_size = fdt_totalsize(fit);
 	if (fit_size > NOR_FIT_MAX_SIZE) {
-		printf("nor-overlay: FIT too large (%u)\n", fit_size);
+		printf("nor-config: FIT too large (%u)\n", fit_size);
 		return 0;
 	}
 
 	/* Step 4: read full FIT into scratch */
 	ret = board_nor_read(NOR_FIT_OFFSET, fit, fit_size);
 	if (ret) {
-		printf("nor-overlay: NOR read FIT failed\n");
+		printf("nor-config: NOR read FIT failed\n");
 		return 0;
 	}
 
@@ -201,7 +201,7 @@ static int nor_apply_overlays(void *fdt)
 
 		/* build FIT path: /images/<name> */
 		if (namelen + 9 > sizeof(path)) {
-			printf("nor-overlay: name too long, skipping\n");
+			printf("nor-config: name too long, skipping\n");
 			name = next;
 			continue;
 		}
@@ -212,7 +212,7 @@ static int nor_apply_overlays(void *fdt)
 		/* find node in FIT */
 		node = fdt_path_offset(fit, path);
 		if (node < 0) {
-			printf("nor-overlay: %s not found in FIT\n", path);
+			printf("nor-config: %s not found in FIT\n", path);
 			name = next;
 			continue;
 		}
@@ -220,7 +220,7 @@ static int nor_apply_overlays(void *fdt)
 		/* get DTBO data from FIT node (FIT is just an FDT) */
 		dtbo_data = fdt_getprop(fit, node, "data", &dtbo_size);
 		if (!dtbo_data || dtbo_size <= 0) {
-			printf("nor-overlay: %s has no data\n", path);
+			printf("nor-config: %s has no data\n", path);
 			name = next;
 			continue;
 		}
@@ -229,7 +229,7 @@ static int nor_apply_overlays(void *fdt)
 		fdt_size = fdt_totalsize(fdt);
 		ret = fdt_open_into(fdt, fdt, fdt_size + dtbo_size + 4096);
 		if (ret) {
-			printf("nor-overlay: fdt_open_into failed: %s\n",
+			printf("nor-config: fdt_open_into failed: %s\n",
 			       fdt_strerror(ret));
 			name = next;
 			continue;
@@ -245,9 +245,9 @@ static int nor_apply_overlays(void *fdt)
 
 		ret = fdt_overlay_apply_verbose(fdt, dtbo_copy);
 		if (ret)
-			printf("nor-overlay: failed to apply %s\n", path + 8);
+			printf("nor-config: failed to apply %s\n", path + 8);
 		else
-			printf("nor-overlay: applied %s\n", path + 8);
+			printf("nor-config: applied %s\n", path + 8);
 
 		name = next;
 	}
