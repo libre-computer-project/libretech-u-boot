@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Libre Computer AML-A311D-CM-V01 (V0.1 prototype)
+ *
+ * Hardware is electrically identical to V1 (V0.2) for DT purposes.
+ * Same power tree, same PMICs, same GPIOs, same ETH PHY.
+ */
+
+/dts-v1/;
+
+#include "meson-g12b-a311d.dtsi"
+#include "meson-libretech-cottonwood-cm.dtsi"
+#include "meson-g12b-libretech-cottonwood-cm.dtsi"
+
+/ {
+	compatible = "libretech,aml-a311d-cm-v01", "amlogic,a311d", "amlogic,g12b";
+	model = "Libre Computer AML-A311D-CM-V01";
+};
