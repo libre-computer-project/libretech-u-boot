@@ -44,6 +44,7 @@ int misc_init_r(void)
 	struct udevice *dev;
 
 	meson_generate_serial_ethaddr();
+	nor_env_import();
 
 	/* Probe all video devices — overlay-added displays don't auto-probe */
 	uclass_foreach_dev_probe(UCLASS_VIDEO, dev)

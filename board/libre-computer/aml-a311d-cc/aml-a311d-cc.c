@@ -34,6 +34,7 @@ void set_dfu_alt_info(char *interface, char *devstr){
 int misc_init_r(void)
 {
 	meson_generate_serial_ethaddr();
+	nor_env_import();
 
 	return 0;
 }
