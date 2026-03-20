@@ -29,21 +29,30 @@
 #include <malloc.h>
 #include <string.h>
 
-/* HHI clock gate register -- SPIFC clock is bit 30 of GCLK_MPEG0 */
-#define HHI_BASE		0xc883c000
-#define HHI_GCLK_MPEG0		(HHI_BASE + 0x050)
+/*
+ * SoC-specific register bases.
+ * GXL: CBUS @ 0xc1100000, HIU @ 0xc883c000
+ * G12/SM1: CBUS @ 0xffd00000, HIU @ 0xff63c000
+ */
+#ifdef CONFIG_MESON_GXL
+#define HIU_BASE		0xc883c000
+#define SPIFC_BASE		0xc1108c80
+#else /* G12A / G12B / SM1 */
+#define HIU_BASE		0xff63c000
+#define SPIFC_BASE		0xffd14000
+#endif
+
+/* HHI GCLK_MPEG0 -- SPIFC clock is bit 30. Offset 0x140 from HIU base. */
+#define HHI_GCLK_MPEG0		(HIU_BASE + 0x140)
 
 /* NOR layout */
 #define NOR_ENV_OFFSET		0x1F0000
-#define NOR_ENV_SIZE		0x10000		/* 64KB — one erase block */
+#define NOR_ENV_SIZE		0x10000		/* 64KB -- one erase block */
 #define NOR_FIT_OFFSET		0x200000
 #define NOR_FIT_MAX_SIZE	0x200000	/* 2MB max */
 
-/* Scratch buffer in high DRAM — safe, nothing uses this pre-DM */
+/* Scratch buffer in high DRAM -- safe, nothing uses this pre-DM */
 #define SCRATCH_ADDR		0x20000000
-
-/* SPIFC register map (from drivers/spi/meson_spifc.c) */
-#define SPIFC_BASE		0xffd14000
 
 #define REG_CMD			0x00
 #define REG_CTRL		0x08
