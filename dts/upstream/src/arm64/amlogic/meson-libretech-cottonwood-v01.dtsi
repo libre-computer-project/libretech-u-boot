@@ -1,103 +1,53 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (c) 2024 Libre Computer
+ * Libre Computer Cottonwood V0.1 (pre-production) CC board differences.
+ * Include AFTER cottonwood.dtsi to override V1 nodes.
  *
- * V01 prototype board variant of the Cottonwood platform.
- * Differences from production (V1+):
- * - LEDs: GPIOAO_11 (dual blue/orange), GPIOAO_9 (disk blue)
- *   instead of GPIOX_3 (green), GPIOX_6 (orange), GPIOX_7 (blue)
- * - USB hub: GL3510 on both V01 and V1, same reset GPIO (GPIOC_7)
- * - 40 pin header pinout differs from V1 (see comment below)
+ * V0.1 hardware differences from V1:
+ * - LEDs: V01 uses GPIOAO_11 (dual blue/orange) + GPIOAO_9 (disk blue)
+ *   V1 uses GPIOX_3 (green PWM), GPIOX_6 (orange GPIO), GPIOX_7 (blue PWM)
+ * - 40-pin header: 13 pins differ (see cottonwood-cc-v01-vs-v1-comparison.md)
+ * - CSI I2C: V01 uses I2C_M3, V1 uses I2C_M1
+ *
+ * Power tree, Ethernet, USB, SD, eMMC, SPI NOR, HDMI, CVBS, audio amp
+ * are all identical between V01 and V1.
  */
 
-#include "meson-libretech-cottonwood.dtsi"
+#include <dt-bindings/gpio/meson-g12a-gpio.h>
+#include <dt-bindings/leds/common.h>
 
 / {
-	/delete-node/ led-blue;
-	/delete-node/ led-green;
-	/delete-node/ led-orange;
+	/* Remove V1 PWM LEDs by overriding with disabled status */
+	led-blue {
+		status = "disabled";
+	};
 
-	/*
-	 * V01 LED architecture:
-	 * - GPIOAO_11 (SYS_LED): Dual-color single GPIO
-	 *   LOW  = Blue LED 1D7 (active-low to VDDAO_3.3V) = system running
-	 *   HIGH = Orange LED 1D5 (active-high to GND) = standby
-	 * - GPIOAO_9 (DISK_LED): Blue LED 1D2, active-low to VDDAO_3.3V
-	 * - 1D8 Red power LED: Hardwired to 5V_IN comparator, not GPIO
-	 */
-	led-system {
+	led-green {
+		status = "disabled";
+	};
+
+	led-orange {
+		status = "disabled";
+	};
+
+	/* V01 LEDs on AO-domain GPIOs */
+	leds-v01 {
 		compatible = "gpio-leds";
 
-		led {
+		/* GPIOAO_11: LOW=blue (running), HIGH=orange (standby) */
+		led-sys {
 			color = <LED_COLOR_ID_BLUE>;
 			function = LED_FUNCTION_STATUS;
 			gpios = <&gpio_ao GPIOAO_11 GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "default-on";
-			/* HIGH drives orange standby LED instead */
 		};
-	};
 
-	led-disk {
-		compatible = "gpio-leds";
-
-		led {
+		/* GPIOAO_9: blue disk activity LED */
+		led-disk {
 			color = <LED_COLOR_ID_BLUE>;
-			function = LED_FUNCTION_ACTIVITY;
+			function = LED_FUNCTION_DISK_ACTIVITY;
 			gpios = <&gpio_ao GPIOAO_9 GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "activity";
 		};
 	};
-};
-
-/*
- * V01 40 pin header differences from V1:
- *
- *  3: GPIOH_0  / HDMI_SDA / I2C_EE_M3_SDA  (V1: GPIOAO_3 / I2C_AO_M0_SDA)
- *  5: GPIOH_1  / HDMI_SCL / I2C_EE_M3_SCL  (V1: GPIOAO_2 / I2C_AO_M0_SCL)
- *  8: GPIOX_12 / UART_EE_A_TX              (V1: GPIOAO_8 / UART_AO_B_TX)
- * 10: GPIOX_13 / UART_EE_A_RX              (V1: GPIOAO_9 / UART_AO_B_RX)
- * 13: GPIOAO_8                              (V1: GPIOA_8)
- * 27: GPIOA_14 / I2C_EE_M3_SDA             (V1: GPIOX_17 / I2C_EE_M2_SDA)
- * 28: GPIOA_15 / I2C_EE_M3_SCL             (V1: GPIOX_18 / I2C_EE_M2_SCL)
- * 32: GPIOX_16 / PWM_E                     (V1: GPIOA_11 / SPDIF_OUT)
- * 33: GPIOX_6  / PWM_D                     (V1: GPIOX_5)
- * 36: GPIOA_11 / SPDIF_OUT                 (V1: GPIOA_7 / PDM_DCLK)
- *
- * Audio setup: The 40 pins header provides access to 2 TDMs,
- * SPDIF In/Out and PDM inputs.
- * - TDM A: 2 lanes (unchanged from V1)
- *    D0:    40/X9
- *    D1:    38/X8
- *    BCLK:  12/X11
- *    FS:    35/X10
- * - TDM B: 4 lanes
- *    D0:    37/A3
- *    D1:    16/A4
- *    D2:    18/A5 or 7/AO6
- *    D3:    22/A6
- *    BCLK:  29/A1              (V1 alt 8/AO8 not available)
- *    FS:    31/A2 or 11/AO7
- * - 2 Master Clocks:
- *    MCLK0: 15/A0              (V1 alt 10/AO9 not available)
- *    MCLK1: 36/A11             (V1: 33/X5)
- * - SPDIF:
- *    OUT:   36/A11             (V1: 32/A11)
- *    IN:    21/H5
- * - PDM Input:
- *    D0:    13/AO8             (V1: 13/A8)
- *    D1:    26/A9
- *    D2:    22/A6
- *    D3:    18/A5
- *    DCLK:  (not on header)    (V1: 36/A7)
- *
- * TDM C is not usable on the 40 pins connector so it is
- * setup for the HDMI 4 lanes i2s.
- *
- * No pinctrl is enabled by default to preserve the
- * genericity of the 40 pins header.
- */
-
-/* V01: SPI NOR flash max frequency matches V1 flash capability */
-&w25lq128d {
-	spi-max-frequency = <150000000>;
 };

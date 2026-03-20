@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (c) 2024 Libre Computer
+ * Libre Computer AML-A311D-CC-V01 (Alta V0.1 pre-production)
  */
 
 /dts-v1/;
 
 #include <dt-bindings/clock/g12a-clkc.h>
 #include "meson-g12b-a311d.dtsi"
+#include "meson-libretech-cottonwood.dtsi"
 #include "meson-libretech-cottonwood-v01.dtsi"
 
 / {
@@ -26,7 +27,7 @@
 	};
 
 	sound {
-		model = "LC-ALTA";
+		model = "LC-ALTA-V01";
 		audio-routing = "TDMOUT_A IN 0", "FRDDR_A OUT 0",
 				"TDMOUT_A IN 1", "FRDDR_B OUT 0",
 				"TDMOUT_A IN 2", "FRDDR_C OUT 0",
@@ -75,48 +76,47 @@
 	cpu-supply = <&vddcpu_b>;
 	operating-points-v2 = <&cpu_opp_table_0>;
 	clocks = <&clkc CLKID_CPU_CLK>;
+	clock-latency = <50000>;
 };
 
 &cpu1 {
 	cpu-supply = <&vddcpu_b>;
 	operating-points-v2 = <&cpu_opp_table_0>;
 	clocks = <&clkc CLKID_CPU_CLK>;
+	clock-latency = <50000>;
 };
 
 &cpu100 {
 	cpu-supply = <&vddcpu_a>;
 	operating-points-v2 = <&cpub_opp_table_1>;
 	clocks = <&clkc CLKID_CPUB_CLK>;
+	clock-latency = <50000>;
 };
 
 &cpu101 {
 	cpu-supply = <&vddcpu_a>;
 	operating-points-v2 = <&cpub_opp_table_1>;
 	clocks = <&clkc CLKID_CPUB_CLK>;
+	clock-latency = <50000>;
 };
 
 &cpu102 {
 	cpu-supply = <&vddcpu_a>;
 	operating-points-v2 = <&cpub_opp_table_1>;
 	clocks = <&clkc CLKID_CPUB_CLK>;
+	clock-latency = <50000>;
 };
 
 &cpu103 {
 	cpu-supply = <&vddcpu_a>;
 	operating-points-v2 = <&cpub_opp_table_1>;
 	clocks = <&clkc CLKID_CPUB_CLK>;
+	clock-latency = <50000>;
 };
 
+/* V01: pwm_ab only has ch0 for VDDCPU_A, no ch1 for blue LED */
 &pwm_ab {
-	status = "okay";
 	pinctrl-0 = <&pwm_a_e_pins>;
-	pinctrl-names = "default";
-};
-
-&npu {
-	status = "okay";
-};
-
-&wave420l {
-	status = "okay";
+	clocks = <&xtal>;
+	clock-names = "clkin0";
 };

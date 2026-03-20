@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (c) 2024 Libre Computer
+ * Libre Computer AML-S905D3-CC-V01 (Solitude V0.1 pre-production)
  */
 
 /dts-v1/;
 
 #include <dt-bindings/clock/g12a-clkc.h>
 #include "meson-sm1.dtsi"
+#include "meson-libretech-cottonwood.dtsi"
 #include "meson-libretech-cottonwood-v01.dtsi"
 
 / {
@@ -14,7 +15,7 @@
 	model = "Libre Computer AML-S905D3-CC-V01 Solitude";
 
 	sound {
-		model = "LC-SOLITUDE";
+		model = "LC-SOLITUDE-V01";
 		audio-routing = "TDMOUT_A IN 0", "FRDDR_A OUT 0",
 				"TDMOUT_A IN 1", "FRDDR_B OUT 0",
 				"TDMOUT_A IN 2", "FRDDR_C OUT 0",
@@ -63,22 +64,26 @@
 	cpu-supply = <&vddcpu_b>;
 	operating-points-v2 = <&cpu_opp_table>;
 	clocks = <&clkc CLKID_CPU_CLK>;
+	clock-latency = <50000>;
 };
 
 &cpu1 {
 	cpu-supply = <&vddcpu_b>;
 	operating-points-v2 = <&cpu_opp_table>;
 	clocks = <&clkc CLKID_CPU1_CLK>;
+	clock-latency = <50000>;
 };
 
 &cpu2 {
 	cpu-supply = <&vddcpu_b>;
 	operating-points-v2 = <&cpu_opp_table>;
 	clocks = <&clkc CLKID_CPU2_CLK>;
+	clock-latency = <50000>;
 };
 
 &cpu3 {
 	cpu-supply = <&vddcpu_b>;
 	operating-points-v2 = <&cpu_opp_table>;
 	clocks = <&clkc CLKID_CPU3_CLK>;
+	clock-latency = <50000>;
 };
