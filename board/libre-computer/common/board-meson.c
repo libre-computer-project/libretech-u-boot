@@ -216,5 +216,7 @@ int meson_gxl_misc_init_r(void)
 			env_set("serial#", serial);
 	}
 
+	nor_env_import();
+
 	return 0;
 }

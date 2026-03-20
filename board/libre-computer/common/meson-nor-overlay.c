@@ -1,13 +1,20 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * NOR-based DT overlay loader for Meson boards
+ * NOR-based DT overlay and env loader for Meson boards
  *
- * Reads a U-Boot env block from SPI NOR at a fixed offset to find an
- * "overlays=" key listing DTBO names. Loads a FIT image from NOR containing
- * pre-compiled DTBOs, then applies each requested overlay to the control FDT
- * before DM init.
+ * Reads a U-Boot env block from SPI NOR at a fixed offset (NOR_ENV_OFFSET).
+ * Two phases:
  *
- * Uses bare-metal SPIFC register access since this runs before DM is up.
+ * 1. fdtdec_board_setup() (pre-DM): reads "overlays=" key and applies DT
+ *    overlays from a FIT image in NOR before DM init.
+ *
+ * 2. nor_env_import() (post-env, called from misc_init_r): re-reads the
+ *    NOR env block and imports ALL key=value pairs into the u-boot env
+ *    via env_set(). This allows NOR config to override bootcmd, fdtfile,
+ *    or any other env variable.
+ *
+ * Uses bare-metal SPIFC register access since phase 1 runs before DM is up.
+ * Phase 2 reuses the same SPIFC code for consistency.
  * BL2 has already configured SPIFC clocks and pinmux for NOR boot.
  *
  * (C) Copyright 2025 Da Xue <da@libre.computer>
@@ -17,7 +24,9 @@
 #include <linux/types.h>
 #include <asm/io.h>
 #include <u-boot/crc.h>
+#include <env.h>
 #include <fdt_support.h>
+#include <malloc.h>
 #include <string.h>
 
 /* HHI clock gate register -- SPIFC clock is bit 30 of GCLK_MPEG0 */
@@ -461,6 +470,126 @@ static int nor_apply_overlays(void *fdt)
 	}
 
 	return 0;
+}
+
+/*
+ * Import all key=value pairs from NOR env into u-boot env.
+ * Called from misc_init_r (after env is loaded from FAT).
+ * NOR env values override FAT env values.
+ *
+ * Supports both binary env (CRC32 + null-separated) and
+ * plain text (newline-separated).
+ */
+static int nor_env_import_entries(const char *start, u32 size)
+{
+	const char *p, *end, *eq;
+	char key[128], val[512];
+	int klen, vlen;
+	int count = 0;
+
+	end = start + size;
+
+	for (p = start; p < end; ) {
+		/* skip to start of entry */
+		if (*p == '\0' || *p == '\n' || (unsigned char)*p == 0xff) {
+			/* double-null or 0xff block = end of entries */
+			if (*p == '\0' && (p + 1 >= end || *(p + 1) == '\0'))
+				break;
+			if ((unsigned char)*p == 0xff)
+				break;
+			p++;
+			continue;
+		}
+
+		/* find '=' separator */
+		eq = NULL;
+		for (eq = p; eq < end && *eq != '=' && *eq != '\0' &&
+		     *eq != '\n' && (unsigned char)*eq != 0xff; eq++)
+			;
+
+		if (eq >= end || *eq != '=') {
+			/* no '=' found, skip this entry */
+			while (p < end && *p != '\0' && *p != '\n' &&
+			       (unsigned char)*p != 0xff)
+				p++;
+			continue;
+		}
+
+		klen = eq - p;
+		if (klen == 0 || klen >= sizeof(key)) {
+			/* empty or too-long key, skip */
+			p = eq + 1;
+			while (p < end && *p != '\0' && *p != '\n' &&
+			       (unsigned char)*p != 0xff)
+				p++;
+			continue;
+		}
+
+		memcpy(key, p, klen);
+		key[klen] = '\0';
+
+		/* extract value */
+		p = eq + 1;
+		vlen = 0;
+		while (p + vlen < end && vlen < (int)sizeof(val) - 1 &&
+		       *(p + vlen) != '\0' && *(p + vlen) != '\n' &&
+		       (unsigned char)*(p + vlen) != 0xff)
+			vlen++;
+
+		memcpy(val, p, vlen);
+		val[vlen] = '\0';
+
+		env_set(key, val);
+		printf("nor-env: %s=%s\n", key, val);
+		count++;
+
+		p += vlen;
+	}
+
+	return count;
+}
+
+int nor_env_import(void)
+{
+	char *buf;
+	u32 env_crc, calc_crc;
+	int count;
+
+	/* check SPIFC clock gate */
+	if (!(readl(HHI_GCLK_MPEG0) & BIT(30)))
+		return 0;
+
+	if (!spifc_init())
+		return 0;
+
+	if (!spifc_probe_jedec())
+		return 0;
+
+	buf = malloc(NOR_ENV_SIZE);
+	if (!buf)
+		return 0;
+
+	if (spifc_raw_read(NOR_ENV_OFFSET, buf, NOR_ENV_SIZE)) {
+		printf("nor-env: SPIFC read failed\n");
+		free(buf);
+		return 0;
+	}
+
+	/* try binary env format first */
+	env_crc = le32_to_cpu(*(u32 *)buf);
+	calc_crc = crc32(0, (unsigned char *)buf + 4, NOR_ENV_SIZE - 4);
+	if (env_crc == calc_crc) {
+		count = nor_env_import_entries(buf + 4, NOR_ENV_SIZE - 4);
+	} else {
+		/* fall back to plain text */
+		count = nor_env_import_entries(buf, NOR_ENV_SIZE);
+	}
+
+	if (count)
+		printf("nor-env: imported %d variables\n", count);
+
+	free(buf);
+	return count;
 }
 
 int fdtdec_board_setup(const void *fdt_blob)
