@@ -14,8 +14,16 @@
 #include <asm/io.h>
 #include <string.h>
 
-/* SPIFC register map (from drivers/spi/meson_spifc.c) */
+/*
+ * SoC-specific register bases.
+ * GXL: CBUS @ 0xc1100000, HIU @ 0xc883c000
+ * G12/SM1: CBUS @ 0xffd00000, HIU @ 0xff63c000
+ */
+#ifdef CONFIG_MESON_GXL
+#define SPIFC_BASE		0xc1108c80
+#else /* G12A / G12B / SM1 */
 #define SPIFC_BASE		0xffd14000
+#endif
 
 #define REG_CMD			0x00
 #define REG_CTRL		0x08
@@ -40,8 +48,12 @@
 #define SPIFC_TIMEOUT_US	100000	/* 100ms per chunk */
 
 /* HHI clock gate register -- SPIFC clock is bit 30 of GCLK_MPEG0 */
-#define HHI_BASE		0xc883c000
-#define HHI_GCLK_MPEG0		(HHI_BASE + 0x050)
+#ifdef CONFIG_MESON_GXL
+#define HIU_BASE		0xc883c000
+#else
+#define HIU_BASE		0xff63c000
+#endif
+#define HHI_GCLK_MPEG0		(HIU_BASE + 0x140)
 
 /* SPI NOR commands */
 #define SPI_NOR_CMD_READ	0x03

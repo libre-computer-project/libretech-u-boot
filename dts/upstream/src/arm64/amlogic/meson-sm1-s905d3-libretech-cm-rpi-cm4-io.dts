@@ -8,10 +8,10 @@
 #include "meson-sm1.dtsi"
 #include "meson-libretech-cottonwood-cm.dtsi"
 #include "meson-sm1-libretech-cottonwood-cm.dtsi"
-#include "meson-libretech-cottonwood-cm-io.dtsi"
-#include "meson-libretech-cottonwood-cm4io.dtsi"
+#include "meson-libretech-cottonwood-cm-rpi-cm-io.dtsi"
+#include "meson-libretech-cottonwood-cm-rpi-cm4-io.dtsi"
 
 / {
 	compatible = "libretech,aml-s905d3-cm", "amlogic,sm1";
-	model = "Libre Computer AML-S905D3-CM on CM4IO";
+	model = "Libre Computer AML-S905D3-CM on RPi CM4-IO";
 };

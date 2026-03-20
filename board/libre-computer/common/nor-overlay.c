@@ -16,7 +16,9 @@
 #include <linux/libfdt.h>
 #include <linux/types.h>
 #include <u-boot/crc.h>
+#include <env.h>
 #include <fdt_support.h>
+#include <malloc.h>
 #include <string.h>
 
 /* NOR layout */
@@ -251,6 +253,113 @@ static int nor_apply_overlays(void *fdt)
 	}
 
 	return 0;
+}
+
+/*
+ * Import all key=value pairs from NOR env into u-boot env.
+ * Called from misc_init_r (after env is loaded from FAT).
+ * NOR env values override FAT env values.
+ */
+static int nor_env_import_entries(const char *start, u32 size)
+{
+	const char *p, *end, *eq;
+	char key[128], val[512];
+	int klen, vlen;
+	int count = 0;
+
+	end = start + size;
+
+	for (p = start; p < end; ) {
+		if (*p == '\0' || *p == '\n' || (unsigned char)*p == 0xff) {
+			if (*p == '\0' && (p + 1 >= end || *(p + 1) == '\0'))
+				break;
+			if ((unsigned char)*p == 0xff)
+				break;
+			p++;
+			continue;
+		}
+
+		eq = NULL;
+		for (eq = p; eq < end && *eq != '=' && *eq != '\0' &&
+		     *eq != '\n' && (unsigned char)*eq != 0xff; eq++)
+			;
+
+		if (eq >= end || *eq != '=') {
+			while (p < end && *p != '\0' && *p != '\n' &&
+			       (unsigned char)*p != 0xff)
+				p++;
+			continue;
+		}
+
+		klen = eq - p;
+		if (klen == 0 || klen >= sizeof(key)) {
+			p = eq + 1;
+			while (p < end && *p != '\0' && *p != '\n' &&
+			       (unsigned char)*p != 0xff)
+				p++;
+			continue;
+		}
+
+		memcpy(key, p, klen);
+		key[klen] = '\0';
+
+		p = eq + 1;
+		vlen = 0;
+		while (p + vlen < end && vlen < (int)sizeof(val) - 1 &&
+		       *(p + vlen) != '\0' && *(p + vlen) != '\n' &&
+		       (unsigned char)*(p + vlen) != 0xff)
+			vlen++;
+
+		memcpy(val, p, vlen);
+		val[vlen] = '\0';
+
+		env_set(key, val);
+		printf("nor-env: %s=%s\n", key, val);
+		count++;
+
+		p += vlen;
+	}
+
+	return count;
+}
+
+int nor_env_import(void)
+{
+	char *buf;
+	u32 env_crc, calc_crc;
+	int count;
+
+	if (!board_nor_clk_enabled())
+		return 0;
+
+	if (!board_nor_init())
+		return 0;
+
+	if (!board_nor_probe())
+		return 0;
+
+	buf = malloc(NOR_ENV_SIZE);
+	if (!buf)
+		return 0;
+
+	if (board_nor_read(NOR_ENV_OFFSET, buf, NOR_ENV_SIZE)) {
+		printf("nor-env: NOR read failed\n");
+		free(buf);
+		return 0;
+	}
+
+	env_crc = le32_to_cpu(*(u32 *)buf);
+	calc_crc = crc32(0, (unsigned char *)buf + 4, NOR_ENV_SIZE - 4);
+	if (env_crc == calc_crc)
+		count = nor_env_import_entries(buf + 4, NOR_ENV_SIZE - 4);
+	else
+		count = nor_env_import_entries(buf, NOR_ENV_SIZE);
+
+	if (count)
+		printf("nor-env: imported %d variables\n", count);
+
+	free(buf);
+	return count;
 }
 
 int fdtdec_board_setup(const void *fdt_blob)
