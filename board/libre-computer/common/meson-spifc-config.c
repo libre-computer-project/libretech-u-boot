@@ -5,7 +5,7 @@
  * Bare-metal SPIFC register access for pre-DM NOR reads.
  * BL2 has already configured SPIFC clocks and pinmux for NOR boot.
  *
- * Provides board_nor_init() and board_nor_read() called by nor-overlay.c.
+ * Provides board_nor_init() and board_nor_read() called by nor-config.c.
  *
  * (C) Copyright 2025 Da Xue <da@libre.computer>
  */
