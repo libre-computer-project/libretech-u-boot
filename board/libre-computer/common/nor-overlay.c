@@ -28,7 +28,7 @@
 #define NOR_FIT_MAX_SIZE	0x200000	/* 2MB max */
 
 /* Scratch buffer in high DRAM -- safe, nothing uses this pre-DM */
-#define SCRATCH_ADDR		0x20000000
+#define SCRATCH_ADDR		0x0C000000
 
 /* FIT header read size */
 #define FIT_HDR_SIZE		64
