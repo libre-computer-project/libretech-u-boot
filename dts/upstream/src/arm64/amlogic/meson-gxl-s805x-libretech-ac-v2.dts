@@ -317,3 +317,11 @@
 	status = "okay";
 	dr_mode = "host";
 };
+
+/ {
+	reserved-memory {
+		linux,cma {
+			size = <0x0 0x08000000>; /* 128MB for 512MB boards */
+		};
+	};
+};
